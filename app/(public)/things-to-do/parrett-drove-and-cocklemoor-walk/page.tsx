@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Parrett Drove & Cocklemoor Walk",
@@ -45,6 +46,8 @@ export default function ParrettDrovePage() {
             <Image src="/things-to-do/langport-without-wheels.jpg" alt="Langport without wheels map" width={724} height={1024} className="w-full h-auto rounded-lg" />
           </div>
         </div>
+
+        <RelatedActivities current="/things-to-do/parrett-drove-and-cocklemoor-walk" />
       </div>
     </>
   );

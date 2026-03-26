@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Kayaking & Canoeing",
@@ -42,6 +43,8 @@ export default function KayakingPage() {
             <Image src="/things-to-do/outdoor-life.jpg" alt="Outdoor life on the river" width={800} height={500} className="w-full h-auto rounded-lg" />
           </div>
         </div>
+
+        <RelatedActivities current="/things-to-do/kayaking" />
       </div>
     </>
   );

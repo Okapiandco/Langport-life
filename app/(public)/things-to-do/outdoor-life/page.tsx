@@ -2,24 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities, { ALL_ACTIVITIES } from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "The Outdoor Life",
   description: "Water sports, fishing, golf, and outdoor activities on the River Parrett in Langport, Somerset.",
 };
 
-const activities = [
-  { title: "Golf", href: "/things-to-do/golf", image: "/things-to-do/golf.png" },
-  { title: "Wild Swimming", href: "/things-to-do/wild-swimming", image: "/things-to-do/wild-swimming.jpg" },
-  { title: "Kayaking & Canoeing", href: "/things-to-do/kayaking", image: "/things-to-do/kayaking.jpg" },
-  { title: "Paddleboarding", href: "/things-to-do/paddleboarding", image: "/things-to-do/paddleboarding.jpg" },
-  { title: "Boating", href: "/things-to-do/boating", image: "/things-to-do/boating.jpg" },
-  { title: "Fishing", href: "/things-to-do/fishing", image: "/things-to-do/fishing.jpg" },
-  { title: "North Street Moor", href: "/things-to-do/north-street-moor", image: "/things-to-do/butterfly.jpg" },
-  { title: "Parrett Drove & Cocklemoor", href: "/things-to-do/parrett-drove-and-cocklemoor-walk", image: "/things-to-do/explore-wild.jpg" },
-  { title: "Muchelney Route", href: "/things-to-do/muchelney-route", image: "/things-to-do/muchelney.jpg" },
-  { title: "Short Town Walks", href: "/things-to-do/short-town-walks", image: "/things-to-do/hanging-chapel.jpg" },
-];
+const activities = ALL_ACTIVITIES;
 
 export default function OutdoorLifePage() {
   return (

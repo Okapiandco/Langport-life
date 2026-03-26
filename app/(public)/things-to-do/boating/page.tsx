@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Boating",
@@ -23,6 +24,8 @@ export default function BoatingPage() {
             on the river and boaters are advised to observe river levels and bridge heights very carefully.
           </p>
         </div>
+
+        <RelatedActivities current="/things-to-do/boating" />
       </div>
     </>
   );

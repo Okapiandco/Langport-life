@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Fishing",
@@ -42,6 +43,8 @@ export default function FishingPage() {
             <Image src="/things-to-do/fishing-map.png" alt="Map of fishing spots in Langport" width={800} height={500} className="w-full h-auto rounded-lg" />
           </div>
         </div>
+
+        <RelatedActivities current="/things-to-do/fishing" />
       </div>
     </>
   );

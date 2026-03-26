@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Exploring the Wild",
@@ -19,26 +20,8 @@ const gallery = [
 ];
 
 const wildlife = [
-  "Cranes & herons",
-  "Willows",
-  "Bulrushes",
-  "Eels",
-  "Otters",
-  "Water voles",
-  "Dragonflies",
-  "White egrets",
-  "Kingfishers",
-  "Damselflies",
-  "Fish",
-  "Swans and Moorhens",
-];
-
-const routes = [
-  { title: "Cycling", href: "/things-to-do/cycling", image: "/things-to-do/cycling.jpg" },
-  { title: "North Street Moor", href: "/things-to-do/north-street-moor", image: "/things-to-do/butterfly.jpg" },
-  { title: "Parrett Drove & Cocklemoor", href: "/things-to-do/parrett-drove-and-cocklemoor-walk", image: "/things-to-do/explore-wild.jpg" },
-  { title: "Muchelney Route", href: "/things-to-do/muchelney-route", image: "/things-to-do/muchelney.jpg" },
-  { title: "Short Town Walks", href: "/things-to-do/short-town-walks", image: "/things-to-do/hanging-chapel.jpg" },
+  "Cranes & herons", "Willows", "Bulrushes", "Eels", "Otters", "Water voles",
+  "Dragonflies", "White egrets", "Kingfishers", "Damselflies", "Fish", "Swans and Moorhens",
 ];
 
 export default function ExploringTheWildPage() {
@@ -80,10 +63,10 @@ export default function ExploringTheWildPage() {
           ))}
         </div>
 
-        {/* Photo gallery - Bill Bradshaw Somerset Levels */}
+        {/* Photo gallery - moved below activities */}
         <h2 className="font-heading text-2xl font-bold text-gray-900 mb-2">The Somerset Levels</h2>
         <p className="text-sm text-gray-500 mb-6">Photos by Bill Bradshaw</p>
-        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 mb-12">
+        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3">
           {gallery.map((photo) => (
             <div key={photo.src} className="mb-3 break-inside-avoid overflow-hidden rounded-lg">
               <Image
@@ -98,31 +81,7 @@ export default function ExploringTheWildPage() {
           ))}
         </div>
 
-        {/* Route cards */}
-        <h2 className="font-heading text-2xl font-bold text-gray-900 mb-6">Walks & Routes</h2>
-        <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-          {routes.map((route) => (
-            <Link
-              key={route.title}
-              href={route.href}
-              className="group block overflow-hidden rounded-lg border border-gray-200 bg-white no-underline shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="relative aspect-square w-full overflow-hidden">
-                <Image
-                  src={route.image}
-                  alt={route.title}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
-              </div>
-              <div className="p-3 text-center">
-                <h3 className="font-heading text-sm font-semibold text-gray-900 group-hover:text-primary">
-                  {route.title}
-                </h3>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <RelatedActivities current="/things-to-do/exploring-the-wild" />
       </div>
     </>
   );

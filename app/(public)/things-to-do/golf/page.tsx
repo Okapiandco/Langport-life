@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Golf",
@@ -43,6 +44,8 @@ export default function GolfPage() {
             <Image src="/things-to-do/golf-course-3.jpg" alt="Golf course aerial view" width={800} height={260} className="w-full h-auto rounded-lg" />
           </div>
         </div>
+
+        <RelatedActivities current="/things-to-do/golf" />
       </div>
     </>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Short Town Walks",
@@ -39,6 +40,8 @@ export default function ShortTownWalksPage() {
             <Image src="/things-to-do/walks-map.png" alt="Map of walks around Langport" width={800} height={800} className="w-full h-auto rounded-lg" />
           </div>
         </div>
+
+        <RelatedActivities current="/things-to-do/short-town-walks" />
       </div>
     </>
   );

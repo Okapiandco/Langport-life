@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Walking & Cycling",
@@ -75,6 +76,8 @@ export default function WalkingCyclingPage() {
             </Link>
           ))}
         </div>
+
+        <RelatedActivities current="/things-to-do/walking-and-cycling" />
       </div>
     </>
   );

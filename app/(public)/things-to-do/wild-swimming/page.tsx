@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
+import RelatedActivities from "@/components/RelatedActivities";
 
 export const metadata: Metadata = {
   title: "Wild Swimming",
@@ -27,6 +28,8 @@ export default function WildSwimmingPage() {
             located at Muchelney Bridge, Huish Bridge, Cocklemoor, and Great Bow Bridge.
           </p>
         </div>
+
+        <RelatedActivities current="/things-to-do/wild-swimming" />
       </div>
     </>
   );
