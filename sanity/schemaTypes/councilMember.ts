@@ -33,6 +33,19 @@ export const councilMember = defineType({
       },
     }),
     defineField({
+      name: "councilLevel",
+      title: "Council Level",
+      type: "string",
+      options: {
+        list: [
+          { title: "Town Council", value: "town" },
+          { title: "Somerset Council", value: "somerset" },
+          { title: "District Council", value: "district" },
+        ],
+      },
+      initialValue: "town",
+    }),
+    defineField({
       name: "email",
       title: "Email",
       type: "string",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Montserrat, Roboto } from "next/font/google";
 import Header from "@/components/Header";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-screen flex-col">
         <Header />
+        <Breadcrumbs />
         <main id="main-content" className="flex-1">
           {children}
         </main>

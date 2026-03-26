@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import { pageBySlugQuery } from "@/lib/queries";
 import { PortableText } from "@portabletext/react";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Environment & Flooding",
@@ -14,10 +15,13 @@ export default async function EnvironmentPage() {
   const page = await client.fetch(pageBySlugQuery, { slug: "environment" });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="font-heading text-4xl font-bold text-gray-900">
-        {page?.title || "Environment & Flooding"}
-      </h1>
+    <>
+      <PageHero
+        section="environment"
+        title={page?.title || "Environment & Flooding"}
+        subtitle="Flooding information and environmental resources for Langport and the Somerset Levels."
+      />
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
 
       {page?.content ? (
         <div className="prose mt-8 max-w-none">
@@ -77,5 +81,6 @@ export default async function EnvironmentPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

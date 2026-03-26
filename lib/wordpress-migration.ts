@@ -11,6 +11,7 @@
  * 5. Links references (events to venues, etc.)
  */
 
+import "dotenv/config";
 import { createClient } from "@sanity/client";
 import { readFileSync, createWriteStream } from "fs";
 import { join } from "path";
@@ -83,15 +84,18 @@ function parseWPXml(xmlContent: string) {
 }
 
 function extractTag(xml: string, tag: string): string {
-  const regex = new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`);
-  const match = regex.exec(xml);
-  return match ? match[1].trim() : "";
+  // Try CDATA first, then plain text
+  const cdataRegex = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`);
+  const cdataMatch = cdataRegex.exec(xml);
+  if (cdataMatch) return cdataMatch[1].trim();
+
+  const plainRegex = new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`);
+  const plainMatch = plainRegex.exec(xml);
+  return plainMatch ? plainMatch[1].trim() : "";
 }
 
 function extractCdata(xml: string, tag: string): string {
-  const regex = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`);
-  const match = regex.exec(xml);
-  return match ? match[1].trim() : "";
+  return extractTag(xml, tag);
 }
 
 // Convert HTML to Portable Text blocks (simplified)
@@ -172,11 +176,51 @@ async function uploadToSanity(filePath: string, filename: string) {
   return asset;
 }
 
-// Category maps
+// Extract document links from page content
+function extractDocumentLinks(html: string): Array<{url: string, title: string, date?: string}> {
+  const documents: Array<{url: string, title: string, date?: string}> = [];
+
+  // Find all links to PDF/DOC files
+  const linkRegex = /<a[^>]*href="([^"]*\.(?:pdf|doc|docx)[^"]*)"[^>]*>([^<]*)<\/a>/gi;
+  let match;
+
+  while ((match = linkRegex.exec(html)) !== null) {
+    const url = match[1];
+    let title = match[2].trim();
+
+    // Clean up title - remove extra whitespace and HTML entities
+    title = title.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+
+    // Try to extract date from URL or title - improved regex
+    let date: string | undefined;
+    const urlDateMatch = url.match(/(\d{4}[-\/]\d{2}[-\/]\d{2})/);
+    const titleDateMatch = title.match(/(\d{1,2}[-\/\.]\d{1,2}[-\/\.]\d{4})/);
+
+    if (urlDateMatch) {
+      date = urlDateMatch[1].replace(/\//g, '-');
+    } else if (titleDateMatch) {
+      date = titleDateMatch[1].replace(/\//g, '-').replace(/\./g, '-');
+    }
+
+    documents.push({ url, title, date });
+  }
+
+  return documents;
+}
+
+// Determine document type from title
+function determineDocumentType(title: string): string {
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes('agenda')) return 'agenda';
+  if (lowerTitle.includes('minute')) return 'minutes';
+  if (lowerTitle.includes('polic')) return 'policy';
+  if (lowerTitle.includes('agm')) return 'agm';
+  if (lowerTitle.includes('financial') || lowerTitle.includes('budget') || lowerTitle.includes('balances') || lowerTitle.includes('payment') || lowerTitle.includes('receipt')) return 'financial';
+  return 'other';
+}
+
 const COUNCILLOR_CATEGORIES = ["councillors", "personal-profiles"];
-const HISTORY_CATEGORIES = ["history", "buildings"];
-const NEWS_CATEGORIES = ["news"];
-const COUNCIL_CATEGORIES = ["council-services", "district-county"];
+const COUNCIL_DOCUMENT_CATEGORIES = ["agendas", "minutes", "policies", "agm", "financial"];
 
 async function migrate(xmlPath: string) {
   console.log("Reading WordPress XML export...");
@@ -369,7 +413,128 @@ async function migrate(xmlPath: string) {
     console.log(`  Created article: ${post.title}`);
   }
 
-  // 9. Create historic sites (shells for the 4 key sites)
+  // 9. Create council documents from posts
+  console.log("\n--- Creating council documents from posts ---");
+  for (const post of posts) {
+    const catSlugs = post.categories.map((c: string) => toSlug(c));
+
+    if (!catSlugs.some((s: string) => COUNCIL_DOCUMENT_CATEGORIES.includes(s))) continue;
+
+    // Find attachments for this post
+    const postAttachments = attachments.filter((att) => att.postId === post.postId);
+
+    for (const att of postAttachments) {
+      if (!att.attachmentUrl) continue;
+
+      // Determine document type from category or title
+      let documentType = "other";
+      if (catSlugs.includes("agendas") || post.title.toLowerCase().includes("agenda")) documentType = "agenda";
+      else if (catSlugs.includes("minutes") || post.title.toLowerCase().includes("minute")) documentType = "minutes";
+      else if (catSlugs.includes("policies") || post.title.toLowerCase().includes("polic")) documentType = "policy";
+      else if (catSlugs.includes("agm") || post.title.toLowerCase().includes("agm")) documentType = "agm";
+      else if (catSlugs.includes("financial") || post.title.toLowerCase().includes("financial") || post.title.toLowerCase().includes("budget")) documentType = "financial";
+
+      // Parse date from title or use post date
+      let docDate = post.postDate;
+      const dateMatch = post.title.match(/(\d{4}-\d{2}-\d{2})/);
+      if (dateMatch) docDate = dateMatch[1];
+
+      // Upload file
+      const filename = att.attachmentUrl.split("/").pop() || "file";
+      const tmpPath = join(tmpdir(), filename);
+      await downloadFile(att.attachmentUrl, tmpPath);
+      const asset = await uploadToSanity(tmpPath, filename);
+
+      await sanityClient.create({
+        _type: "councilDocument",
+        title: post.title,
+        slug: { _type: "slug", current: toSlug(post.slug || post.title) },
+        documentType,
+        date: new Date(docDate).toISOString().split('T')[0],
+        description: htmlToPortableText(post.content),
+        file: { _type: "file", asset: { _type: "reference", _ref: asset._id } },
+        visibility: "public",
+        tags: post.tags,
+      });
+      console.log(`  Created council document: ${post.title}`);
+    }
+
+    // If no attachments but has content, create with htmlContent
+    if (postAttachments.length === 0 && post.content) {
+      let documentType = "other";
+      const catSlugs = post.categories.map((c: string) => toSlug(c));
+      if (catSlugs.includes("agendas") || post.title.toLowerCase().includes("agenda")) documentType = "agenda";
+      else if (catSlugs.includes("minutes") || post.title.toLowerCase().includes("minute")) documentType = "minutes";
+      else if (catSlugs.includes("policies") || post.title.toLowerCase().includes("polic")) documentType = "policy";
+
+      let docDate = post.postDate;
+      const dateMatch = post.title.match(/(\d{4}-\d{2}-\d{2})/);
+      if (dateMatch) docDate = dateMatch[1];
+
+      await sanityClient.create({
+        _type: "councilDocument",
+        title: post.title,
+        slug: { _type: "slug", current: toSlug(post.slug || post.title) },
+        documentType,
+        date: new Date(docDate).toISOString().split('T')[0],
+        htmlContent: htmlToPortableText(post.content),
+        visibility: "public",
+        tags: post.tags,
+      });
+      console.log(`  Created council document (no file): ${post.title}`);
+    }
+  }
+
+  // 9.5. Extract council documents from page content
+  console.log("\n--- Extracting council documents from pages ---");
+  for (const page of pages) {
+    // Check if this page contains council documents (based on slug or title)
+    const slug = page.slug || "";
+    const title = page.title || "";
+    const isCouncilPage = slug.includes('council') || slug.includes('agendas') || slug.includes('minutes') ||
+                         title.toLowerCase().includes('council') || title.toLowerCase().includes('agendas') || title.toLowerCase().includes('minutes');
+
+    if (!isCouncilPage) continue;
+
+    console.log(`  Processing page: ${page.title}`);
+
+    // Extract document links from page content
+    const documents = extractDocumentLinks(page.content);
+
+    for (const doc of documents) {
+      try {
+        // Download the document
+        const filename = doc.url.split("/").pop() || "document.pdf";
+        const tmpPath = join(tmpdir(), filename);
+        await downloadFile(doc.url, tmpPath);
+
+        // Upload to Sanity
+        const asset = await uploadToSanity(tmpPath, filename);
+
+        // Determine document type
+        const documentType = determineDocumentType(doc.title);
+
+        // Create document record
+        await sanityClient.create({
+          _type: "councilDocument",
+          title: doc.title,
+          slug: { _type: "slug", current: toSlug(doc.title) },
+          documentType,
+          date: doc.date ? new Date(doc.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          description: [{ _type: "block", _key: Math.random().toString(36).slice(2, 10), style: "normal", markDefs: [], children: [{ _type: "span", _key: Math.random().toString(36).slice(2, 10), text: `Document from ${page.title}`, marks: [] }] }],
+          file: { _type: "file", asset: { _type: "reference", _ref: asset._id } },
+          visibility: "public",
+          tags: [`from-page-${toSlug(page.title)}`],
+        });
+
+        console.log(`    Created document: ${doc.title}`);
+      } catch (error) {
+        console.error(`    Failed to process document ${doc.title}:`, (error as Error).message);
+      }
+    }
+  }
+
+  // 10. Create historic sites (shells for the 4 key sites)
   console.log("\n--- Creating historic site shells ---");
   const historicSites = [
     { title: "Hanging Chapel", slug: "hanging-chapel" },
@@ -392,7 +557,7 @@ async function migrate(xmlPath: string) {
   console.log("Next steps:");
   console.log("1. Review content in Sanity Studio (/studio)");
   console.log("2. Fill in historic site details");
-  console.log("3. Verify media references");
+  console.log("3. Verify media references and council documents");
   console.log("4. Check categories and tags");
 }
 

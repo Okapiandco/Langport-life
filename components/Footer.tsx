@@ -45,6 +45,7 @@ export default function Footer() {
             </h4>
             <ul className="mt-3 space-y-2">
               <li><Link href="/about" className="text-sm text-gray-300 no-underline hover:text-white">About Langport</Link></li>
+              <li><Link href="/getting-here" className="text-sm text-gray-300 no-underline hover:text-white">Getting Here</Link></li>
               <li><Link href="/auth/signin" className="text-sm text-gray-300 no-underline hover:text-white">Sign In</Link></li>
               <li><Link href="/auth/signup" className="text-sm text-gray-300 no-underline hover:text-white">Register</Link></li>
             </ul>

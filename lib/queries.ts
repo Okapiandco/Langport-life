@@ -50,8 +50,17 @@ export const venueBySlugQuery = groq`
     phone, email, website, capacity, facilities, tags, status,
     image { asset->{url}, alt },
     images[] { asset->{url}, alt },
-    "events": *[_type == "event" && references(^._id) && status == "published" && date >= now()] | order(date asc) {
-      _id, title, slug, date, eventType, isFree
+    "upcomingEvents": *[_type == "event" && references(^._id) && status == "published" && date >= now()] | order(date asc) {
+      _id, title, slug, date, eventType, isFree,
+      image { asset->{url}, alt }
+    },
+    "pastEvents": *[_type == "event" && references(^._id) && status == "published" && date < now()] | order(date desc) [0...6] {
+      _id, title, slug, date, eventType, isFree,
+      image { asset->{url}, alt }
+    },
+    "allEvents": *[_type == "event" && references(^._id) && status == "published"] | order(date desc) {
+      _id, title, slug, date, eventType, isFree,
+      image { asset->{url}, alt }
     }
   }
 `;
@@ -88,8 +97,15 @@ export const listingCategoriesQuery = groq`
 
 // Council Members
 export const allCouncilMembersQuery = groq`
-  *[_type == "councilMember" && !defined(endDate)] | order(name asc) {
+  *[_type == "councilMember" && !defined(endDate) && (councilLevel == "town" || !defined(councilLevel))] | order(name asc) {
     _id, name, slug, role, email, ward,
+    image { asset->{url}, alt }
+  }
+`;
+
+export const somersetCouncillorsQuery = groq`
+  *[_type == "councilMember" && councilLevel in ["somerset", "district"] && !defined(endDate)] | order(name asc) {
+    _id, name, slug, role, email, ward, councilLevel,
     image { asset->{url}, alt }
   }
 `;
@@ -109,6 +125,26 @@ export const allDocumentsQuery = groq`
     file { asset->{url, originalFilename} }
   }
 `;
+
+export const documentsByTagQuery = groq`
+  *[_type == "councilDocument" && visibility == "public" && $tag in tags] | order(date desc) {
+    _id, title, slug, documentType, date, meetingDate, tags,
+    file { asset->{url, originalFilename} }
+  }
+`;
+
+export const documentTagCountsQuery = groq`{
+  "full-council": count(*[_type == "councilDocument" && visibility == "public" && "full-council" in tags]),
+  "finance-personnel": count(*[_type == "councilDocument" && visibility == "public" && "finance-personnel" in tags]),
+  "tourism-marketing": count(*[_type == "councilDocument" && visibility == "public" && "tourism-marketing" in tags]),
+  "annual-assembly": count(*[_type == "councilDocument" && visibility == "public" && "annual-assembly" in tags]),
+  "joint-committee": count(*[_type == "councilDocument" && visibility == "public" && "joint-committee" in tags]),
+  "archived": count(*[_type == "councilDocument" && visibility == "public" && "archived" in tags]),
+  "groups": count(*[_type == "councilDocument" && visibility == "public" && "groups" in tags]),
+  "governance": count(*[_type == "councilDocument" && visibility == "public" && "governance" in tags]),
+  "finance": count(*[_type == "councilDocument" && visibility == "public" && "finance" in tags]),
+  "council": count(*[_type == "councilDocument" && visibility == "public" && "council" in tags])
+}`;
 
 export const documentBySlugQuery = groq`
   *[_type == "councilDocument" && slug.current == $slug][0] {
@@ -198,7 +234,16 @@ export const userByIdQuery = groq`
 
 // Homepage
 export const homepageQuery = groq`{
-  "upcomingEvents": *[_type == "event" && status == "published" && date >= now()] | order(date asc) [0...3] {
+  "featuredEvent": coalesce(
+    *[_type == "event" && status == "published" && date >= now()] | order(date asc) [0],
+    *[_type == "event" && status == "published"] | order(date desc) [0]
+  ) {
+    _id, title, slug, date, endDate, eventType, isFree, tags,
+    "excerpt": pt::text(description)[0...200],
+    image { asset->{url}, alt },
+    venue->{ title, town }
+  },
+  "upcomingEvents": *[_type == "event" && status == "published"] | order(date desc) [0...6] {
     _id, title, slug, date, eventType, isFree,
     image { asset->{url}, alt },
     venue->{ title }
@@ -211,5 +256,9 @@ export const homepageQuery = groq`{
   "historicSites": *[_type == "historicSite"] | order(title asc) [0...4] {
     _id, title, slug, constructedYear, heritage,
     image { asset->{url}, alt }
-  }
+  },
+  "venueCount": count(*[_type == "venue" && status == "active"]),
+  "eventCount": count(*[_type == "event" && status == "published" && date >= now()]),
+  "listingCount": count(*[_type == "businessListing" && status == "published"]),
+  "siteCount": count(*[_type == "historicSite"])
 }`;
