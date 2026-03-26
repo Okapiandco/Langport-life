@@ -23,16 +23,10 @@ export default function WalkingCyclingPage() {
       <PageHero
         title="Walking & Cycling"
         subtitle="Langport is surrounded by interesting landscape and countryside. We have compiled a selection of walks to suit your ability and needs."
-        section="things-to-do"
+        section="things-to-do" breadcrumbs={[{ label: "Things to Do", href: "/things-to-do" }, { label: "Walking & Cycling" }]}
         image="/things-to-do/walks-cycling-hero.jpg"
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/things-to-do" className="hover:text-green no-underline">Things to Do</Link>
-          {" / "}
-          <span className="text-gray-900">Walking & Cycling</span>
-        </nav>
-
         <div className="prose max-w-none mb-12">
           <p className="text-lg text-gray-700 leading-relaxed">
             All walks start and end at the Whatley Car Park.

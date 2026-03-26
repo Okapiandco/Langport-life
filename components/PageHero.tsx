@@ -1,15 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { SectionKey } from "@/lib/sections";
 import { sectionThemes } from "@/lib/sections";
+
+export interface Breadcrumb {
+  label: string;
+  href?: string;
+}
 
 interface PageHeroProps {
   section: SectionKey;
   title: string;
   subtitle?: string;
   image?: string;
+  breadcrumbs?: Breadcrumb[];
 }
 
-export default function PageHero({ section, title, subtitle, image }: PageHeroProps) {
+export default function PageHero({ section, title, subtitle, image, breadcrumbs }: PageHeroProps) {
   const theme = sectionThemes[section];
 
   return (
@@ -82,6 +89,24 @@ export default function PageHero({ section, title, subtitle, image }: PageHeroPr
           </p>
         )}
       </div>
+
+      {/* Breadcrumbs bar */}
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <div className="relative bg-white border-b border-gray-100">
+          <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 text-sm text-gray-500" aria-label="Breadcrumb">
+            {breadcrumbs.map((crumb, i) => (
+              <span key={i}>
+                {i > 0 && <span className="mx-2">/</span>}
+                {crumb.href ? (
+                  <Link href={crumb.href} className="hover:text-green no-underline">{crumb.label}</Link>
+                ) : (
+                  <span className="text-gray-900">{crumb.label}</span>
+                )}
+              </span>
+            ))}
+          </nav>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,14 +12,8 @@ export const metadata: Metadata = {
 export default function KayakingPage() {
   return (
     <>
-      <PageHero title="Kayaking & Canoeing" subtitle="Launch your own craft or hire canoes and kayaks on the River Parrett" section="things-to-do" image="/things-to-do/kayaking.jpg" />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/things-to-do" className="hover:text-green no-underline">Things to Do</Link>{" / "}
-          <Link href="/things-to-do/outdoor-life" className="hover:text-green no-underline">The Outdoor Life</Link>{" / "}
-          <span className="text-gray-900">Kayaking & Canoeing</span>
-        </nav>
-        <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
+      <PageHero title="Kayaking & Canoeing" subtitle="Launch your own craft or hire canoes and kayaks on the River Parrett" section="things-to-do" breadcrumbs={[{ label: "Things to Do", href: "/things-to-do" }, { label: "The Outdoor Life", href: "/things-to-do/outdoor-life" }, { label: "Kayaking & Canoeing" }]} image="/things-to-do/kayaking.jpg" />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">        <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
           <div className="prose max-w-none">
             <p className="text-lg text-gray-700 leading-relaxed">
               Our beautiful river is more active than it&apos;s been for over a century. You can launch

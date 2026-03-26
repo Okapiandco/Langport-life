@@ -12,14 +12,8 @@ export const metadata: Metadata = {
 export default function CyclingPage() {
   return (
     <>
-      <PageHero title="Cycling" subtitle="The flat landscape makes the area hugely popular with cyclists of all ages" section="things-to-do" image="/things-to-do/cycling.jpg" />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/things-to-do" className="hover:text-green no-underline">Things to Do</Link>{" / "}
-          <Link href="/things-to-do/walking-and-cycling" className="hover:text-green no-underline">Walking & Cycling</Link>{" / "}
-          <span className="text-gray-900">Cycling</span>
-        </nav>
-        <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
+      <PageHero title="Cycling" subtitle="The flat landscape makes the area hugely popular with cyclists of all ages" section="things-to-do" breadcrumbs={[{ label: "Things to Do", href: "/things-to-do" }, { label: "Walking & Cycling", href: "/things-to-do/walking-and-cycling" }, { label: "Cycling" }]} image="/things-to-do/cycling.jpg" />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">        <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
           <div className="prose max-w-none">
             <p className="text-lg text-gray-700 leading-relaxed">
               Huish Drove and the Old Railway Line form part of a circular route when combined with

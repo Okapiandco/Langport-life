@@ -27,17 +27,11 @@ export default async function GovernancePage() {
   return (
     <>
       <PageHero
-        section="council"
+        section="council" breadcrumbs={[{ label: "Council", href: "/council" }, { label: "Governance & Transparency" }]}
         title="Governance & Transparency"
         subtitle="Standing orders, financial regulations, policies and procedures governing how the council operates."
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/council" className="hover:text-green no-underline">Council</Link>
-          {" / "}
-          <span className="text-gray-900">Governance & Transparency</span>
-        </nav>
-
         {documents.length === 0 ? (
           <p className="text-gray-600">No documents available yet.</p>
         ) : (

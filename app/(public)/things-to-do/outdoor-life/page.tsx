@@ -17,16 +17,10 @@ export default function OutdoorLifePage() {
       <PageHero
         title="The Outdoor Life"
         subtitle="Langport's stretch of the River Parrett offers ideal conditions for fun on and off the water, with delightful footpaths linking the midsection of the River Parrett Trail."
-        section="things-to-do"
+        section="things-to-do" breadcrumbs={[{ label: "Things to Do", href: "/things-to-do" }, { label: "The Outdoor Life" }]}
         image="/things-to-do/outdoor-life.jpg"
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/things-to-do" className="hover:text-green no-underline">Things to Do</Link>
-          {" / "}
-          <span className="text-gray-900">The Outdoor Life</span>
-        </nav>
-
         {/* Text + Video side by side */}
         <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
           <div className="prose max-w-none">

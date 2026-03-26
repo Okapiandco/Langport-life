@@ -12,14 +12,8 @@ export const metadata: Metadata = {
 export default function NorthStreetMoorPage() {
   return (
     <>
-      <PageHero title="North Street Moor" subtitle="Distance: 2.0 to 3.4km (1.25 to 2.11 miles)" section="things-to-do" image="/things-to-do/butterfly.jpg" />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/things-to-do" className="hover:text-green no-underline">Things to Do</Link>{" / "}
-          <Link href="/things-to-do/walking-and-cycling" className="hover:text-green no-underline">Walking & Cycling</Link>{" / "}
-          <span className="text-gray-900">North Street Moor</span>
-        </nav>
-        <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
+      <PageHero title="North Street Moor" subtitle="Distance: 2.0 to 3.4km (1.25 to 2.11 miles)" section="things-to-do" breadcrumbs={[{ label: "Things to Do", href: "/things-to-do" }, { label: "Walking & Cycling", href: "/things-to-do/walking-and-cycling" }, { label: "North Street Moor" }]} image="/things-to-do/butterfly.jpg" />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">        <div className="grid gap-8 lg:grid-cols-2 items-start mb-12">
           <div className="prose max-w-none">
             <p className="text-lg text-gray-700 leading-relaxed">
               Starts and ends at Whatley Car Park. The route proceeds north through Walter Bagehot Town

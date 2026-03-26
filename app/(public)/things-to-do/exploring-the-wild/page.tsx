@@ -30,16 +30,10 @@ export default function ExploringTheWildPage() {
       <PageHero
         title="Exploring the Wild"
         subtitle="On foot, cycle or by boat, roam freely along this delightful river and its picturesque riverbank paths to experience the glories of our corner of Somerset."
-        section="things-to-do"
+        section="things-to-do" breadcrumbs={[{ label: "Things to Do", href: "/things-to-do" }, { label: "Exploring the Wild" }]}
         image="/things-to-do/explore-wild.jpg"
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/things-to-do" className="hover:text-green no-underline">Things to Do</Link>
-          {" / "}
-          <span className="text-gray-900">Exploring the Wild</span>
-        </nav>
-
         <div className="prose max-w-none mb-12">
           <p className="text-lg text-gray-700 leading-relaxed">
             The River Parrett flows lazily past Langport as it crosses one of the most important
