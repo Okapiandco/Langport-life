@@ -34,11 +34,11 @@ const wildlife = [
 ];
 
 const routes = [
-  { title: "Cycling", image: "/things-to-do/cycling.jpg" },
-  { title: "North Street Moor", image: "/things-to-do/butterfly.jpg" },
-  { title: "Parrett Drove & Cocklemoor Walk", image: "/things-to-do/explore-wild.jpg" },
-  { title: "Muchelney Route", image: "/things-to-do/muchelney.jpg" },
-  { title: "Short Town Walks", image: "/things-to-do/hanging-chapel.jpg" },
+  { title: "Cycling", href: "/things-to-do/cycling", image: "/things-to-do/cycling.jpg" },
+  { title: "North Street Moor", href: "/things-to-do/north-street-moor", image: "/things-to-do/butterfly.jpg" },
+  { title: "Parrett Drove & Cocklemoor", href: "/things-to-do/parrett-drove-and-cocklemoor-walk", image: "/things-to-do/explore-wild.jpg" },
+  { title: "Muchelney Route", href: "/things-to-do/muchelney-route", image: "/things-to-do/muchelney.jpg" },
+  { title: "Short Town Walks", href: "/things-to-do/short-town-walks", image: "/things-to-do/hanging-chapel.jpg" },
 ];
 
 export default function ExploringTheWildPage() {
@@ -48,6 +48,7 @@ export default function ExploringTheWildPage() {
         title="Exploring the Wild"
         subtitle="On foot, cycle or by boat, roam freely along this delightful river and its picturesque riverbank paths to experience the glories of our corner of Somerset."
         section="things-to-do"
+        image="/things-to-do/explore-wild.jpg"
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <nav className="mb-6 text-sm text-gray-500">
@@ -55,17 +56,6 @@ export default function ExploringTheWildPage() {
           {" / "}
           <span className="text-gray-900">Exploring the Wild</span>
         </nav>
-
-        {/* Hero image */}
-        <div className="relative aspect-[21/9] w-full overflow-hidden rounded-xl mb-10">
-          <Image
-            src="/things-to-do/explore-wild.jpg"
-            alt="Exploring the wild around Langport and the Somerset Levels"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
 
         <div className="prose max-w-none mb-12">
           <p className="text-lg text-gray-700 leading-relaxed">
@@ -112,9 +102,10 @@ export default function ExploringTheWildPage() {
         <h2 className="font-heading text-2xl font-bold text-gray-900 mb-6">Walks & Routes</h2>
         <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
           {routes.map((route) => (
-            <div
+            <Link
               key={route.title}
-              className="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
+              href={route.href}
+              className="group block overflow-hidden rounded-lg border border-gray-200 bg-white no-underline shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="relative aspect-square w-full overflow-hidden">
                 <Image
@@ -125,11 +116,11 @@ export default function ExploringTheWildPage() {
                 />
               </div>
               <div className="p-3 text-center">
-                <h3 className="font-heading text-sm font-semibold text-gray-900">
+                <h3 className="font-heading text-sm font-semibold text-gray-900 group-hover:text-primary">
                   {route.title}
                 </h3>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

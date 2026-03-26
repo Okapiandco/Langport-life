@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { SectionKey } from "@/lib/sections";
 import { sectionThemes } from "@/lib/sections";
 
@@ -5,13 +6,28 @@ interface PageHeroProps {
   section: SectionKey;
   title: string;
   subtitle?: string;
+  image?: string;
 }
 
-export default function PageHero({ section, title, subtitle }: PageHeroProps) {
+export default function PageHero({ section, title, subtitle, image }: PageHeroProps) {
   const theme = sectionThemes[section];
 
   return (
-    <div className={`relative ${theme.bg} ${theme.text} overflow-hidden`}>
+    <div className={`relative ${image ? "text-white" : `${theme.bg} ${theme.text}`} overflow-hidden`}>
+      {/* Background image */}
+      {image && (
+        <>
+          <Image
+            src={image}
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/50" />
+        </>
+      )}
+
       {/* Decorative swirl SVG */}
       <svg
         className="absolute bottom-0 left-0 w-full text-white"
@@ -33,33 +49,35 @@ export default function PageHero({ section, title, subtitle }: PageHeroProps) {
       </svg>
 
       {/* Subtle ornamental flourish behind title */}
-      <svg
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] opacity-[0.06]"
-        viewBox="0 0 600 200"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <path
-          d="M300,100 C300,100 240,30 160,50 C80,70 60,140 120,160 C180,180 220,140 200,100 C180,60 120,40 80,80"
-          stroke="currentColor"
-          strokeWidth="2"
+      {!image && (
+        <svg
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] opacity-[0.06]"
+          viewBox="0 0 600 200"
           fill="none"
-        />
-        <path
-          d="M300,100 C300,100 360,30 440,50 C520,70 540,140 480,160 C420,180 380,140 400,100 C420,60 480,40 520,80"
-          stroke="currentColor"
-          strokeWidth="2"
-          fill="none"
-        />
-      </svg>
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M300,100 C300,100 240,30 160,50 C80,70 60,140 120,160 C180,180 220,140 200,100 C180,60 120,40 80,80"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+          />
+          <path
+            d="M300,100 C300,100 360,30 440,50 C520,70 540,140 480,160 C420,180 380,140 400,100 C420,60 480,40 520,80"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+          />
+        </svg>
+      )}
 
       <div className="relative mx-auto max-w-7xl px-4 pt-12 pb-20 sm:px-6 sm:pt-16 sm:pb-24 lg:px-8">
-        <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+        <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl drop-shadow-lg">
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-3 max-w-3xl text-lg opacity-90">
+          <p className="mt-3 max-w-3xl text-lg opacity-90 drop-shadow">
             {subtitle}
           </p>
         )}
