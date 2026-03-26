@@ -51,21 +51,21 @@ const navigation: NavItem[] = [
       ],
       cards: [
         {
-          name: "Outdoors",
+          name: "The Outdoor Life",
           href: "/things-to-do/outdoor-life",
-          image: "/nav-things-to-do.jpg",
-          description: "Parks, nature reserves and open spaces around Langport",
+          image: "/things-to-do/outdoor-life.jpg",
+          description: "Water sports, fishing, golf and activities on the River Parrett",
         },
         {
           name: "Walking & Cycling",
           href: "/things-to-do/walking-and-cycling",
-          image: "/nav-environment.jpg",
+          image: "/things-to-do/walking-cycling.jpg",
           description: "Routes and trails through the Somerset Levels",
         },
         {
           name: "Exploring the Wild",
           href: "/things-to-do/exploring-the-wild",
-          image: "/nav-history.jpg",
+          image: "/things-to-do/explore-wild.jpg",
           description: "Wildlife and wild places on your doorstep",
         },
       ],
