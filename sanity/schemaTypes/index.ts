@@ -6,20 +6,35 @@ import { councilDocument } from "./councilDocument";
 import { historicSite } from "./historicSite";
 import { page } from "./page";
 import { article } from "./article";
-import { siteUser } from "./siteUser";
 import { listingCategory } from "./listingCategory";
 import { articleCategory } from "./articleCategory";
+import { siteSettings } from "./siteSettings";
+import { navigation } from "./navigation";
+import { activity } from "./activity";
+import { transportOption } from "./transportOption";
+import { submission } from "./submission";
 
 export const schemaTypes = [
+  // Singletons
+  siteSettings,
+  navigation,
+
+  // Content
   event,
   venue,
   businessListing,
-  councilMember,
-  councilDocument,
+  listingCategory,
+  activity,
+  transportOption,
+  article,
+  articleCategory,
   historicSite,
   page,
-  article,
-  siteUser,
-  listingCategory,
-  articleCategory,
+
+  // Council
+  councilMember,
+  councilDocument,
+
+  // Submissions (public form inbox)
+  submission,
 ];

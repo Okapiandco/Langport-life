@@ -6,7 +6,7 @@ import { client, urlFor } from "@/lib/sanity";
 import { councilMemberBySlugQuery } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 

@@ -74,10 +74,15 @@ export const venue = defineType({
       type: "url",
     }),
     defineField({
-      name: "owner",
-      title: "Venue Owner",
-      type: "reference",
-      to: [{ type: "siteUser" }],
+      name: "ownerName",
+      title: "Owner Name",
+      type: "string",
+    }),
+    defineField({
+      name: "ownerEmail",
+      title: "Owner Email",
+      type: "string",
+      description: "Contact email for the venue owner (not displayed publicly)",
     }),
     defineField({
       name: "facilities",

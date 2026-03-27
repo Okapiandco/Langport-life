@@ -8,6 +8,7 @@ export type SectionKey =
   | "news"
   | "about"
   | "getting-here"
+  | "submit"
   | "default";
 
 export interface SectionTheme {
@@ -82,6 +83,13 @@ export const sectionThemes: Record<SectionKey, SectionTheme> = {
     accentBg: "bg-copper/10",
     border: "border-copper",
   },
+  submit: {
+    bg: "bg-primary",
+    text: "text-white",
+    accent: "text-primary",
+    accentBg: "bg-primary/10",
+    border: "border-primary",
+  },
   default: {
     bg: "bg-primary",
     text: "text-white",
@@ -101,5 +109,6 @@ export function getSectionFromPath(pathname: string): SectionKey {
   if (pathname.startsWith("/news")) return "news";
   if (pathname.startsWith("/about")) return "about";
   if (pathname.startsWith("/getting-here")) return "getting-here";
+  if (pathname.startsWith("/submit")) return "submit";
   return "default";
 }

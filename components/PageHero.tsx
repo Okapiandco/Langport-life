@@ -79,7 +79,7 @@ export default function PageHero({ section, title, subtitle, image, breadcrumbs 
         </svg>
       )}
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-12 pb-20 sm:px-6 sm:pt-16 sm:pb-24 lg:px-8">
+      <div className={`relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${image ? "pt-24 pb-32 sm:pt-32 sm:pb-40 lg:pt-40 lg:pb-48" : "pt-12 pb-20 sm:pt-16 sm:pb-24"}`}>
         <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl drop-shadow-lg">
           {title}
         </h1>

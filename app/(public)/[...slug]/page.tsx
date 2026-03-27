@@ -5,7 +5,7 @@ import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { pageBySlugQuery } from "@/lib/queries";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string[] }> };
 

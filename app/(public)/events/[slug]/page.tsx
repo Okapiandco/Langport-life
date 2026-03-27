@@ -9,7 +9,7 @@ import { formatDateTime } from "@/lib/utils";
 import EventCard from "@/components/EventCard";
 import { groq } from "next-sanity";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 

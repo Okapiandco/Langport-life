@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Meet your Somerset and District councillors representing the Langport area.",
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function SomersetCouncillorsPage() {
   const members = await client.fetch(somersetCouncillorsQuery);

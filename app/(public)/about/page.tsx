@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Learn about Langport, a historic market town in Somerset.",
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function AboutPage() {
   const page = await client.fetch(pageBySlugQuery, { slug: "about" });

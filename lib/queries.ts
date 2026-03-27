@@ -31,7 +31,7 @@ export const pendingEventsQuery = groq`
   *[_type == "event" && status == "pendingApproval"] | order(_createdAt desc) {
     _id, title, slug, date, eventType,
     venue->{ _id, title },
-    submittedBy->{ name, email }
+    submittedBy
   }
 `;
 
@@ -206,29 +206,105 @@ export const articleCategoriesQuery = groq`
 // Search
 export const searchQuery = groq`
   *[
-    _type in ["event", "venue", "businessListing", "article", "page", "historicSite"] &&
+    _type in ["event", "venue", "businessListing", "article", "page", "historicSite", "activity"] &&
     (title match $query || pt::text(description) match $query || pt::text(content) match $query)
   ] [0...20] {
     _id, _type, title, slug,
     "excerpt": coalesce(excerpt, pt::text(description)[0...150]),
-    image { asset->{url}, alt }
+    image { asset->{url}, alt },
+    "heroImage": heroImage { asset->{url}, alt }
   }
 `;
 
-// User
-export const userByEmailQuery = groq`
-  *[_type == "siteUser" && email == $email][0] {
-    _id, userId, name, email, role, status,
-    venue->{ _id, title, slug },
-    businessListing->{ _id, title, slug }
+// ─── Site Settings ───
+export const siteSettingsQuery = groq`
+  *[_type == "siteSettings"][0] {
+    siteName, tagline, seoDescription,
+    logo { asset->{url}, alt },
+    ogImage { asset->{url} },
+    contactEmail, contactPhone, address,
+    socialLinks,
+    homepageHero {
+      heading, subheading,
+      image { asset->{url} }
+    },
+    homepageCards[] {
+      title, href, color,
+      image { asset->{url} }
+    },
+    didYouKnow,
+    footerText,
+    emergencyContacts[] { name, phone, url, description }
   }
 `;
 
-export const userByIdQuery = groq`
-  *[_type == "siteUser" && userId == $userId][0] {
-    _id, userId, name, email, role, status,
-    venue->{ _id, title, slug },
-    businessListing->{ _id, title, slug }
+// ─── Navigation ───
+export const navigationQuery = groq`
+  *[_type == "navigation"][0] {
+    mainMenu[] {
+      title, href,
+      children[] {
+        groupTitle,
+        links[] { title, href, description }
+      },
+      cards[] {
+        title, description, href,
+        image { asset->{url} }
+      }
+    },
+    footerColumns[] {
+      title,
+      links[] { title, href }
+    }
+  }
+`;
+
+// ─── Activities (Things To Do) ───
+export const allActivitiesQuery = groq`
+  *[_type == "activity" && published == true] | order(category asc, order asc) {
+    _id, title, slug, category, excerpt, distance, difficulty,
+    heroImage { asset->{url}, alt }
+  }
+`;
+
+export const activitiesByCategoryQuery = groq`
+  *[_type == "activity" && published == true && category == $category] | order(order asc) {
+    _id, title, slug, excerpt, distance, difficulty,
+    heroImage { asset->{url}, alt }
+  }
+`;
+
+export const activityBySlugQuery = groq`
+  *[_type == "activity" && slug.current == $slug && published == true][0] {
+    _id, title, slug, category, excerpt, distance, duration, difficulty,
+    heroImage { asset->{url}, alt },
+    content[] {
+      ...,
+      _type == "image" => { asset->{url}, alt, caption }
+    },
+    routeMapImage { asset->{url}, alt },
+    gallery[] { asset->{url}, alt, caption },
+    highlights,
+    notices[] { type, title, text },
+    externalLinks[] { title, url, description },
+    youtubeUrl
+  }
+`;
+
+// ─── Transport (Getting Here) ───
+export const allTransportQuery = groq`
+  *[_type == "transportOption"] | order(type asc, order asc) {
+    _id, title, type, distance, railLine, journeyNotes,
+    routeNumber, operator, routeDescription, frequency,
+    postcode, isFree, description, coordinates, website, order
+  }
+`;
+
+export const transportByTypeQuery = groq`
+  *[_type == "transportOption" && type == $type] | order(order asc) {
+    _id, title, type, distance, railLine, journeyNotes,
+    routeNumber, operator, routeDescription, frequency,
+    postcode, isFree, description, coordinates, website
   }
 `;
 

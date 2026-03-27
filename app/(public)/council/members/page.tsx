@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Meet the elected councillors and officers of Langport Town Council.",
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function CouncilMembersPage() {
   const members = await client.fetch(allCouncilMembersQuery);

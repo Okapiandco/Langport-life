@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Langport Town Council budgets, annual returns, asset register and grant information.",
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function FinancePage() {
   const documents = await client.fetch(documentsByTagQuery, { tag: "finance" } as any);

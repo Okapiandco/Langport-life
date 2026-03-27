@@ -137,14 +137,8 @@ export const event = defineType({
     defineField({
       name: "submittedBy",
       title: "Submitted By",
-      type: "reference",
-      to: [{ type: "siteUser" }],
-    }),
-    defineField({
-      name: "approvedBy",
-      title: "Approved By",
-      type: "reference",
-      to: [{ type: "siteUser" }],
+      type: "string",
+      description: "Name or email of the person who submitted this event",
     }),
     defineField({
       name: "approvedAt",

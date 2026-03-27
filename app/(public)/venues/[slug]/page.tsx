@@ -7,8 +7,9 @@ import { client, urlFor } from "@/lib/sanity";
 import { venueBySlugQuery } from "@/lib/queries";
 import { formatDateTime } from "@/lib/utils";
 import Gallery from "@/components/Gallery";
+import VenueQRCode from "@/components/VenueQRCode";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -398,6 +399,12 @@ export default async function VenuePage({ params }: Props) {
               </p>
             </div>
           )}
+
+          {/* QR Code */}
+          <VenueQRCode
+            venueUrl={`https://langport.life/venues/${slug}`}
+            venueName={venue.title}
+          />
         </aside>
       </div>
     </article>

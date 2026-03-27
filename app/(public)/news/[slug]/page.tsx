@@ -8,7 +8,7 @@ import { articleBySlugQuery } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
 import { groq } from "next-sanity";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Langport Town Council standing orders, financial regulations, policies and procedures.",
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function GovernancePage() {
   const documents = await client.fetch(documentsByTagQuery, { tag: "governance" } as any);

@@ -5,7 +5,7 @@ import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { listingBySlugQuery } from "@/lib/queries";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -26,6 +26,7 @@ export default async function ListingPage({ params }: Props) {
   if (!listing) notFound();
 
   const hasHours = DAYS.some((d) => listing[`${d}Open`]);
+  const hasCoordinates = listing.coordinates?.lat && listing.coordinates?.lng;
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
@@ -108,6 +109,28 @@ export default async function ListingPage({ params }: Props) {
               </p>
             )}
           </div>
+
+          {hasCoordinates && (
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <iframe
+                title={`Map showing ${listing.title}`}
+                width="100%"
+                height="250"
+                style={{ border: 0 }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${listing.coordinates.lng - 0.005}%2C${listing.coordinates.lat - 0.003}%2C${listing.coordinates.lng + 0.005}%2C${listing.coordinates.lat + 0.003}&layer=mapnik&marker=${listing.coordinates.lat}%2C${listing.coordinates.lng}`}
+              />
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${listing.coordinates.lat}&mlon=${listing.coordinates.lng}#map=17/${listing.coordinates.lat}/${listing.coordinates.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-gray-50 px-4 py-2 text-center text-xs text-primary hover:text-primary-dark no-underline"
+              >
+                View larger map
+              </a>
+            </div>
+          )}
 
           {hasHours && (
             <div className="rounded-lg border border-gray-200 p-4">

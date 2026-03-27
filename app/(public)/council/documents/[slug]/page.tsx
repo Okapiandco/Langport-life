@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/utils";
 import { COMMITTEES, getCommitteeByTag } from "@/lib/committees";
 import PageHero from "@/components/PageHero";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 

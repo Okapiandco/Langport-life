@@ -16,7 +16,10 @@ const navigation: NavItem[] = [
     name: "What's On",
     href: "/events",
     mega: {
-      groups: [{ heading: "Events", items: [{ name: "Events Calendar", href: "/events" }, { name: "Submit an Event", href: "/dashboard/my-events/new" }] }],
+      groups: [
+        { heading: "Events", items: [{ name: "Events Calendar", href: "/events" }, { name: "Submit an Event", href: "/submit/event" }] },
+        { heading: "Venues", items: [{ name: "All Venues", href: "/venues" }, { name: "Add a Venue", href: "/submit/venue" }] },
+      ],
       cards: [
         { name: "The Outdoor Life", href: "/things-to-do/outdoor-life", image: "/things-to-do/outdoor-life.jpg", description: "Water sports, fishing, golf and activities on the River Parrett" },
         { name: "Walking & Cycling", href: "/things-to-do/walking-and-cycling", image: "/things-to-do/walking-cycling.jpg", description: "Routes and trails through the Somerset Levels" },
@@ -25,9 +28,9 @@ const navigation: NavItem[] = [
       footerLink: { label: "View all events", href: "/events" },
     },
   },
-  { name: "Venues", href: "/venues" },
-  { name: "Shops & Services", href: "/listings" },
+  { name: "Shops & Services", href: "/listings", children: [{ name: "All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
   { name: "History", href: "/history" },
+  { name: "Environment", href: "/environment" },
   {
     name: "Town Council",
     href: "/council",
@@ -68,7 +71,60 @@ function SearchIcon({ className }: { className?: string }) {
   );
 }
 
-export default function Header() {
+interface SanityNavItem {
+  title: string;
+  href?: string;
+  children?: { groupTitle?: string; links?: { title: string; href: string; description?: string }[] }[];
+  cards?: { title: string; description?: string; href: string; image?: { asset?: { url?: string } } }[];
+}
+
+interface SocialLinks {
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  youtube?: string;
+}
+
+function sanityToNav(items: SanityNavItem[]): NavItem[] {
+  return items.map((item) => {
+    const nav: NavItem = { name: item.title, href: item.href || "#" };
+    if (item.children?.length) {
+      const groups: NavGroup[] = item.children.map((child) => ({
+        heading: child.groupTitle || "",
+        items: (child.links || []).map((l) => ({ name: l.title, href: l.href })),
+      }));
+      // Use mega menu for items with children
+      nav.mega = { groups };
+      // Add footer link pointing to the main href
+      if (item.href && item.href !== "#") {
+        nav.mega.footerLink = { label: `View all ${item.title}`, href: item.href };
+      }
+      // Add image cards if present
+      if (item.cards?.length) {
+        nav.mega.cards = item.cards.map((card) => ({
+          name: card.title,
+          href: card.href,
+          description: card.description,
+          image: card.image?.asset?.url,
+        }));
+      }
+    }
+    return nav;
+  });
+}
+
+export default function Header({
+  sanityNav,
+  socialLinks,
+}: {
+  sanityNav?: SanityNavItem[];
+  socialLinks?: SocialLinks;
+}) {
+  const navItems: NavItem[] = sanityNav?.length ? sanityToNav(sanityNav) : navigation;
+  // Debug: remove this once menus are working
+  if (typeof window !== "undefined") {
+    console.log("Header nav source:", sanityNav ? "Sanity" : "Hardcoded fallback", "Items:", navItems.length, "Mega menus:", navItems.filter(n => n.mega).length);
+  }
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -86,7 +142,12 @@ export default function Header() {
       }
     }
     function handleScroll() {
-      setScrolled(window.scrollY > 50);
+      // Only expand back to full size when at the very top
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else if (window.scrollY === 0) {
+        setScrolled(false);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -120,14 +181,15 @@ export default function Header() {
     <header className={`sticky top-0 z-30 bg-white border-b border-gray-200 transition-all duration-300 ${scrolled ? "shadow-sm" : ""}`}>
       <a href="#main-content" className="skip-link">Skip to main content</a>
 
-      {/* Top bar - social + search (visible when not scrolled) */}
-      <div className={`border-b border-gray-100 transition-all duration-300 overflow-hidden ${scrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
+      {/* Top bar - social + search (hidden when scrolled) */}
+      {!scrolled && (
+      <div className="border-b border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-10">
           <div className="flex items-center gap-3">
-            <a href="https://www.facebook.com/langportlife/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
+            <a href={socialLinks?.facebook || "https://www.facebook.com/langportlife/"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
               <FacebookIcon className="h-4 w-4" />
             </a>
-            <a href="https://x.com/LangportLife" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black transition-colors" aria-label="X (Twitter)">
+            <a href={socialLinks?.twitter || "https://x.com/LangportLife"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black transition-colors" aria-label="X (Twitter)">
               <XIcon className="h-4 w-4" />
             </a>
           </div>
@@ -142,30 +204,31 @@ export default function Header() {
                 className="w-44 rounded-full border border-gray-200 bg-gray-50 py-1 pl-8 pr-3 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </form>
-            <Link href="/auth/signin" className="text-xs font-medium text-gray-500 no-underline hover:text-primary">
-              Sign In
+            <Link href="/submit" className="text-xs font-medium text-gray-500 no-underline hover:text-primary">
+              Submit
             </Link>
           </div>
         </div>
       </div>
+      )}
 
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Main navigation" ref={dropdownRef}>
-        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16" : "h-20"}`}>
+        <div className={`flex items-center justify-between ${scrolled ? "h-14" : "h-20"}`}>
           {/* Logo */}
           <Link href="/" className="flex items-center no-underline flex-shrink-0">
             <Image
               src="/Images/logo/Langport-Life-Black-Logo-002.png"
               alt="Langport Life"
-              width={scrolled ? 180 : 220}
-              height={scrolled ? 40 : 50}
-              className="transition-all duration-300"
+              width={scrolled ? 160 : 220}
+              height={scrolled ? 36 : 50}
+              className=""
               priority
             />
           </Link>
 
           {/* Desktop nav */}
           <div className="hidden lg:flex lg:items-center lg:gap-1">
-            {navigation.map((item) =>
+            {navItems.map((item) =>
               item.mega ? (
                 <div key={item.name} className="relative">
                   <button
@@ -183,16 +246,16 @@ export default function Header() {
                   </button>
                   {openDropdown === item.name && (
                     <div className={`absolute left-1/2 -translate-x-1/2 top-full z-20 mt-2 rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-black/5 ${item.mega.cards ? "w-[72rem]" : "w-[56rem]"}`}>
-                      <div className="flex gap-8">
+                      <div className={item.mega.cards ? "flex gap-8" : ""}>
                         {item.mega.groups && item.mega.groups.length > 0 && (
-                          <div className={item.mega.cards ? "w-48 flex-shrink-0 space-y-6" : "flex-1 grid grid-cols-2 gap-x-10 gap-y-8"}>
+                          <div className={item.mega.cards ? "w-48 flex-shrink-0 space-y-6" : "flex-1 flex gap-8"}>
                             {item.mega.groups.map((group) => (
                               <div key={group.heading}>
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-copper">{group.heading}</h3>
-                                <ul className="mt-3 space-y-1.5">
+                                <ul className="mt-3 space-y-1">
                                   {group.items.map((child) => (
                                     <li key={child.href}>
-                                      <Link href={child.href} className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 no-underline hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
+                                      <Link href={child.href} className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 no-underline hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
                                         {child.name}
                                       </Link>
                                     </li>
@@ -203,7 +266,9 @@ export default function Header() {
                           </div>
                         )}
                         {item.mega.cards && (
-                          <div className="flex-1 grid grid-cols-3 gap-5">
+                          <div className="flex-1">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-copper mb-4">Things to Do</h3>
+                            <div className="grid grid-cols-3 gap-5">
                             {item.mega.cards.map((card) => (
                               <Link key={card.href} href={card.href} className="group block overflow-hidden rounded-xl no-underline" onClick={() => setOpenDropdown(null)}>
                                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
@@ -218,6 +283,7 @@ export default function Header() {
                                 {card.description && <p className="mt-2 text-xs leading-relaxed text-gray-500 line-clamp-2">{card.description}</p>}
                               </Link>
                             ))}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -330,7 +396,7 @@ export default function Header() {
               </a>
             </div>
 
-            {navigation.map((item) =>
+            {navItems.map((item) =>
               item.mega ? (
                 <div key={item.name} className="border-t border-gray-100 pt-2 mt-2">
                   <button onClick={() => toggleDropdown(item.name)} className="flex w-full items-center justify-between px-3 py-2 text-sm font-bold text-gray-900">
@@ -387,8 +453,8 @@ export default function Header() {
                 </Link>
               )
             )}
-            <Link href="/auth/signin" className="block mx-3 mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white no-underline" onClick={() => setMobileOpen(false)}>
-              Sign In
+            <Link href="/submit" className="block mx-3 mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white no-underline" onClick={() => setMobileOpen(false)}>
+              Submit
             </Link>
           </div>
         )}
