@@ -4,6 +4,7 @@ import { client } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import { homepageQuery, siteSettingsQuery } from "@/lib/queries";
 import EventCard from "@/components/EventCard";
+import FadeIn from "@/components/FadeIn";
 
 export const revalidate = 3600;
 
@@ -108,21 +109,23 @@ export default async function HomePage() {
       {/* Navigation Cards */}
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <h2 className="font-heading text-3xl font-bold text-gray-900 text-center">Explore Langport</h2>
-          <p className="mx-auto mt-2 max-w-xl text-center text-gray-600">
-            Discover everything our historic Somerset town has to offer.
-          </p>
+          <FadeIn>
+            <h2 className="font-heading text-3xl font-bold text-gray-900 text-center">Explore Langport</h2>
+            <p className="mx-auto mt-2 max-w-xl text-center text-gray-600">
+              Discover everything our historic Somerset town has to offer.
+            </p>
+          </FadeIn>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {navCards.map((card: any) => {
+            {navCards.map((card: any, cardIdx: number) => {
               const color = card.color || "primary";
               const imageSrc = card.image?.asset?.url
                 || card.image
                 || "/nav-whats-on.jpg";
 
               return (
+                <FadeIn key={card.title} delay={cardIdx * 100} direction="up">
                 <Link
-                  key={card.title}
                   href={card.href}
                   className="group block overflow-hidden rounded-lg no-underline shadow-sm hover:shadow-lg transition-shadow"
                 >
@@ -140,6 +143,7 @@ export default async function HomePage() {
                     </h3>
                   </div>
                 </Link>
+                </FadeIn>
               );
             })}
           </div>
@@ -156,6 +160,7 @@ export default async function HomePage() {
         </svg>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="grid items-center gap-10 lg:grid-cols-2">
+            <FadeIn direction="left">
             <div>
               <h2 className="font-heading text-3xl font-bold">List your business or event</h2>
               <p className="mt-4 text-lg text-white/90 leading-relaxed">
@@ -168,6 +173,8 @@ export default async function HomePage() {
                 Find out more <span aria-hidden="true">&rarr;</span>
               </Link>
             </div>
+            </FadeIn>
+            <FadeIn direction="right" delay={200}>
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="font-heading text-4xl font-bold">{data.eventCount || 0}</p>
@@ -186,6 +193,7 @@ export default async function HomePage() {
                 <p className="mt-1 text-sm text-white/80">Historic sites</p>
               </div>
             </div>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -295,8 +303,10 @@ export default async function HomePage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
           </div>
-          <h3 className="font-heading text-lg font-bold text-gray-900">Did you know?</h3>
-          <p className="mt-2 text-gray-600 leading-relaxed">{didYouKnow}</p>
+          <FadeIn>
+            <h3 className="font-heading text-lg font-bold text-gray-900">Did you know?</h3>
+            <p className="mt-2 text-gray-600 leading-relaxed">{didYouKnow}</p>
+          </FadeIn>
         </div>
       </section>
 
