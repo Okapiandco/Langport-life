@@ -18,7 +18,12 @@ export default async function GovernancePage() {
   // Group by document type
   const grouped = new Map<string, any[]>();
   for (const doc of documents) {
-    const type = doc.documentType === "policy" ? "Council Policies" : "Council Procedures";
+    const typeMap: Record<string, string> = {
+      policy: "Council Policies",
+      decision: "Council Procedures",
+      other: "Other Documents",
+    };
+    const type = typeMap[doc.documentType] || "Council Procedures";
     const list = grouped.get(type) || [];
     list.push(doc);
     grouped.set(type, list);

@@ -140,10 +140,8 @@ export const documentTagCountsQuery = groq`{
   "annual-assembly": count(*[_type == "councilDocument" && visibility == "public" && "annual-assembly" in tags]),
   "joint-committee": count(*[_type == "councilDocument" && visibility == "public" && "joint-committee" in tags]),
   "archived": count(*[_type == "councilDocument" && visibility == "public" && "archived" in tags]),
-  "groups": count(*[_type == "councilDocument" && visibility == "public" && "groups" in tags]),
   "governance": count(*[_type == "councilDocument" && visibility == "public" && "governance" in tags]),
-  "finance": count(*[_type == "councilDocument" && visibility == "public" && "finance" in tags]),
-  "council": count(*[_type == "councilDocument" && visibility == "public" && "council" in tags])
+  "finance": count(*[_type == "councilDocument" && visibility == "public" && "finance" in tags])
 }`;
 
 export const documentBySlugQuery = groq`

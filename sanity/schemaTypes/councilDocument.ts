@@ -82,8 +82,23 @@ export const councilDocument = defineType({
       name: "tags",
       title: "Tags",
       type: "array",
-      of: [{ type: "string" }],
-      options: { layout: "tags" },
+      of: [
+        {
+          type: "string",
+          options: {
+            list: [
+              { title: "Full Council", value: "full-council" },
+              { title: "Finance & Personnel", value: "finance-personnel" },
+              { title: "Tourism & Marketing", value: "tourism-marketing" },
+              { title: "Annual Assembly", value: "annual-assembly" },
+              { title: "Joint Committee", value: "joint-committee" },
+              { title: "Archived", value: "archived" },
+              { title: "Governance", value: "governance" },
+              { title: "Finance", value: "finance" },
+            ],
+          },
+        },
+      ],
     }),
   ],
   orderings: [

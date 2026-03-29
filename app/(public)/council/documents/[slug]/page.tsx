@@ -197,7 +197,7 @@ function DocumentPage({ doc }: { doc: any }) {
             download
             className="mt-3 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-white no-underline hover:bg-primary-dark transition-colors"
           >
-            Download PDF
+            Download
           </a>
         </div>
       )}
