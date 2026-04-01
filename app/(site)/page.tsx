@@ -118,7 +118,15 @@ export default async function HomePage() {
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {navCards.map((card: any, cardIdx: number) => {
-              const color = card.color || "primary";
+              const colorClasses: Record<string, string> = {
+                primary: "bg-primary",
+                copper: "bg-copper",
+                "light-blue": "bg-light-blue",
+                green: "bg-green",
+                maroon: "bg-maroon",
+                "dark-green": "bg-dark-green",
+              };
+              const bgClass = colorClasses[card.color || "primary"] || "bg-primary";
               const imageSrc = card.image?.asset?.url
                 || card.image
                 || "/nav-whats-on.jpg";
@@ -137,7 +145,7 @@ export default async function HomePage() {
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
-                  <div className={`bg-${color} px-5 py-4`}>
+                  <div className={`${bgClass} px-5 py-4`}>
                     <h3 className="font-heading text-xl font-bold text-white sm:text-2xl">
                       {card.title}
                     </h3>

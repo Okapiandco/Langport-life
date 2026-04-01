@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { venueBySlugQuery } from "@/lib/queries";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, getFacilityLabel } from "@/lib/utils";
 import Gallery from "@/components/Gallery";
 import VenueQRCode from "@/components/VenueQRCode";
 
@@ -371,7 +371,7 @@ export default async function VenuePage({ params }: Props) {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    {f}
+                    {getFacilityLabel(f)}
                   </li>
                 ))}
               </ul>

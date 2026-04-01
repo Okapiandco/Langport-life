@@ -19,3 +19,18 @@ export function formatDateTime(dateString: string): string {
 export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
+
+const facilityLabels: Record<string, string> = {
+  wifi: "WiFi",
+  parking: "Parking",
+  accessible: "Wheelchair Accessible",
+  kitchen: "Kitchen",
+  stage: "Stage",
+  pa: "PA System",
+  outdoor: "Outdoor Space",
+  toilets: "Toilets",
+};
+
+export function getFacilityLabel(value: string): string {
+  return facilityLabels[value] || value;
+}

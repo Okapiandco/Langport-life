@@ -63,7 +63,6 @@ export default function SubmitPage() {
 
         <p className="mt-12 text-center text-sm text-gray-500">
           All submissions are reviewed by the town clerk before being published.
-          You&apos;ll receive an email when your submission is approved.
         </p>
       </section>
     </>

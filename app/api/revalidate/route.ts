@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     // Map document types to the paths that need revalidating
     const pathMap: Record<string, string[]> = {
       event: ["/", "/events"],
-      venue: ["/", "/events"],
+      venue: ["/", "/venues", "/events"],
       businessListing: ["/", "/listings"],
       listingCategory: ["/listings"],
       activity: ["/things-to-do"],
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
     if (slug) {
       const detailPathMap: Record<string, string> = {
         event: `/events/${slug}`,
+        venue: `/venues/${slug}`,
         businessListing: `/listings/${slug}`,
         activity: `/things-to-do/${slug}`,
         article: `/news/${slug}`,

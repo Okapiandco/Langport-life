@@ -24,8 +24,7 @@ export default function ThankYouPage() {
         <div className="rounded-xl border border-green-200 bg-green-50 p-8">
           <p className="text-lg text-gray-700">
             Your submission will be reviewed by the town clerk. Once approved,
-            it will appear on the site and you&apos;ll receive a confirmation
-            email.
+            it will appear on the site.
           </p>
           <p className="mt-4 text-sm text-gray-500">
             This usually takes 1–2 working days.

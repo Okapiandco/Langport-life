@@ -21,19 +21,21 @@
     color: #1a1a1a;
     background-color: #ffffff;
   }
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-  }
+/* Site-scoped styles — only apply within the public site, not Sanity Studio */
+.site-content h1, .site-content h2, .site-content h3,
+.site-content h4, .site-content h5, .site-content h6 {
+  font-family: var(--font-heading);
+}
 
-  a {
-    color: var(--color-primary);
-    text-decoration: underline;
-  }
+.site-content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
 
-  a:hover {
-    color: var(--color-primary-dark);
-  }
+.site-content a:hover {
+  color: var(--color-primary-dark);
 }
 
 /* Skip to main content link for accessibility */

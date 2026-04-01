@@ -205,7 +205,16 @@ export const articleCategoriesQuery = groq`
 export const searchQuery = groq`
   *[
     _type in ["event", "venue", "businessListing", "article", "page", "historicSite", "activity"] &&
-    (title match $query || pt::text(description) match $query || pt::text(content) match $query)
+    (title match $query || pt::text(description) match $query || pt::text(content) match $query) &&
+    select(
+      _type == "event" => status == "published",
+      _type == "venue" => status == "active",
+      _type == "businessListing" => status == "published",
+      _type == "article" => published == true,
+      _type == "page" => published == true,
+      _type == "activity" => published == true,
+      true
+    )
   ] [0...20] {
     _id, _type, title, slug,
     "excerpt": coalesce(excerpt, pt::text(description)[0...150]),
@@ -317,7 +326,7 @@ export const homepageQuery = groq`{
     image { asset->{url}, alt },
     venue->{ title, town }
   },
-  "upcomingEvents": *[_type == "event" && status == "published"] | order(date desc) [0...6] {
+  "upcomingEvents": *[_type == "event" && status == "published" && date >= now()] | order(date asc) [0...6] {
     _id, title, slug, date, eventType, isFree,
     image { asset->{url}, alt },
     venue->{ title }

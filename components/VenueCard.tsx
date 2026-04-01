@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/lib/sanity";
+import { getFacilityLabel } from "@/lib/utils";
 
 interface VenueCardProps {
   venue: {
@@ -57,7 +58,7 @@ export default function VenueCard({ venue }: VenueCardProps) {
                 key={f}
                 className="inline-block rounded-full bg-light-blue/50 px-2 py-0.5 text-xs text-gray-700"
               >
-                {f}
+                {getFacilityLabel(f)}
               </span>
             ))}
             {venue.facilities.length > 3 && (
