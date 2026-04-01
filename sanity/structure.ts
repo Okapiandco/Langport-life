@@ -103,8 +103,31 @@ export const structure: StructureResolver = (S) =>
       // ─── Venues ───
       S.listItem()
         .title("Venues")
-        .schemaType("venue")
-        .child(S.documentTypeList("venue").title("Venues")),
+        .child(
+          S.list()
+            .title("Venues")
+            .items([
+              S.listItem()
+                .title("Active Venues")
+                .child(
+                  S.documentTypeList("venue")
+                    .title("Active Venues")
+                    .filter('_type == "venue" && status == "active"')
+                ),
+              S.listItem()
+                .title("Pending Approval")
+                .child(
+                  S.documentTypeList("venue")
+                    .title("Pending Venues")
+                    .filter('_type == "venue" && status == "pendingApproval"')
+                ),
+              S.divider(),
+              S.listItem()
+                .title("All Venues")
+                .schemaType("venue")
+                .child(S.documentTypeList("venue").title("All Venues")),
+            ])
+        ),
 
       S.divider(),
 

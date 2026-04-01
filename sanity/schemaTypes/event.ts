@@ -53,7 +53,14 @@ export const event = defineType({
       title: "Venue",
       type: "reference",
       to: [{ type: "venue" }],
-      validation: (Rule) => Rule.required(),
+      description: "Link to a venue record. Set this before publishing.",
+    }),
+    defineField({
+      name: "venueName",
+      title: "Venue Name (from submission)",
+      type: "string",
+      description: "Venue name provided by the submitter. Use this to find or create the correct venue reference above, then publish.",
+      readOnly: true,
     }),
     defineField({
       name: "eventType",

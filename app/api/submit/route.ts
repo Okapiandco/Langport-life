@@ -4,9 +4,7 @@ import { writeClient } from "@/lib/sanity";
 // Convert datetime-local value (e.g. "2026-04-15T19:00") to full ISO 8601
 function toISODateTime(value: string | undefined | null): string | undefined {
   if (!value) return undefined;
-  // Already has timezone info
   if (value.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(value)) return value;
-  // Append seconds if missing, then treat as UTC
   const normalized = value.includes("T")
     ? value.length <= 16 ? `${value}:00Z` : `${value}Z`
     : undefined;
@@ -54,8 +52,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Basic email validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(submitterEmail)) {
       return NextResponse.json(
         { error: "Please provide a valid email address." },
@@ -63,47 +59,78 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate event date
-    if (type === "event" && !eventDate) {
-      return NextResponse.json(
-        { error: "Event date is required." },
-        { status: 400 }
-      );
-    }
+    let doc;
 
-    // Build the submission document
-    const doc = await writeClient.create({
-      _type: "submission",
-      type,
-      status: "pending",
-      submitterName,
-      submitterEmail,
-      submitterPhone: submitterPhone || undefined,
-      title,
-      description: description || undefined,
-      // Event fields
-      ...(type === "event" && {
-        eventDate: toISODateTime(eventDate),
-        eventEndDate: toISODateTime(eventEndDate),
+    if (type === "event") {
+      if (!eventDate) {
+        return NextResponse.json(
+          { error: "Event date is required." },
+          { status: 400 }
+        );
+      }
+
+      // Create a real event document with pendingApproval status
+      doc = await writeClient.create({
+        _type: "event",
+        title,
+        slug: { _type: "slug", current: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        date: toISODateTime(eventDate),
+        endDate: toISODateTime(eventEndDate),
         eventType: eventType || undefined,
-        eventVenue: eventVenue || undefined,
-        eventIsFree: eventIsFree ?? true,
+        venueName: eventVenue || undefined,
+        isFree: eventIsFree ?? true,
         ticketsUrl: ticketsUrl || undefined,
         organiser: organiser || undefined,
-      }),
-      // Listing/venue fields
-      ...((type === "listing" || type === "venue") && {
+        contactName: submitterName,
+        contactEmail: submitterEmail,
+        contactPhone: submitterPhone || undefined,
+        submittedBy: `${submitterName} (${submitterEmail})`,
+        status: "pendingApproval",
+        description: description
+          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
+          : undefined,
+      });
+    } else if (type === "venue") {
+      // Create a real venue document with inactive status (admin activates)
+      doc = await writeClient.create({
+        _type: "venue",
+        title,
+        slug: { _type: "slug", current: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
         street: street || undefined,
         town: town || "Langport",
         postcode: postcode || undefined,
         phone: phone || undefined,
         email: email || undefined,
         website: website || undefined,
-      }),
-    });
+        ownerName: submitterName,
+        ownerEmail: submitterEmail,
+        status: "pendingApproval",
+        description: description
+          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
+          : undefined,
+      });
+    } else if (type === "listing") {
+      // Create a real business listing with pendingApproval status
+      doc = await writeClient.create({
+        _type: "businessListing",
+        title,
+        slug: { _type: "slug", current: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        street: street || undefined,
+        town: town || "Langport",
+        postcode: postcode || undefined,
+        phone: phone || undefined,
+        email: email || undefined,
+        website: website || undefined,
+        submittedBy: `${submitterName} (${submitterEmail})`,
+        status: "pendingApproval",
+        description: description
+          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
+          : undefined,
+      });
+    }
 
     return NextResponse.json(
-      { success: true, id: doc._id },
+      { success: true, id: doc!._id },
       { status: 201 }
     );
   } catch (err: unknown) {

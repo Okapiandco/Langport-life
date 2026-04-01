@@ -139,6 +139,7 @@ export const venue = defineType({
       options: {
         list: [
           { title: "Active", value: "active" },
+          { title: "Pending Approval", value: "pendingApproval" },
           { title: "Inactive", value: "inactive" },
         ],
       },
