@@ -39,16 +39,18 @@ export default function SubmitEventPage() {
         body: JSON.stringify(body),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         setError(data.error || "Something went wrong.");
         setSubmitting(false);
         return;
       }
 
       router.push("/submit/thank-you");
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Submit error:", err);
+      setError("Unable to reach the server. Please check your connection and try again.");
       setSubmitting(false);
     }
   }

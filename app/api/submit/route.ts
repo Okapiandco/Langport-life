@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeClient } from "@/lib/sanity";
 
+// Convert datetime-local value (e.g. "2026-04-15T19:00") to full ISO 8601
+function toISODateTime(value: string | undefined | null): string | undefined {
+  if (!value) return undefined;
+  // Already has timezone info
+  if (value.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(value)) return value;
+  // Append seconds if missing, then treat as UTC
+  const normalized = value.includes("T")
+    ? value.length <= 16 ? `${value}:00Z` : `${value}Z`
+    : undefined;
+  return normalized;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -71,8 +83,8 @@ export async function POST(request: NextRequest) {
       description: description || undefined,
       // Event fields
       ...(type === "event" && {
-        eventDate,
-        eventEndDate: eventEndDate || undefined,
+        eventDate: toISODateTime(eventDate),
+        eventEndDate: toISODateTime(eventEndDate),
         eventType: eventType || undefined,
         eventVenue: eventVenue || undefined,
         eventIsFree: eventIsFree ?? true,
@@ -94,10 +106,12 @@ export async function POST(request: NextRequest) {
       { success: true, id: doc._id },
       { status: 201 }
     );
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Submission error:", err);
+    const message =
+      err instanceof Error ? err.message : "Something went wrong.";
     return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
+      { error: message },
       { status: 500 }
     );
   }
