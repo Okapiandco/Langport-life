@@ -46,6 +46,14 @@ export const businessListing = defineType({
       type: "geopoint",
     }),
     defineField({
+      name: "coordinatesVerified",
+      title: "Coordinates Verified",
+      type: "boolean",
+      description:
+        "Tick once you've confirmed the pin sits in the right place. New submissions arrive with auto-geocoded coords and this field unset — listings stay flagged as 'unverified' in the Studio list until ticked.",
+      initialValue: false,
+    }),
+    defineField({
       name: "phone",
       title: "Phone",
       type: "string",
@@ -209,11 +217,15 @@ export const businessListing = defineType({
       title: "title",
       category: "category.name",
       media: "image",
+      coordinates: "coordinates",
+      coordinatesVerified: "coordinatesVerified",
     },
-    prepare({ title, category, media }) {
+    prepare({ title, category, media, coordinates, coordinatesVerified }) {
+      const hasCoords = !!(coordinates?.lat && coordinates?.lng);
+      const flag = hasCoords && !coordinatesVerified ? " ⚠ unverified pin" : "";
       return {
         title,
-        subtitle: category || "Uncategorised",
+        subtitle: `${category || "Uncategorised"}${flag}`,
         media,
       };
     },

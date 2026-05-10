@@ -5,7 +5,7 @@ import NewsSearch from "@/components/NewsSearch";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "News",
+  title: "Town News",
   description:
     "Latest news and stories from the Langport community in Somerset.",
 };
@@ -26,7 +26,7 @@ export default async function NewsPage() {
     <>
       <PageHero
         section="news"
-        title="News"
+        title="Town News"
         subtitle="Latest news and stories from the Langport community."
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

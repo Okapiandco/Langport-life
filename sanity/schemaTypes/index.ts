@@ -13,6 +13,7 @@ import { navigation } from "./navigation";
 import { activity } from "./activity";
 import { transportOption } from "./transportOption";
 import { submission } from "./submission";
+import { group } from "./group";
 
 export const schemaTypes = [
   // Singletons
@@ -30,6 +31,7 @@ export const schemaTypes = [
   articleCategory,
   historicSite,
   page,
+  group,
 
   // Council
   councilMember,

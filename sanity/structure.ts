@@ -70,18 +70,18 @@ export const structure: StructureResolver = (S) =>
             .title("Events")
             .items([
               S.listItem()
+                .title("⚑ Pending Approval")
+                .child(
+                  S.documentTypeList("event")
+                    .title("Pending Events")
+                    .filter('_type == "event" && status == "pendingApproval"')
+                ),
+              S.listItem()
                 .title("Published Events")
                 .child(
                   S.documentTypeList("event")
                     .title("Published Events")
                     .filter('_type == "event" && status == "published"')
-                ),
-              S.listItem()
-                .title("Pending Approval")
-                .child(
-                  S.documentTypeList("event")
-                    .title("Pending Events")
-                    .filter('_type == "event" && status == "pendingApproval"')
                 ),
               S.listItem()
                 .title("Drafts & Cancelled")
@@ -120,6 +120,13 @@ export const structure: StructureResolver = (S) =>
                   S.documentTypeList("venue")
                     .title("Pending Venues")
                     .filter('_type == "venue" && status == "pendingApproval"')
+                ),
+              S.listItem()
+                .title("⚠ Outside Catchment")
+                .child(
+                  S.documentTypeList("venue")
+                    .title("Outside Catchment")
+                    .filter('_type == "venue" && outsideCatchment == true')
                 ),
               S.divider(),
               S.listItem()
@@ -169,6 +176,44 @@ export const structure: StructureResolver = (S) =>
                 .child(
                   S.documentTypeList("listingCategory").title("Categories")
                 ),
+            ])
+        ),
+
+      S.divider(),
+
+      // ─── Groups ───
+      S.listItem()
+        .title("Groups")
+        .child(
+          S.list()
+            .title("Groups")
+            .items([
+              S.listItem()
+                .title("Approved")
+                .child(
+                  S.documentTypeList("group")
+                    .title("Approved Groups")
+                    .filter('_type == "group" && status == "approved"')
+                ),
+              S.listItem()
+                .title("Pending Review")
+                .child(
+                  S.documentTypeList("group")
+                    .title("Pending Groups")
+                    .filter('_type == "group" && status == "pending"')
+                ),
+              S.listItem()
+                .title("Rejected")
+                .child(
+                  S.documentTypeList("group")
+                    .title("Rejected Groups")
+                    .filter('_type == "group" && status == "rejected"')
+                ),
+              S.divider(),
+              S.listItem()
+                .title("All Groups")
+                .schemaType("group")
+                .child(S.documentTypeList("group").title("All Groups")),
             ])
         ),
 

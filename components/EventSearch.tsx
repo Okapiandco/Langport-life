@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import EventCard from "./EventCard";
 
 interface EventSearchProps {
@@ -22,50 +22,46 @@ export default function EventSearch({
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  const filtered = useMemo(() => {
-    const now = new Date();
-    return events.filter((event) => {
-      if (
-        search &&
-        !event.title.toLowerCase().includes(search.toLowerCase())
-      )
-        return false;
-      if (venueFilter && event.venue?.title !== venueFilter) return false;
-      if (typeFilter && event.eventType !== typeFilter) return false;
-      if (freeOnly && !event.isFree) return false;
+  // Inline filter — React Compiler memoizes this when enabled. Recomputing each
+  // render is fine for the ~tens-of-events scale of this site.
+  const now = new Date();
+  const filtered = events.filter((event) => {
+    if (
+      search &&
+      !event.title.toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
+    if (venueFilter && event.venue?.title !== venueFilter) return false;
+    if (typeFilter && event.eventType !== typeFilter) return false;
+    if (freeOnly && !event.isFree) return false;
 
-      // Date range filter takes priority over time presets
-      if (dateFrom || dateTo) {
-        const eventDate = new Date(event.date);
-        if (dateFrom && eventDate < new Date(dateFrom)) return false;
-        if (dateTo) {
-          const to = new Date(dateTo);
-          to.setHours(23, 59, 59);
-          if (eventDate > to) return false;
-        }
-        return true;
-      }
-
-      if (timeFilter === "upcoming" && new Date(event.date) < now)
-        return false;
-      if (timeFilter === "past" && new Date(event.date) >= now) return false;
-      if (timeFilter === "thisMonth") {
-        const d = new Date(event.date);
-        if (
-          d.getMonth() !== now.getMonth() ||
-          d.getFullYear() !== now.getFullYear()
-        )
-          return false;
-      }
-      if (timeFilter === "thisWeek") {
-        const d = new Date(event.date);
-        const weekEnd = new Date(now);
-        weekEnd.setDate(weekEnd.getDate() + 7);
-        if (d < now || d > weekEnd) return false;
+    // Date range filter takes priority over time presets
+    if (dateFrom || dateTo) {
+      const eventDate = new Date(event.date);
+      if (dateFrom && eventDate < new Date(dateFrom)) return false;
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59);
+        if (eventDate > to) return false;
       }
       return true;
-    });
-  }, [events, search, venueFilter, typeFilter, freeOnly, timeFilter, dateFrom, dateTo]);
+    }
+
+    if (timeFilter === "upcoming" && new Date(event.date) < now) return false;
+    if (timeFilter === "past" && new Date(event.date) >= now) return false;
+    if (timeFilter === "thisMonth") {
+      const d = new Date(event.date);
+      if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear())
+        return false;
+    }
+    if (timeFilter === "thisWeek") {
+      const d = new Date(event.date);
+      const weekEnd = new Date(now);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      if (d < now || d > weekEnd) return false;
+    }
+    return true;
+  });
 
   const activeFilters = [
     venueFilter,
@@ -243,7 +239,7 @@ export default function EventSearch({
       {filtered.length > 0 ? (
         <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((event: any) => (
-            <EventCard key={event._id} event={event} />
+            <EventCard key={event._occurrenceKey ?? event._id} event={event} />
           ))}
         </div>
       ) : (

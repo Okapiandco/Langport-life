@@ -66,6 +66,11 @@ export default function SubmitVenuePage() {
       />
 
       <section className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-gray-700">
+          All listings are reviewed before going live. We&apos;ll let you know
+          once your submission has been approved.
+        </div>
+
         {error && (
           <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4 text-red-700 text-sm">
             {error}

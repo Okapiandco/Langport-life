@@ -19,6 +19,7 @@ const navigation: NavItem[] = [
       groups: [
         { heading: "Events", items: [{ name: "Events Calendar", href: "/events" }, { name: "Submit an Event", href: "/submit/event" }] },
         { heading: "Venues", items: [{ name: "All Venues", href: "/venues" }, { name: "Add a Venue", href: "/submit/venue" }] },
+        { heading: "Groups", items: [{ name: "Join a Group", href: "/join-a-group" }] },
       ],
       cards: [
         { name: "The Outdoor Life", href: "/things-to-do/outdoor-life", image: "/things-to-do/outdoor-life.jpg", description: "Water sports, fishing, golf and activities on the River Parrett" },
@@ -31,6 +32,7 @@ const navigation: NavItem[] = [
   { name: "Shops & Services", href: "/listings", children: [{ name: "All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
   { name: "History", href: "/history" },
   { name: "Environment", href: "/environment" },
+  { name: "Town News", href: "/news" },
   {
     name: "Town Council",
     href: "/council",
@@ -44,7 +46,7 @@ const navigation: NavItem[] = [
       footerLink: { label: "Town Council Overview", href: "/council" },
     },
   },
-  { name: "News", href: "/news" },
+  { name: "Contact Us", href: "/contact" },
 ];
 
 function FacebookIcon({ className }: { className?: string }) {
@@ -55,10 +57,10 @@ function FacebookIcon({ className }: { className?: string }) {
   );
 }
 
-function XIcon({ className }: { className?: string }) {
+function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
     </svg>
   );
 }
@@ -80,7 +82,6 @@ interface SanityNavItem {
 
 interface SocialLinks {
   facebook?: string;
-  twitter?: string;
   instagram?: string;
   youtube?: string;
 }
@@ -186,11 +187,11 @@ export default function Header({
       <div className="border-b border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-10">
           <div className="flex items-center gap-3">
-            <a href={socialLinks?.facebook || "https://www.facebook.com/langportlife/"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
+            <a href={socialLinks?.facebook || "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
               <FacebookIcon className="h-4 w-4" />
             </a>
-            <a href={socialLinks?.twitter || "https://x.com/LangportLife"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black transition-colors" aria-label="X (Twitter)">
-              <XIcon className="h-4 w-4" />
+            <a href={socialLinks?.instagram || "https://www.instagram.com/langportwhereitsto?igsh=cWNmY24wcHdidzBk"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#E4405F] transition-colors" aria-label="Instagram">
+              <InstagramIcon className="h-4 w-4" />
             </a>
           </div>
           <div className="flex items-center gap-4">
@@ -340,11 +341,11 @@ export default function Header({
               <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-400 hover:text-primary rounded-md hover:bg-gray-100 transition-colors" aria-label="Search">
                 <SearchIcon className="h-4 w-4" />
               </button>
-              <a href="https://www.facebook.com/langportlife/" target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
+              <a href={socialLinks?.facebook || "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
                 <FacebookIcon className="h-4 w-4" />
               </a>
-              <a href="https://x.com/LangportLife" target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-black transition-colors" aria-label="X (Twitter)">
-                <XIcon className="h-4 w-4" />
+              <a href={socialLinks?.instagram || "https://www.instagram.com/langportwhereitsto?igsh=cWNmY24wcHdidzBk"} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-[#E4405F] transition-colors" aria-label="Instagram">
+                <InstagramIcon className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -388,11 +389,11 @@ export default function Header({
           <div className="lg:hidden pb-4 max-h-[80vh] overflow-y-auto">
             {/* Mobile social */}
             <div className="flex items-center gap-4 px-3 py-3 border-b border-gray-100 mb-2">
-              <a href="https://www.facebook.com/langportlife/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2]" aria-label="Facebook">
+              <a href={socialLinks?.facebook || "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2]" aria-label="Facebook">
                 <FacebookIcon className="h-5 w-5" />
               </a>
-              <a href="https://x.com/LangportLife" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black" aria-label="X (Twitter)">
-                <XIcon className="h-5 w-5" />
+              <a href={socialLinks?.instagram || "https://www.instagram.com/langportwhereitsto?igsh=cWNmY24wcHdidzBk"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#E4405F]" aria-label="Instagram">
+                <InstagramIcon className="h-5 w-5" />
               </a>
             </div>
 

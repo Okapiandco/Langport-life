@@ -45,6 +45,25 @@ export const siteSettings = defineType({
       description: "Used when pages are shared on social media and no specific image is set",
     }),
 
+    // Catchment area — used by the venue submission flow to flag (not block)
+    // submissions far outside Langport, so Morag can decide.
+    defineField({
+      name: "catchmentCentre",
+      title: "Catchment Area Centre",
+      type: "geopoint",
+      description:
+        "Town centre point used as the origin when measuring how far away a submitted venue is. If unset, defaults to Langport town centre (51.0374, -2.8287).",
+    }),
+    defineField({
+      name: "catchmentRadiusMiles",
+      title: "Catchment Radius (miles)",
+      type: "number",
+      initialValue: 5,
+      description:
+        "Venues whose postcode lies further than this distance from the centre are tagged with an \"Outside catchment area\" warning in the moderation queue. They are still saved as pending — only blocked at Morag's discretion. Default 5 miles.",
+      validation: (Rule) => Rule.min(0),
+    }),
+
     // Contact details
     defineField({
       name: "contactEmail",

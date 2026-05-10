@@ -35,8 +35,8 @@ async function seed() {
     seoDescription: "Your community hub for events, venues, businesses, and council information in Langport, Somerset.",
     contactEmail: "clerk@langport.life",
     socialLinks: {
-      facebook: "https://www.facebook.com/langportlife/",
-      twitter: "https://x.com/LangportLife",
+      facebook: "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr",
+      instagram: "https://www.instagram.com/langportwhereitsto?igsh=cWNmY24wcHdidzBk",
     },
     homepageCards: [
       { _key: "c1", title: "What's on", href: "/events", color: "primary" },
@@ -84,6 +84,7 @@ async function seed() {
       { _key: "n3", title: "Venues", href: "/venues" },
       { _key: "n4", title: "Shops & Services", href: "/listings" },
       { _key: "n5", title: "History", href: "/history" },
+      { _key: "n7", title: "Town News", href: "/news" },
       {
         _key: "n6",
         title: "Town Council",
@@ -120,7 +121,6 @@ async function seed() {
           },
         ],
       },
-      { _key: "n7", title: "News", href: "/news" },
     ],
     footerColumns: [
       {

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { client } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import { homepageQuery, siteSettingsQuery } from "@/lib/queries";
+import { expandEvents, dedupeBySeries, MAX_EXPANSION_MONTHS } from "@/lib/recurrence";
 import EventCard from "@/components/EventCard";
 import FadeIn from "@/components/FadeIn";
 
@@ -31,6 +32,16 @@ export default async function HomePage() {
   const didYouKnow =
     settings?.didYouKnow ||
     "Langport was once one of the most important towns in Somerset, serving as a major inland port and mint town in Saxon times. The Hanging Chapel on the hill is one of only a handful of such structures remaining in England.";
+
+  // Expand recurring events into occurrences, then dedupe to at most one
+  // upcoming occurrence per series so weekly yoga doesn't dominate the panel.
+  const now = new Date();
+  const horizon = new Date();
+  horizon.setMonth(horizon.getMonth() + MAX_EXPANSION_MONTHS);
+  const expanded = expandEvents(data.allUpcomingEvents ?? [], now, horizon);
+  const upcomingEvents = dedupeBySeries(expanded)
+    .slice(0, 8)
+    .map((occ) => ({ ...occ.event, _occurrenceKey: occ.occurrenceId }));
 
   return (
     <>
@@ -87,7 +98,7 @@ export default async function HomePage() {
       </section>
 
       {/* Events */}
-      {data.upcomingEvents?.length > 0 && (
+      {upcomingEvents.length > 0 && (
         <section className="bg-gray-50">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
@@ -97,9 +108,8 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-8 grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {data.upcomingEvents.slice(0, 8).map((event: any) => (
-                <EventCard key={event._id} event={event} />
+              {upcomingEvents.map((event: any) => (
+                <EventCard key={event._occurrenceKey} event={event} />
               ))}
             </div>
           </div>
@@ -116,7 +126,6 @@ export default async function HomePage() {
             </p>
           </FadeIn>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {navCards.map((card: any, cardIdx: number) => {
               const colorClasses: Record<string, string> = {
                 primary: "bg-primary",
@@ -170,13 +179,13 @@ export default async function HomePage() {
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <FadeIn direction="left">
             <div>
-              <h2 className="font-heading text-3xl font-bold">List your business or event</h2>
+              <h2 className="font-heading text-3xl font-bold text-white">List your business or event</h2>
               <p className="mt-4 text-lg text-white/90 leading-relaxed">
                 Langport Life is the community hub for our historic Somerset town. We help local businesses, venues, and event organisers connect with residents and visitors alike.
               </p>
               <Link
                 href="/submit"
-                className="mt-6 inline-flex items-center gap-2 rounded-md border-2 border-white bg-transparent px-6 py-3 font-medium text-white no-underline transition-colors hover:bg-white hover:text-copper"
+                className="mt-6 inline-flex items-center gap-2 rounded-md border-2 border-white bg-transparent px-6 py-3 font-medium text-white transition-colors hover:bg-white hover:text-copper"
               >
                 Find out more <span aria-hidden="true">&rarr;</span>
               </Link>
@@ -223,7 +232,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              { }
               {data.latestArticles.map((article: any, i: number) => (
                 <Link
                   key={article._id}
@@ -263,45 +272,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Historic Sites */}
-      <section className="bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <h2 className="font-heading text-3xl font-bold text-gray-900">Historic Langport</h2>
-            <Link href="/history" className="text-sm font-medium text-primary hover:text-primary-dark">
-              Explore history &rarr;
-            </Link>
-          </div>
-          {data.historicSites?.length > 0 && (
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {data.historicSites.map((site: any) => (
-                <Link
-                  key={site._id}
-                  href={`/history/${site.slug.current}`}
-                  className="group block overflow-hidden rounded-lg bg-white no-underline shadow-sm transition-shadow hover:shadow-md"
-                >
-                  {site.image?.asset && (
-                    <div className="relative h-40 w-full overflow-hidden">
-                      <Image
-                        src={urlFor(site.image).width(300).height(200).url()}
-                        alt={site.image.alt || site.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-heading text-base font-semibold text-gray-900 group-hover:text-primary">{site.title}</h3>
-                    {site.heritage && <p className="mt-1 text-xs text-copper">{site.heritage}</p>}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* Did You Know */}
       <section className="border-t border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 text-center">
@@ -318,21 +288,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-primary text-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-heading text-3xl font-bold">Got an event to share?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/90">
-            Submit your event and reach the Langport community. It&apos;s free and easy to get listed.
-          </p>
-          <Link
-            href="/submit"
-            className="mt-6 inline-block rounded-md bg-white px-6 py-3 font-medium text-primary no-underline hover:bg-gray-100 transition-colors"
-          >
-            Submit an Event
-          </Link>
-        </div>
-      </section>
     </>
   );
 }

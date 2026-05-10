@@ -29,12 +29,14 @@
   font-family: var(--font-heading);
 }
 
-.site-content a {
+/* Prose links: applies only to user-content blocks wrapped in `.prose` (e.g. PortableText).
+   Navigation, cards, and CTAs use Tailwind utilities directly and should not inherit this. */
+.prose a {
   color: var(--color-primary);
   text-decoration: underline;
 }
 
-.site-content a:hover {
+.prose a:hover {
   color: var(--color-primary-dark);
 }
 

@@ -1,7 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
+
+// Detect whether we're rendering on the client. Returns false during SSR and
+// the first client render (so server + hydration markup match), then `true`
+// on the next render. Replaces the older `useEffect(() => setMounted(true))`
+// pattern, which trips React's compiler-aware lint rules.
+const subscribeNoop = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+function useIsClient() {
+  return useSyncExternalStore(subscribeNoop, getClientSnapshot, getServerSnapshot);
+}
 
 // Langport centre
 const DEFAULT_CENTER: [number, number] = [51.0374, -2.8287];
@@ -30,13 +41,9 @@ export default function MapView({
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
 }: MapViewProps) {
-  const [mounted, setMounted] = useState(false);
+  const isClient = useIsClient();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
+  if (!isClient) {
     return (
       <div
         style={{ height }}

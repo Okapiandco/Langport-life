@@ -59,6 +59,30 @@ export const venue = defineType({
       type: "geopoint",
     }),
     defineField({
+      name: "coordinatesVerified",
+      title: "Coordinates Verified",
+      type: "boolean",
+      description:
+        "Tick once you've confirmed the pin sits in the right place. New submissions arrive with auto-geocoded coords and this field unset — venues stay flagged as 'unverified' in the Studio list until ticked.",
+      initialValue: false,
+    }),
+    defineField({
+      name: "outsideCatchment",
+      title: "Outside Catchment Area",
+      type: "boolean",
+      description:
+        "Set automatically at submission if the venue's postcode is further from the catchment centre than the radius defined in Site Settings. Warning only — submission is still saved as pending. Read-only.",
+      readOnly: true,
+    }),
+    defineField({
+      name: "distanceFromCentreMiles",
+      title: "Distance From Centre (miles)",
+      type: "number",
+      description:
+        "Distance in miles from the catchment centre, derived from the postcode at submission time via postcodes.io. Read-only.",
+      readOnly: true,
+    }),
+    defineField({
       name: "phone",
       title: "Phone",
       type: "string",
@@ -151,11 +175,20 @@ export const venue = defineType({
       title: "title",
       town: "town",
       media: "image",
+      coordinates: "coordinates",
+      coordinatesVerified: "coordinatesVerified",
+      outsideCatchment: "outsideCatchment",
+      distanceFromCentreMiles: "distanceFromCentreMiles",
     },
-    prepare({ title, town, media }) {
+    prepare({ title, town, media, coordinates, coordinatesVerified, outsideCatchment, distanceFromCentreMiles }) {
+      const hasCoords = !!(coordinates?.lat && coordinates?.lng);
+      const pinFlag = hasCoords && !coordinatesVerified ? " ⚠ unverified pin" : "";
+      const catchmentFlag = outsideCatchment
+        ? ` ⚠ outside catchment${typeof distanceFromCentreMiles === "number" ? ` (${distanceFromCentreMiles.toFixed(1)} mi)` : ""}`
+        : "";
       return {
         title,
-        subtitle: town || "Langport",
+        subtitle: `${town || "Langport"}${pinFlag}${catchmentFlag}`,
         media,
       };
     },

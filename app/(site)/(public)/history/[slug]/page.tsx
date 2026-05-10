@@ -25,7 +25,7 @@ export default async function HistoricSitePage({ params }: Props) {
   ]);
   if (!site) notFound();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const related = allSites.filter((s: any) => s.slug.current !== slug);
 
   return (
@@ -104,7 +104,7 @@ export default async function HistoricSitePage({ params }: Props) {
             Gallery
           </h2>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 auto-rows-[200px] sm:auto-rows-[240px]">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            { }
             {site.images.map((img: any, i: number) => {
               // First image spans 2 cols if there are 3+ images
               const isFeature = i === 0 && site.images.length >= 3;
@@ -133,7 +133,7 @@ export default async function HistoricSitePage({ params }: Props) {
             More Historic Sites
           </h2>
           <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            { }
             {related.map((s: any) => (
               <Link
                 key={s._id}

@@ -127,6 +127,36 @@ export const event = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "recurrenceRule",
+      title: "Recurrence Rule (RRULE)",
+      type: "string",
+      description:
+        "RFC 5545 RRULE string (e.g. \"FREQ=WEEKLY;BYDAY=TU\"). Leave blank for one-off events. Public submitters use the guided picker on the form; this field stores the resulting string. The frontend expands this into individual occurrences capped at 12 months from now.",
+    }),
+    defineField({
+      name: "recurrenceEndDate",
+      title: "Recurrence End Date",
+      type: "date",
+      description:
+        "When the recurring event series ends. Defaults to one year from the start date. Approving the event approves all occurrences up to this date (capped at 12 months from now).",
+    }),
+    defineField({
+      name: "excludedDates",
+      title: "Excluded Dates",
+      type: "array",
+      of: [{ type: "date" }],
+      description:
+        "Specific dates on which this recurring event will NOT happen (e.g. cancelled due to weather, or skipping a public holiday).",
+    }),
+    defineField({
+      name: "expiryReminderSentAt",
+      title: "Expiry Reminder Sent At",
+      type: "datetime",
+      description:
+        "Set automatically by the daily reminder cron when an email is sent about this series approaching its recurrence end date. Prevents duplicate reminders. Do not edit by hand.",
+      readOnly: true,
+    }),
+    defineField({
       name: "accessibilityInfo",
       title: "Accessibility Information",
       type: "text",

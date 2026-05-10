@@ -27,7 +27,7 @@ const mosaicPatterns = [
 ];
 
 export default async function HistoryPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const sites: any[] = await client.fetch(allHistoricSitesQuery);
 
   return (

@@ -1,3 +1,7 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    { "path": "/api/cron/purge-past-events", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/series-expiry-reminders", "schedule": "0 4 * * *" }
+  ]
 }

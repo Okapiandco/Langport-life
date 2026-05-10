@@ -4,10 +4,91 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageHero from "@/components/PageHero";
 
+// "YYYY-MM-DDTHH:mm" is the format <input type="datetime-local"> expects.
+function toDatetimeLocalString(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// "YYYY-MM-DD" for <input type="date">. Default recurrence end = start + 1 year.
+function defaultRecurrenceEnd(startIso: string): string {
+  if (!startIso) return "";
+  const d = new Date(startIso);
+  if (Number.isNaN(d.getTime())) return "";
+  d.setFullYear(d.getFullYear() + 1);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+type RecurrenceFreq = "none" | "weekly" | "biweekly" | "monthly" | "yearly";
+
 export default function SubmitEventPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Linked start/end. End auto-fills from start until the user edits it directly,
+  // after which start changes shift end by the same delta (preserves duration).
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [endTouched, setEndTouched] = useState(false);
+
+  // Recurrence picker. Server side translates frequency + start date into an RRULE.
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState<RecurrenceFreq>("none");
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
+  const [recurrenceEndTouched, setRecurrenceEndTouched] = useState(false);
+
+  function handleStartChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const newStart = e.target.value;
+
+    if (!endTouched || !endDate) {
+      // User hasn't deliberately set a different end yet (or has cleared it).
+      // Mirror the start so single-day events don't need both fields filled.
+      setEndDate(newStart);
+    } else if (startDate && newStart) {
+      // Multi-day event: keep the same duration by shifting end by the start delta.
+      const oldStartMs = new Date(startDate).getTime();
+      const endMs = new Date(endDate).getTime();
+      const newStartMs = new Date(newStart).getTime();
+      if (
+        Number.isFinite(oldStartMs) &&
+        Number.isFinite(endMs) &&
+        Number.isFinite(newStartMs)
+      ) {
+        const duration = endMs - oldStartMs;
+        setEndDate(toDatetimeLocalString(new Date(newStartMs + duration)));
+      }
+    }
+
+    // If recurrence is on and the user hasn't pinned a recurrence end date yet,
+    // re-derive it from the new start (default = start + 1 year).
+    if (recurrenceFrequency !== "none" && !recurrenceEndTouched) {
+      setRecurrenceEndDate(defaultRecurrenceEnd(newStart));
+    }
+
+    setStartDate(newStart);
+  }
+
+  function handleEndChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+    setEndDate(value);
+    // Treat clearing end as un-touching, so the next start change re-mirrors.
+    setEndTouched(value !== "");
+  }
+
+  function handleFrequencyChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const value = e.target.value as RecurrenceFreq;
+    setRecurrenceFrequency(value);
+    if (value !== "none" && !recurrenceEndTouched && startDate) {
+      setRecurrenceEndDate(defaultRecurrenceEnd(startDate));
+    }
+  }
+
+  function handleRecurrenceEndChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+    setRecurrenceEndDate(value);
+    setRecurrenceEndTouched(value !== "");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,6 +111,10 @@ export default function SubmitEventPage() {
       eventIsFree: form.get("eventIsFree") === "on",
       ticketsUrl: form.get("ticketsUrl") || undefined,
       organiser: form.get("organiser") || undefined,
+      // Recurrence: server translates frequency + start date into an RRULE.
+      // Frequency = "" for one-off events.
+      recurrenceFrequency: form.get("recurrenceFrequency") || undefined,
+      recurrenceEndDate: form.get("recurrenceEndDate") || undefined,
     };
 
     try {
@@ -155,6 +240,8 @@ export default function SubmitEventPage() {
                   id="eventDate"
                   name="eventDate"
                   required
+                  value={startDate}
+                  onChange={handleStartChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -166,10 +253,60 @@ export default function SubmitEventPage() {
                   type="datetime-local"
                   id="eventEndDate"
                   name="eventEndDate"
+                  value={endDate}
+                  onChange={handleEndChange}
+                  min={startDate || undefined}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
             </div>
+
+            {/* Recurrence */}
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="text-sm font-medium text-gray-700">Does this event repeat?</p>
+              <p className="mt-1 text-xs text-gray-500">
+                For weekly clubs, monthly markets, annual festivals. Leave on &quot;No&quot; for a one-off event.
+              </p>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="recurrenceFrequency" className="block text-sm font-medium text-gray-700">
+                    Repeats
+                  </label>
+                  <select
+                    id="recurrenceFrequency"
+                    name="recurrenceFrequency"
+                    value={recurrenceFrequency}
+                    onChange={handleFrequencyChange}
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="none">No — one-off event</option>
+                    <option value="weekly">Weekly (same day each week)</option>
+                    <option value="biweekly">Every 2 weeks (same day)</option>
+                    <option value="monthly">Monthly (same day of month)</option>
+                    <option value="yearly">Yearly (same date each year)</option>
+                  </select>
+                </div>
+                {recurrenceFrequency !== "none" && (
+                  <div>
+                    <label htmlFor="recurrenceEndDate" className="block text-sm font-medium text-gray-700">
+                      Repeats until
+                    </label>
+                    <input
+                      type="date"
+                      id="recurrenceEndDate"
+                      name="recurrenceEndDate"
+                      value={recurrenceEndDate}
+                      onChange={handleRecurrenceEndChange}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Defaults to 1 year. Approval covers occurrences in the next 12 months.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="eventVenue" className="block text-sm font-medium text-gray-700">

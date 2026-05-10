@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { venueBySlugQuery } from "@/lib/queries";
+import { expandEvents, MAX_EXPANSION_MONTHS } from "@/lib/recurrence";
 import { formatDateTime, getFacilityLabel } from "@/lib/utils";
 import Gallery from "@/components/Gallery";
-import VenueQRCode from "@/components/VenueQRCode";
 
 export const revalidate = 3600;
 
@@ -30,6 +30,16 @@ export default async function VenuePage({ params }: Props) {
 
   const hasContact = venue.street || venue.phone || venue.email || venue.website;
   const hasCoordinates = venue.coordinates?.lat && venue.coordinates?.lng;
+
+  // Expand recurring events at this venue into per-occurrence rows.
+  const now = new Date();
+  const horizon = new Date();
+  horizon.setMonth(horizon.getMonth() + MAX_EXPANSION_MONTHS);
+  const upcomingEventOccurrences = expandEvents(
+    venue.upcomingEvents ?? [],
+    now,
+    horizon
+  );
 
   return (
     <article className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -109,15 +119,17 @@ export default async function VenuePage({ params }: Props) {
               <div className="mt-2 h-1 w-12 rounded-full bg-copper" />
 
               {/* Upcoming */}
-              {venue.upcomingEvents && venue.upcomingEvents.length > 0 && (
+              {upcomingEventOccurrences.length > 0 && (
                 <div className="mt-6">
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-green">
                     Upcoming
                   </h3>
                   <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                    {venue.upcomingEvents.map((event: any) => (
+                    {upcomingEventOccurrences.map((occ) => {
+                      const event = occ.event as any;
+                      return (
                       <Link
-                        key={event._id}
+                        key={occ.occurrenceId}
                         href={`/events/${event.slug.current}`}
                         className="group overflow-hidden rounded-xl border border-gray-200 bg-white no-underline shadow-sm hover:shadow-md transition-shadow"
                       >
@@ -169,66 +181,13 @@ export default async function VenuePage({ params }: Props) {
                           )}
                         </div>
                       </Link>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
-
-              {/* Past */}
-              {venue.pastEvents && venue.pastEvents.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-                    Past Events
-                  </h3>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    {venue.pastEvents.map((event: any) => (
-                      <Link
-                        key={event._id}
-                        href={`/events/${event.slug.current}`}
-                        className="group flex gap-3 rounded-lg border border-gray-100 bg-white p-3 no-underline hover:border-gray-200 hover:shadow-sm transition-all"
-                      >
-                        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
-                          {event.image?.asset ? (
-                            <Image
-                              src={urlFor(event.image)
-                                .width(64)
-                                .height(64)
-                                .url()}
-                              alt={event.image.alt || event.title}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-gray-300">
-                              <svg
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={1}
-                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                />
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs text-gray-400">
-                            {formatDateTime(event.date)}
-                          </p>
-                          <p className="mt-0.5 text-sm font-medium text-gray-700 group-hover:text-primary line-clamp-2">
-                            {event.title}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Past events block intentionally removed: per docs/recurring-events-scoping.md
+                  past events auto-delete after a grace period, so this section would render empty. */}
             </div>
           )}
         </div>
@@ -399,12 +358,6 @@ export default async function VenuePage({ params }: Props) {
               </p>
             </div>
           )}
-
-          {/* QR Code */}
-          <VenueQRCode
-            venueUrl={`https://langport.life/venues/${slug}`}
-            venueName={venue.title}
-          />
         </aside>
       </div>
     </article>

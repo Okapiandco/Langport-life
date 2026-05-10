@@ -1,17 +1,21 @@
 import { groq } from "next-sanity";
 
 // Events
+// Note: `recurrenceRule`, `recurrenceEndDate`, `excludedDates` are projected so the
+// frontend can expand RRULE-based events at request time. See lib/recurrence.ts.
 export const allEventsQuery = groq`
   *[_type == "event" && status == "published"] | order(date asc) {
     _id, title, slug, date, endDate, eventType, isFree, tags,
+    recurrenceRule, recurrenceEndDate, excludedDates,
     image { asset->{url}, alt },
     venue->{ _id, title, slug, town }
   }
 `;
 
 export const upcomingEventsQuery = groq`
-  *[_type == "event" && status == "published" && date >= now()] | order(date asc) [0...$limit] {
+  *[_type == "event" && status == "published" && (date >= now() || defined(recurrenceRule))] | order(date asc) [0...$limit] {
     _id, title, slug, date, endDate, eventType, isFree, tags,
+    recurrenceRule, recurrenceEndDate, excludedDates,
     image { asset->{url}, alt },
     venue->{ _id, title, slug, town }
   }
@@ -22,6 +26,7 @@ export const eventBySlugQuery = groq`
     _id, title, slug, description, date, endDate, eventType, isFree,
     tags, organiser, contactName, contactEmail, contactPhone,
     accessibilityInfo, maxAttendees, ticketsUrl, status,
+    recurrenceRule, recurrenceEndDate, excludedDates,
     image { asset->{url}, alt },
     venue->{ _id, title, slug, street, town, postcode, coordinates, phone, email, website }
   }
@@ -50,12 +55,9 @@ export const venueBySlugQuery = groq`
     phone, email, website, capacity, facilities, tags, status,
     image { asset->{url}, alt },
     images[] { asset->{url}, alt },
-    "upcomingEvents": *[_type == "event" && references(^._id) && status == "published" && date >= now()] | order(date asc) {
-      _id, title, slug, date, eventType, isFree,
-      image { asset->{url}, alt }
-    },
-    "pastEvents": *[_type == "event" && references(^._id) && status == "published" && date < now()] | order(date desc) [0...6] {
-      _id, title, slug, date, eventType, isFree,
+    "upcomingEvents": *[_type == "event" && references(^._id) && status == "published" && (date >= now() || defined(recurrenceRule))] | order(date asc) {
+      _id, title, slug, date, endDate, eventType, isFree,
+      recurrenceRule, recurrenceEndDate, excludedDates,
       image { asset->{url}, alt }
     },
     "allEvents": *[_type == "event" && references(^._id) && status == "published"] | order(date desc) {
@@ -204,22 +206,31 @@ export const articleCategoriesQuery = groq`
 // Search
 export const searchQuery = groq`
   *[
-    _type in ["event", "venue", "businessListing", "article", "page", "historicSite", "activity"] &&
-    (title match $query || pt::text(description) match $query || pt::text(content) match $query) &&
+    _type in ["event", "venue", "businessListing", "article", "page", "historicSite", "activity", "group"] &&
+    (
+      title match $query ||
+      name match $query ||
+      excerpt match $query ||
+      pt::text(description) match $query ||
+      pt::text(content) match $query
+    ) &&
     select(
       _type == "event" => status == "published",
       _type == "venue" => status == "active",
       _type == "businessListing" => status == "published",
+      _type == "group" => status == "approved",
       _type == "article" => published == true,
       _type == "page" => published == true,
       _type == "activity" => published == true,
       true
     )
-  ] [0...20] {
-    _id, _type, title, slug,
+  ] | order(_type asc, coalesce(title, name) asc) [0...30] {
+    _id,
+    _type,
+    "title": coalesce(title, name),
+    slug,
     "excerpt": coalesce(excerpt, pt::text(description)[0...150]),
-    image { asset->{url}, alt },
-    "heroImage": heroImage { asset->{url}, alt }
+    "image": coalesce(image, heroImage) { asset->{url}, alt }
   }
 `;
 
@@ -315,33 +326,42 @@ export const transportByTypeQuery = groq`
   }
 `;
 
+// Groups
+export const allGroupsQuery = groq`
+  *[_type == "group" && status == "approved"] | order(name asc) {
+    _id, name, slug, location, meetingTime, cost,
+    image { asset->{url}, alt }
+  }
+`;
+
+export const groupBySlugQuery = groq`
+  *[_type == "group" && slug.current == $slug && status == "approved"][0] {
+    _id, name, slug, description, location, meetingTime, cost,
+    contactName, contactEmail, contactPhone,
+    image { asset->{url}, alt }
+  }
+`;
+
 // Homepage
+// Note: `upcomingEvents` returns ALL published events (one-offs and recurring
+// series), with recurrence fields, so the page can expand series and dedupe
+// to one occurrence per series. The `featuredEvent` lookup uses the same
+// expansion (see app/(site)/page.tsx).
 export const homepageQuery = groq`{
-  "featuredEvent": coalesce(
-    *[_type == "event" && status == "published" && date >= now()] | order(date asc) [0],
-    *[_type == "event" && status == "published"] | order(date desc) [0]
-  ) {
+  "allUpcomingEvents": *[_type == "event" && status == "published" && (date >= now() || defined(recurrenceRule))] | order(date asc) {
     _id, title, slug, date, endDate, eventType, isFree, tags,
+    recurrenceRule, recurrenceEndDate, excludedDates,
     "excerpt": pt::text(description)[0...200],
     image { asset->{url}, alt },
     venue->{ title, town }
-  },
-  "upcomingEvents": *[_type == "event" && status == "published" && date >= now()] | order(date asc) [0...6] {
-    _id, title, slug, date, eventType, isFree,
-    image { asset->{url}, alt },
-    venue->{ title }
   },
   "latestArticles": *[_type == "article" && published == true] | order(publishedAt desc) [0...3] {
     _id, title, slug, excerpt, publishedAt,
     image { asset->{url}, alt },
     category->{ name }
   },
-  "historicSites": *[_type == "historicSite"] | order(title asc) [0...4] {
-    _id, title, slug, constructedYear, heritage,
-    image { asset->{url}, alt }
-  },
   "venueCount": count(*[_type == "venue" && status == "active"]),
-  "eventCount": count(*[_type == "event" && status == "published" && date >= now()]),
+  "eventCount": count(*[_type == "event" && status == "published" && (date >= now() || defined(recurrenceRule))]),
   "listingCount": count(*[_type == "businessListing" && status == "published"]),
   "siteCount": count(*[_type == "historicSite"])
 }`;
