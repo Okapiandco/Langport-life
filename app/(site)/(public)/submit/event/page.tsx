@@ -88,12 +88,8 @@ export default function SubmitEventPage() {
   function handleStartChange(e: React.ChangeEvent<HTMLInputElement>) {
     const newStart = e.target.value;
 
-    if (!endTouched || !endDate) {
-      // User hasn't deliberately set a different end yet (or has cleared it).
-      // Mirror the start so single-day events don't need both fields filled.
-      setEndDate(newStart);
-    } else if (startDate && newStart) {
-      // Multi-day event: keep the same duration by shifting end by the start delta.
+    if (endTouched && endDate && startDate && newStart) {
+      // User has set an end date — preserve their chosen duration by shifting.
       const oldStartMs = new Date(startDate).getTime();
       const endMs = new Date(endDate).getTime();
       const newStartMs = new Date(newStart).getTime();
@@ -106,6 +102,8 @@ export default function SubmitEventPage() {
         setEndDate(toDatetimeLocalString(new Date(newStartMs + duration)));
       }
     }
+    // End date is NOT auto-filled from start — leave it blank so submitters
+    // can omit it if the end time is unknown.
 
     // If recurrence is on and the user hasn't pinned a recurrence end date yet,
     // re-derive it from the new start (default = start + 1 year).
