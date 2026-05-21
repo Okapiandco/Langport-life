@@ -49,18 +49,6 @@ const navigation: NavItem[] = [
   },
   { name: "Shops & Services", href: "/listings", children: [{ name: "All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
   { name: "History", href: "/history" },
-  {
-    name: "Outdoor Life",
-    href: "/things-to-do",
-    mega: {
-      cardsHeading: "Explore the Outdoors",
-      cards: [
-        { name: "The Outdoor Life", href: "/things-to-do/outdoor-life", image: "/things-to-do/outdoor-life.jpg", description: "Water sports, fishing, golf and activities on the River Parrett" },
-        { name: "Walking & Cycling", href: "/things-to-do/walking-and-cycling", image: "/things-to-do/walking-cycling.jpg", description: "Routes and trails through the Somerset Levels" },
-        { name: "Exploring the Wild", href: "/things-to-do/exploring-the-wild", image: "/things-to-do/explore-wild.jpg", description: "Wildlife and wild places on your doorstep" },
-      ],
-    },
-  },
   { name: "Town News", href: "/news" },
   {
     name: "Town Council",
@@ -110,6 +98,8 @@ function SearchIcon({ className }: { className?: string }) {
 interface SanityNavItem {
   title: string;
   href?: string;
+  columnLayout?: boolean;
+  cardsHeading?: string;
   children?: { groupTitle?: string; links?: { title: string; href: string; description?: string }[] }[];
   cards?: { title: string; description?: string; href: string; image?: { asset?: { url?: string } } }[];
 }
@@ -123,22 +113,34 @@ interface SocialLinks {
 function sanityToNav(items: SanityNavItem[]): NavItem[] {
   return items.map((item) => {
     const nav: NavItem = { name: item.title, href: item.href || "#" };
-    if (item.children?.length) {
-      const groups: NavGroup[] = item.children.map((child) => ({
+    const hasChildren = !!item.children?.length;
+    const hasCards = !!item.cards?.length;
+
+    if (hasChildren || hasCards) {
+      const groups: NavGroup[] = (item.children || []).map((child) => ({
         heading: child.groupTitle || "",
         items: (child.links || []).map((l) => ({ name: l.title, href: l.href })),
       }));
-      nav.mega = { groups };
-      if (item.href && item.href !== "#") {
-        nav.mega.footerLink = { label: `View all ${item.title}`, href: item.href };
-      }
-      if (item.cards?.length) {
-        nav.mega.cards = item.cards.map((card) => ({
+
+      nav.mega = {
+        groups: groups.length ? groups : undefined,
+        columnLayout: item.columnLayout ?? false,
+        cardsHeading: item.cardsHeading,
+        // Use a static fallback image for the cards column when none stored in Sanity
+        cardsImage: hasCards ? "/nav-things-to-do.jpg" : undefined,
+      };
+
+      if (hasCards) {
+        nav.mega.cards = item.cards!.map((card) => ({
           name: card.title,
           href: card.href,
           description: card.description,
           image: card.image?.asset?.url,
         }));
+      }
+
+      if (item.href && item.href !== "#") {
+        nav.mega.footerLink = { label: `View all ${item.title}`, href: item.href };
       }
     }
     return nav;

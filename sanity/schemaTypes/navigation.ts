@@ -89,6 +89,19 @@ export const navigation = defineType({
               ],
             }),
             defineField({
+              name: "columnLayout",
+              title: "Use 4-column image layout",
+              type: "boolean",
+              description: "Renders each link group with a 16:9 image above it (What's On style)",
+              initialValue: false,
+            }),
+            defineField({
+              name: "cardsHeading",
+              title: "Cards column heading",
+              type: "string",
+              description: "Heading shown above the image cards column (e.g. 'Things to Do')",
+            }),
+            defineField({
               name: "cards",
               title: "Image Cards",
               type: "array",
