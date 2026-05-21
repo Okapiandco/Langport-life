@@ -7,13 +7,15 @@ import { useState, useRef, useEffect } from "react";
 
 interface NavChild { name: string; href: string; }
 interface MegaCard { name: string; href: string; image?: string; description?: string; }
-interface NavGroup { heading: string; items: NavChild[]; }
+interface NavGroup { heading: string; items: NavChild[]; image?: string; }
 interface MegaMenu {
   groups?: NavGroup[];
   cards?: MegaCard[];
   cardsHeading?: string;
+  cardsImage?: string;
   footerLink?: { label: string; href: string };
   showFeaturedEvents?: boolean;
+  columnLayout?: boolean;
 }
 interface NavItem { name: string; href: string; children?: NavChild[]; mega?: MegaMenu; }
 interface FeaturedEvent {
@@ -29,11 +31,18 @@ const navigation: NavItem[] = [
     name: "What's On",
     href: "/events",
     mega: {
-      showFeaturedEvents: true,
+      columnLayout: true,
       groups: [
-        { heading: "Events", items: [{ name: "Events Calendar", href: "/events" }, { name: "Submit an Event", href: "/submit/event" }] },
-        { heading: "Venues", items: [{ name: "All Venues", href: "/venues" }, { name: "Add a Venue", href: "/submit/venue" }] },
-        { heading: "Groups", items: [{ name: "Community Groups", href: "/community-groups" }, { name: "Add a Group", href: "/submit/group" }] },
+        { heading: "Events", image: "/nav-whats-on.jpg", items: [{ name: "What's On", href: "/events" }, { name: "Submit an Event", href: "/submit/event" }] },
+        { heading: "Venues", image: "/nav-shops.jpg", items: [{ name: "All Venues", href: "/venues" }, { name: "Add a Venue", href: "/submit/venue" }] },
+        { heading: "Groups", image: "/things-to-do/kayaking.jpg", items: [{ name: "Community Groups", href: "/community-groups" }, { name: "Add a Group", href: "/submit/group" }] },
+      ],
+      cardsHeading: "Things to Do",
+      cardsImage: "/nav-things-to-do.jpg",
+      cards: [
+        { name: "The Outdoor Life", href: "/things-to-do/outdoor-life" },
+        { name: "Walking & Cycling", href: "/things-to-do/walking-and-cycling" },
+        { name: "Exploring the Wild", href: "/things-to-do/exploring-the-wild" },
       ],
       footerLink: { label: "View all events", href: "/events" },
     },
@@ -278,19 +287,76 @@ export default function Header({
                   </button>
 
                   {openDropdown === item.name && (() => {
+                    // 4-column layout: image + heading + links per column
+                    if (item.mega.columnLayout) {
+                      return (
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full z-20 mt-2 rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-black/5 w-[72rem]">
+                          <div className="grid grid-cols-4 gap-6">
+                            {item.mega.groups?.map((group) => (
+                              <div key={group.heading}>
+                                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+                                  {group.image ? (
+                                    <Image src={group.image} alt={group.heading} fill className="object-cover" />
+                                  ) : (
+                                    <div className="h-full w-full bg-primary/10" />
+                                  )}
+                                </div>
+                                <h3 className="mt-3 text-xs font-bold uppercase tracking-wider text-copper">{group.heading}</h3>
+                                <ul className="mt-2 space-y-0.5">
+                                  {group.items.map((child) => (
+                                    <li key={child.href}>
+                                      <Link href={child.href} className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 no-underline hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
+                                        {child.name}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                            {item.mega.cards && (
+                              <div>
+                                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+                                  {item.mega.cardsImage ? (
+                                    <Image src={item.mega.cardsImage} alt={item.mega.cardsHeading ?? "Things to Do"} fill className="object-cover" />
+                                  ) : (
+                                    <div className="h-full w-full bg-primary/10" />
+                                  )}
+                                </div>
+                                <h3 className="mt-3 text-xs font-bold uppercase tracking-wider text-copper">
+                                  {item.mega.cardsHeading ?? "Things to Do"}
+                                </h3>
+                                <ul className="mt-2 space-y-0.5">
+                                  {item.mega.cards.map((card) => (
+                                    <li key={card.href}>
+                                      <Link href={card.href} className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 no-underline hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
+                                        {card.name}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                          {item.mega.footerLink && (
+                            <div className="mt-6 border-t border-gray-100 pt-5">
+                              <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
+                                {item.mega.footerLink.label} &rarr;
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Standard layout: groups sidebar + thumbnail cards (Outdoor Life etc)
                     const hasFeatured = !!(item.mega.showFeaturedEvents && events.length > 0);
-                    const dropdownWidth = item.mega.cards
-                      ? "w-[72rem]"
-                      : hasFeatured
-                        ? "w-[54rem]"
-                        : "w-[56rem]";
+                    const dropdownWidth = item.mega.cards ? "w-[72rem]" : hasFeatured ? "w-[54rem]" : "w-[56rem]";
                     const hasSidePanel = !!(item.mega.cards || hasFeatured);
                     const currentEvent = hasFeatured ? events[currentEventIdx % events.length] : null;
 
                     return (
                       <div className={`absolute left-1/2 -translate-x-1/2 top-full z-20 mt-2 rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-black/5 ${dropdownWidth}`}>
                         <div className={hasSidePanel ? "flex gap-8" : ""}>
-                          {/* Link groups */}
                           {item.mega.groups && item.mega.groups.length > 0 && (
                             <div className={item.mega.cards ? "w-48 flex-shrink-0 space-y-6" : "flex-1 flex gap-8"}>
                               {item.mega.groups.map((group) => (
@@ -309,8 +375,6 @@ export default function Header({
                               ))}
                             </div>
                           )}
-
-                          {/* Thumbnail cards (Outdoor Life etc) */}
                           {item.mega.cards && (
                             <div className="flex-1">
                               <h3 className="text-xs font-bold uppercase tracking-wider text-copper mb-4">
@@ -334,24 +398,13 @@ export default function Header({
                               </div>
                             </div>
                           )}
-
-                          {/* Rolling featured event (What's On) */}
                           {hasFeatured && currentEvent && (
                             <div className="w-56 flex-shrink-0">
                               <h3 className="text-xs font-bold uppercase tracking-wider text-copper mb-4">Coming up</h3>
-                              <Link
-                                href={`/events/${currentEvent.slug.current}`}
-                                className="group block no-underline"
-                                onClick={() => setOpenDropdown(null)}
-                              >
+                              <Link href={`/events/${currentEvent.slug.current}`} className="group block no-underline" onClick={() => setOpenDropdown(null)}>
                                 <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
                                   {currentEvent.image?.asset?.url ? (
-                                    <Image
-                                      src={currentEvent.image.asset.url}
-                                      alt={currentEvent.image.alt || currentEvent.title}
-                                      fill
-                                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
+                                    <Image src={currentEvent.image.asset.url} alt={currentEvent.image.alt || currentEvent.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                                   ) : (
                                     <div className="h-full w-full bg-primary/10" />
                                   )}
@@ -365,14 +418,8 @@ export default function Header({
                               {events.length > 1 && (
                                 <div className="mt-3 flex justify-center gap-1.5">
                                   {events.map((_, i) => (
-                                    <button
-                                      key={i}
-                                      onClick={() => setCurrentEventIdx(i)}
-                                      className={`rounded-full transition-all duration-200 ${
-                                        i === currentEventIdx % events.length
-                                          ? "h-1.5 w-4 bg-primary"
-                                          : "h-1.5 w-1.5 bg-gray-300 hover:bg-gray-400"
-                                      }`}
+                                    <button key={i} onClick={() => setCurrentEventIdx(i)}
+                                      className={`rounded-full transition-all duration-200 ${i === currentEventIdx % events.length ? "h-1.5 w-4 bg-primary" : "h-1.5 w-1.5 bg-gray-300 hover:bg-gray-400"}`}
                                       aria-label={`Show event ${i + 1}`}
                                     />
                                   ))}
@@ -381,7 +428,6 @@ export default function Header({
                             </div>
                           )}
                         </div>
-
                         {item.mega.footerLink && (
                           <div className="mt-6 border-t border-gray-100 pt-5">
                             <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
@@ -512,19 +558,23 @@ export default function Header({
                           ))}
                         </div>
                       ))}
-                      {item.mega.cards?.map((card) => (
-                        <Link key={card.href} href={card.href} className="flex items-center gap-3 px-3 py-2 no-underline hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                          {card.image && (
-                            <div className="relative h-10 w-14 flex-shrink-0 overflow-hidden rounded">
-                              <Image src={card.image} alt={card.name} fill className="object-cover" />
-                            </div>
+                      {item.mega.cards && (
+                        <div className="mb-2">
+                          {item.mega.cardsHeading && (
+                            <span className="block px-3 py-1 text-xs font-semibold uppercase tracking-wider text-copper">{item.mega.cardsHeading}</span>
                           )}
-                          <div>
-                            <span className="text-sm font-medium text-gray-900">{card.name}</span>
-                            {card.description && <p className="text-xs text-gray-500">{card.description}</p>}
-                          </div>
-                        </Link>
-                      ))}
+                          {item.mega.cards.map((card) => (
+                            <Link key={card.href} href={card.href} className="flex items-center gap-3 pl-6 py-1.5 no-underline hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
+                              {card.image && (
+                                <div className="relative h-8 w-12 flex-shrink-0 overflow-hidden rounded">
+                                  <Image src={card.image} alt={card.name} fill className="object-cover" />
+                                </div>
+                              )}
+                              <span className="text-sm text-gray-700">{card.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                       {item.mega.showFeaturedEvents && events.length > 0 && (
                         <div className="px-3 py-2">
                           <span className="text-xs font-semibold uppercase tracking-wider text-copper">Coming up</span>
