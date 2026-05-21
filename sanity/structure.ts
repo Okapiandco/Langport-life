@@ -330,6 +330,36 @@ export const structure: StructureResolver = (S) =>
                   S.documentTypeList("councilMember").title("Council Members")
                 ),
 
+              S.divider(),
+
+              // Staff
+              S.listItem()
+                .title("Staff")
+                .child(
+                  S.list()
+                    .title("Staff")
+                    .items([
+                      S.listItem()
+                        .title("Active Staff")
+                        .child(
+                          S.documentTypeList("staffMember")
+                            .title("Active Staff")
+                            .filter('_type == "staffMember" && isActive == true')
+                            .defaultOrdering([{ field: "order", direction: "asc" }])
+                        ),
+                      S.listItem()
+                        .title("All Staff")
+                        .schemaType("staffMember")
+                        .child(
+                          S.documentTypeList("staffMember")
+                            .title("All Staff")
+                            .defaultOrdering([{ field: "order", direction: "asc" }])
+                        ),
+                    ])
+                ),
+
+              S.divider(),
+
               // Documents — broken into By Committee / By Type / All
               S.listItem()
                 .title("Documents")
