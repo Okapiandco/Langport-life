@@ -6,9 +6,9 @@ import GroupCard from "@/components/GroupCard";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Join a Group",
+  title: "Community Groups",
   description:
-    "Find local groups, clubs and societies to join in and around Langport, Somerset.",
+    "Find local groups, clubs and societies in and around Langport, Somerset.",
 };
 
 export const revalidate = 3600;
@@ -25,18 +25,18 @@ interface GroupListItem {
   image?: { asset: { url: string }; alt?: string };
 }
 
-export default async function JoinAGroupPage() {
+export default async function CommunityGroupsPage() {
   const groups: GroupListItem[] = await client.fetch(allGroupsQuery);
 
   return (
     <>
       <PageHero
         section="things-to-do"
-        title="Join a Group"
+        title="Community Groups"
         subtitle="Local groups, clubs and societies in and around Langport — find one to join."
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Join a Group" },
+          { label: "Community Groups" },
         ]}
       />
 

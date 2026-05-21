@@ -33,7 +33,7 @@ const navigation: NavItem[] = [
       groups: [
         { heading: "Events", items: [{ name: "Events Calendar", href: "/events" }, { name: "Submit an Event", href: "/submit/event" }] },
         { heading: "Venues", items: [{ name: "All Venues", href: "/venues" }, { name: "Add a Venue", href: "/submit/venue" }] },
-        { heading: "Groups", items: [{ name: "Join a Group", href: "/join-a-group" }, { name: "Add a Group", href: "/submit/group" }] },
+        { heading: "Groups", items: [{ name: "Community Groups", href: "/community-groups" }, { name: "Add a Group", href: "/submit/group" }] },
       ],
       footerLink: { label: "View all events", href: "/events" },
     },

@@ -84,7 +84,7 @@ export default function SubmitGroupPage() {
         subtitle="Tell us about your group and we'll add it to the listings."
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Join a Group", href: "/join-a-group" },
+          { label: "Community Groups", href: "/community-groups" },
           { label: "Add a Group" },
         ]}
       />

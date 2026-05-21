@@ -52,7 +52,7 @@ export default async function GroupDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: group.name,
-    url: `${SITE_URL}/join-a-group/${group.slug.current}`,
+    url: `${SITE_URL}/community-groups/${group.slug.current}`,
   };
   if (group.image?.asset?.url) jsonLd.image = group.image.asset.url;
   if (group.location) jsonLd.location = group.location;

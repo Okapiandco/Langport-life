@@ -19,7 +19,7 @@ interface GroupCardProps {
 export default function GroupCard({ group }: GroupCardProps) {
   return (
     <Link
-      href={`/join-a-group/${group.slug.current}`}
+      href={`/community-groups/${group.slug.current}`}
       className="group block overflow-hidden rounded-xl border border-gray-200 bg-white no-underline shadow-sm transition-shadow hover:shadow-md"
     >
       {/* Thumbnail */}

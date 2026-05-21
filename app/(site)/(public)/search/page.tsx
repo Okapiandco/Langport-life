@@ -43,7 +43,7 @@ function resultHref(r: SearchResult): string | null {
     case "article": return `/news/${slug}`;
     case "historicSite": return `/history/${slug}`;
     case "activity": return `/things-to-do/${slug}`;
-    case "group": return `/join-a-group/${slug}`;
+    case "group": return `/community-groups/${slug}`;
     case "page": return `/${slug}`;
     default: return null;
   }
