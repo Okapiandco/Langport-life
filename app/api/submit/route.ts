@@ -247,6 +247,9 @@ export async function POST(request: NextRequest) {
       phone,
       email,
       website,
+      // Submitter-verified pin (from the map picker on the listing form)
+      lat,
+      lng,
     } = body;
 
     // Validate required fields
@@ -349,13 +352,12 @@ export async function POST(request: NextRequest) {
           : undefined,
       });
     } else if (type === "listing") {
-      // Auto-geocode the address as a starting suggestion. Editor verifies and
-      // ticks `coordinatesVerified` in Studio.
-      const coordinates = await geocodeAddress({
-        street,
-        town: town || "Langport",
-        postcode,
-      });
+      // Use submitter-confirmed pin if provided; otherwise auto-geocode as a
+      // starting suggestion. Editor still verifies in Studio either way.
+      const coordinates =
+        typeof lat === "number" && typeof lng === "number"
+          ? { _type: "geopoint" as const, lat, lng }
+          : await geocodeAddress({ street, town: town || "Langport", postcode });
 
       doc = await writeClient.create({
         _type: "businessListing",
