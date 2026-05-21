@@ -107,17 +107,75 @@ export const councilDocument = defineType({
       name: "dateDesc",
       by: [{ field: "date", direction: "desc" }],
     },
+    {
+      title: "Date, Oldest",
+      name: "dateAsc",
+      by: [{ field: "date", direction: "asc" }],
+    },
+    {
+      title: "Meeting Date, Newest",
+      name: "meetingDateDesc",
+      by: [{ field: "meetingDate", direction: "desc" }],
+    },
+    {
+      title: "Type, then Date",
+      name: "typeDate",
+      by: [
+        { field: "documentType", direction: "asc" },
+        { field: "date", direction: "desc" },
+      ],
+    },
+    {
+      title: "Title A–Z",
+      name: "titleAsc",
+      by: [{ field: "title", direction: "asc" }],
+    },
   ],
   preview: {
     select: {
       title: "title",
       type: "documentType",
       date: "date",
+      tags: "tags",
     },
-    prepare({ title, type, date }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prepare({ title, type, date, tags }: any) {
+      const typeLabels: Record<string, string> = {
+        agenda: "Agenda",
+        minutes: "Minutes",
+        policy: "Policy",
+        decision: "Decision",
+        agm: "AGM",
+        financial: "Financial Report",
+        other: "Other",
+      };
+      const committeeValues = [
+        "full-council",
+        "finance-personnel",
+        "tourism-marketing",
+        "annual-assembly",
+        "joint-committee",
+        "governance",
+        "finance",
+      ];
+      const committeeLabels: Record<string, string> = {
+        "full-council": "Full Council",
+        "finance-personnel": "Finance & Personnel",
+        "tourism-marketing": "Tourism & Marketing",
+        "annual-assembly": "Annual Assembly",
+        "joint-committee": "Joint Committee",
+        governance: "Governance",
+        finance: "Finance",
+        archived: "Archived",
+      };
+      const committees = ((tags || []) as string[])
+        .filter((t: string) => committeeValues.includes(t))
+        .map((t: string) => committeeLabels[t] || t);
       return {
         title,
-        subtitle: `${type || "Document"} — ${date || "No date"}`,
+        subtitle: [typeLabels[type] || type, date, committees.join(", ")]
+          .filter(Boolean)
+          .join(" — "),
       };
     },
   },

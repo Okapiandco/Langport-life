@@ -329,13 +329,176 @@ export const structure: StructureResolver = (S) =>
                 .child(
                   S.documentTypeList("councilMember").title("Council Members")
                 ),
+
+              // Documents — broken into By Committee / By Type / All
               S.listItem()
                 .title("Documents")
-                .schemaType("councilDocument")
                 .child(
-                  S.documentTypeList("councilDocument").title(
-                    "Council Documents"
-                  )
+                  S.list()
+                    .title("Council Documents")
+                    .items([
+
+                      // ── By Committee ──
+                      S.listItem()
+                        .title("By Committee")
+                        .child(
+                          S.list()
+                            .title("By Committee")
+                            .items([
+                              S.listItem()
+                                .title("Full Council")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Full Council")
+                                    .filter('_type == "councilDocument" && "full-council" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Finance & Personnel")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Finance & Personnel")
+                                    .filter('_type == "councilDocument" && "finance-personnel" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Tourism & Marketing")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Tourism & Marketing")
+                                    .filter('_type == "councilDocument" && "tourism-marketing" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Annual Assembly")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Annual Assembly")
+                                    .filter('_type == "councilDocument" && "annual-assembly" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Joint Committee")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Joint Committee")
+                                    .filter('_type == "councilDocument" && "joint-committee" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Governance")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Governance")
+                                    .filter('_type == "councilDocument" && "governance" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Finance")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Finance")
+                                    .filter('_type == "councilDocument" && "finance" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Archived")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Archived")
+                                    .filter('_type == "councilDocument" && "archived" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.divider(),
+                              S.listItem()
+                                .title("Untagged")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Untagged Documents")
+                                    .filter('_type == "councilDocument" && (tags == null || length(tags) == 0)')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                            ])
+                        ),
+
+                      // ── By Type ──
+                      S.listItem()
+                        .title("By Type")
+                        .child(
+                          S.list()
+                            .title("By Type")
+                            .items([
+                              S.listItem()
+                                .title("Agendas")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Agendas")
+                                    .filter('_type == "councilDocument" && documentType == "agenda"')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Minutes")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Minutes")
+                                    .filter('_type == "councilDocument" && documentType == "minutes"')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Policies")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Policies")
+                                    .filter('_type == "councilDocument" && documentType == "policy"')
+                                    .defaultOrdering([{ field: "title", direction: "asc" }])
+                                ),
+                              S.listItem()
+                                .title("Decisions")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Decisions")
+                                    .filter('_type == "councilDocument" && documentType == "decision"')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("AGM Notes")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("AGM Notes")
+                                    .filter('_type == "councilDocument" && documentType == "agm"')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Financial Reports")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Financial Reports")
+                                    .filter('_type == "councilDocument" && documentType == "financial"')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                              S.listItem()
+                                .title("Other")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Other Documents")
+                                    .filter('_type == "councilDocument" && documentType == "other"')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
+                            ])
+                        ),
+
+                      S.divider(),
+
+                      // ── All Documents ──
+                      S.listItem()
+                        .title("All Documents")
+                        .schemaType("councilDocument")
+                        .child(
+                          S.documentTypeList("councilDocument")
+                            .title("All Council Documents")
+                            .defaultOrdering([{ field: "date", direction: "desc" }])
+                        ),
+                    ])
                 ),
             ])
         ),
