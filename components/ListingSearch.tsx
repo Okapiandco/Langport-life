@@ -6,11 +6,12 @@ import ListingCard from "./ListingCard";
 interface ListingSearchProps {
   listings: any[];
   categories: any[];
+  initialCategory?: string;
 }
 
-export default function ListingSearch({ listings, categories }: ListingSearchProps) {
+export default function ListingSearch({ listings, categories, initialCategory }: ListingSearchProps) {
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(initialCategory ?? "");
   const [sortBy, setSortBy] = useState("name");
 
   const filtered = useMemo(() => {

@@ -53,9 +53,9 @@ const navigation: NavItem[] = [
     mega: {
       columnLayout: true,
       groups: [
-        { heading: "Accommodation", image: "/nav-accommodation.jpg", items: [{ name: "Hotels & B&Bs", href: "/listings" }, { name: "Self-Catering", href: "/listings" }] },
-        { heading: "Shops", image: "/nav-shops.jpg", items: [{ name: "All Shops", href: "/listings" }, { name: "Gifts & Gallery", href: "/listings" }, { name: "Outdoor & Garden", href: "/listings" }] },
-        { heading: "Food & Drink", image: "/nav-food-drink.jpg", items: [{ name: "Cafés & Coffee", href: "/listings" }, { name: "Pubs & Bars", href: "/listings" }, { name: "Restaurants", href: "/listings" }, { name: "Takeaways", href: "/listings" }] },
+        { heading: "Accommodation", image: "/nav-accommodation.jpg", items: [{ name: "Hotels & B&Bs", href: "/listings?category=Accommodation" }, { name: "Self-Catering", href: "/listings?category=Accommodation" }, { name: "View All Accommodation", href: "/listings?category=Accommodation" }] },
+        { heading: "Shops", image: "/nav-shops.jpg", items: [{ name: "All Shops", href: "/listings?category=Shops" }, { name: "Gifts & Gallery", href: "/listings?category=Shops" }, { name: "Outdoor & Garden", href: "/listings?category=Shops" }] },
+        { heading: "Food & Drink", image: "/nav-food-drink.jpg", items: [{ name: "Cafés & Coffee", href: "/listings?category=Food%20%26%20Drink" }, { name: "Pubs & Bars", href: "/listings?category=Food%20%26%20Drink" }, { name: "Restaurants", href: "/listings?category=Food%20%26%20Drink" }, { name: "Takeaways", href: "/listings?category=Food%20%26%20Drink" }] },
         { heading: "Browse All", image: "/nav-explore.jpg", items: [{ name: "View All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
       ],
       footerLink: { label: "View all listings", href: "/listings" },

@@ -13,7 +13,12 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-export default async function ListingsPage() {
+export default async function ListingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
   const [listings, categories] = await Promise.all([
     client.fetch(allListingsQuery),
     client.fetch(listingCategoriesQuery),
@@ -67,7 +72,7 @@ export default async function ListingsPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <ListingSearch listings={listings} categories={categories} />
+        <ListingSearch listings={listings} categories={categories} initialCategory={category} />
       </div>
     </>
   );
