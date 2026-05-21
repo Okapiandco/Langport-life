@@ -15,7 +15,7 @@ function toISODateTime(value: string | undefined | null): string | undefined {
 // Best-effort moderation notification. Fires after a successful submission;
 // any failure is logged and swallowed so it never blocks the response.
 async function notifyModerator(args: {
-  type: "event" | "venue" | "listing";
+  type: "event" | "venue" | "listing" | "group";
   title: string;
   submitterName: string;
   submitterEmail: string;
@@ -40,6 +40,7 @@ async function notifyModerator(args: {
       event: "New event awaiting approval",
       venue: "New venue awaiting approval",
       listing: "New business listing awaiting approval",
+      group: "New group awaiting approval",
     } as const;
 
     await resend.emails.send({
@@ -94,14 +95,19 @@ function buildRRule(args: {
   const dayCode = dayCodes[start.getDay()];
   const dayOfMonth = start.getDate();
   const month = start.getMonth() + 1;
+  // Cap at week 4 so months with fewer than 5 occurrences always have a match.
+  const weekNum = Math.min(Math.ceil(dayOfMonth / 7), 4);
 
   switch (frequency) {
     case "weekly":
       return `FREQ=WEEKLY;BYDAY=${dayCode}${untilPart}`;
     case "biweekly":
       return `FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayCode}${untilPart}`;
-    case "monthly":
+    case "monthly":         // legacy label — treat as monthly-date
+    case "monthly-date":
       return `FREQ=MONTHLY;BYMONTHDAY=${dayOfMonth}${untilPart}`;
+    case "monthly-weekday":
+      return `FREQ=MONTHLY;BYDAY=${weekNum}${dayCode}${untilPart}`;
     case "yearly":
       return `FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${dayOfMonth}${untilPart}`;
     default:
@@ -233,6 +239,7 @@ export async function POST(request: NextRequest) {
       organiser,
       recurrenceFrequency,
       recurrenceEndDate,
+      imageAssetId,
       // Listing/venue fields
       street,
       town,
@@ -243,7 +250,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!type || !["event", "listing", "venue"].includes(type)) {
+    if (!type || !["event", "listing", "venue", "group"].includes(type)) {
       return NextResponse.json(
         { error: "Invalid submission type." },
         { status: 400 }
@@ -294,6 +301,9 @@ export async function POST(request: NextRequest) {
         contactName: submitterName,
         contactEmail: submitterEmail,
         contactPhone: submitterPhone || undefined,
+        image: imageAssetId
+          ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
+          : undefined,
         submittedBy: `${submitterName} (${submitterEmail})`,
         status: "pendingApproval",
         recurrenceRule,
@@ -328,6 +338,9 @@ export async function POST(request: NextRequest) {
         phone: phone || undefined,
         email: email || undefined,
         website: website || undefined,
+        image: imageAssetId
+          ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
+          : undefined,
         ownerName: submitterName,
         ownerEmail: submitterEmail,
         status: "pendingApproval",
@@ -364,9 +377,34 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    } else if (type === "group") {
+      const { location, meetingTime, cost, contactName, contactEmail, contactPhone } = body;
+      doc = await writeClient.create({
+        _type: "group",
+        name: title,
+        slug: { _type: "slug", current: (title as string).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        organiser: organiser || undefined,
+        location: location || undefined,
+        meetingTime: meetingTime || undefined,
+        cost: cost || undefined,
+        website: website || undefined,
+        contactName: contactName || undefined,
+        contactEmail: contactEmail || undefined,
+        contactPhone: contactPhone || undefined,
+        image: imageAssetId
+          ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
+          : undefined,
+        submittedBy: `${submitterName} (${submitterEmail})`,
+        status: "pending",
+        description: description
+          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
+          : undefined,
+      });
+    }
+
     // Best-effort moderation notification (non-blocking).
     notifyModerator({
-      type: type as "event" | "venue" | "listing",
+      type: type as "event" | "venue" | "listing" | "group",
       title,
       submitterName,
       submitterEmail,

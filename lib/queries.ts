@@ -329,7 +329,7 @@ export const transportByTypeQuery = groq`
 // Groups
 export const allGroupsQuery = groq`
   *[_type == "group" && status == "approved"] | order(name asc) {
-    _id, name, slug, location, meetingTime, cost,
+    _id, name, slug, location, meetingTime, cost, organiser, website, tags,
     image { asset->{url}, alt }
   }
 `;
@@ -337,6 +337,7 @@ export const allGroupsQuery = groq`
 export const groupBySlugQuery = groq`
   *[_type == "group" && slug.current == $slug && status == "approved"][0] {
     _id, name, slug, description, location, meetingTime, cost,
+    organiser, website, tags,
     contactName, contactEmail, contactPhone,
     image { asset->{url}, alt }
   }

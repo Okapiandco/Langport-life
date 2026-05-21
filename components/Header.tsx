@@ -8,30 +8,50 @@ import { useState, useRef, useEffect } from "react";
 interface NavChild { name: string; href: string; }
 interface MegaCard { name: string; href: string; image?: string; description?: string; }
 interface NavGroup { heading: string; items: NavChild[]; }
-interface MegaMenu { groups?: NavGroup[]; cards?: MegaCard[]; footerLink?: { label: string; href: string }; }
+interface MegaMenu {
+  groups?: NavGroup[];
+  cards?: MegaCard[];
+  cardsHeading?: string;
+  footerLink?: { label: string; href: string };
+  showFeaturedEvents?: boolean;
+}
 interface NavItem { name: string; href: string; children?: NavChild[]; mega?: MegaMenu; }
+interface FeaturedEvent {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  date: string;
+  image?: { asset?: { url?: string }; alt?: string };
+}
 
 const navigation: NavItem[] = [
   {
     name: "What's On",
     href: "/events",
     mega: {
+      showFeaturedEvents: true,
       groups: [
         { heading: "Events", items: [{ name: "Events Calendar", href: "/events" }, { name: "Submit an Event", href: "/submit/event" }] },
         { heading: "Venues", items: [{ name: "All Venues", href: "/venues" }, { name: "Add a Venue", href: "/submit/venue" }] },
-        { heading: "Groups", items: [{ name: "Join a Group", href: "/join-a-group" }] },
-      ],
-      cards: [
-        { name: "The Outdoor Life", href: "/things-to-do/outdoor-life", image: "/things-to-do/outdoor-life.jpg", description: "Water sports, fishing, golf and activities on the River Parrett" },
-        { name: "Walking & Cycling", href: "/things-to-do/walking-and-cycling", image: "/things-to-do/walking-cycling.jpg", description: "Routes and trails through the Somerset Levels" },
-        { name: "Exploring the Wild", href: "/things-to-do/exploring-the-wild", image: "/things-to-do/explore-wild.jpg", description: "Wildlife and wild places on your doorstep" },
+        { heading: "Groups", items: [{ name: "Join a Group", href: "/join-a-group" }, { name: "Add a Group", href: "/submit/group" }] },
       ],
       footerLink: { label: "View all events", href: "/events" },
     },
   },
   { name: "Shops & Services", href: "/listings", children: [{ name: "All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
   { name: "History", href: "/history" },
-  { name: "Environment", href: "/environment" },
+  {
+    name: "Outdoor Life",
+    href: "/things-to-do",
+    mega: {
+      cardsHeading: "Explore the Outdoors",
+      cards: [
+        { name: "The Outdoor Life", href: "/things-to-do/outdoor-life", image: "/things-to-do/outdoor-life.jpg", description: "Water sports, fishing, golf and activities on the River Parrett" },
+        { name: "Walking & Cycling", href: "/things-to-do/walking-and-cycling", image: "/things-to-do/walking-cycling.jpg", description: "Routes and trails through the Somerset Levels" },
+        { name: "Exploring the Wild", href: "/things-to-do/exploring-the-wild", image: "/things-to-do/explore-wild.jpg", description: "Wildlife and wild places on your doorstep" },
+      ],
+    },
+  },
   { name: "Town News", href: "/news" },
   {
     name: "Town Council",
@@ -48,6 +68,11 @@ const navigation: NavItem[] = [
   },
   { name: "Contact Us", href: "/contact" },
 ];
+
+function formatEventDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+}
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -94,13 +119,10 @@ function sanityToNav(items: SanityNavItem[]): NavItem[] {
         heading: child.groupTitle || "",
         items: (child.links || []).map((l) => ({ name: l.title, href: l.href })),
       }));
-      // Use mega menu for items with children
       nav.mega = { groups };
-      // Add footer link pointing to the main href
       if (item.href && item.href !== "#") {
         nav.mega.footerLink = { label: `View all ${item.title}`, href: item.href };
       }
-      // Add image cards if present
       if (item.cards?.length) {
         nav.mega.cards = item.cards.map((card) => ({
           name: card.title,
@@ -117,15 +139,13 @@ function sanityToNav(items: SanityNavItem[]): NavItem[] {
 export default function Header({
   sanityNav,
   socialLinks,
+  featuredEvents,
 }: {
   sanityNav?: SanityNavItem[];
   socialLinks?: SocialLinks;
+  featuredEvents?: FeaturedEvent[];
 }) {
   const navItems: NavItem[] = sanityNav?.length ? sanityToNav(sanityNav) : navigation;
-  // Debug: remove this once menus are working
-  if (typeof window !== "undefined") {
-    console.log("Header nav source:", sanityNav ? "Sanity" : "Hardcoded fallback", "Items:", navItems.length, "Mega menus:", navItems.filter(n => n.mega).length);
-  }
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -133,6 +153,7 @@ export default function Header({
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentEventIdx, setCurrentEventIdx] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -143,7 +164,6 @@ export default function Header({
       }
     }
     function handleScroll() {
-      // Only expand back to full size when at the very top
       if (window.scrollY > 50) {
         setScrolled(true);
       } else if (window.scrollY === 0) {
@@ -158,6 +178,16 @@ export default function Header({
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Auto-advance the featured event thumbnail while What's On is open
+  useEffect(() => {
+    if (openDropdown === "What's On" && featuredEvents && featuredEvents.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentEventIdx((i) => (i + 1) % featuredEvents.length);
+      }, 3500);
+      return () => clearInterval(interval);
+    }
+  }, [openDropdown, featuredEvents]);
 
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
@@ -178,39 +208,41 @@ export default function Header({
     }
   }
 
+  const events = featuredEvents ?? [];
+
   return (
     <header className={`sticky top-0 z-30 bg-white border-b border-gray-200 transition-all duration-300 ${scrolled ? "shadow-sm" : ""}`}>
       <a href="#main-content" className="skip-link">Skip to main content</a>
 
-      {/* Top bar - social + search (hidden when scrolled) */}
+      {/* Top bar */}
       {!scrolled && (
-      <div className="border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-10">
-          <div className="flex items-center gap-3">
-            <a href={socialLinks?.facebook || "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
-              <FacebookIcon className="h-4 w-4" />
-            </a>
-            <a href={socialLinks?.instagram || "https://www.instagram.com/langportwhereitsto?igsh=cWNmY24wcHdidzBk"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#E4405F] transition-colors" aria-label="Instagram">
-              <InstagramIcon className="h-4 w-4" />
-            </a>
-          </div>
-          <div className="flex items-center gap-4">
-            <form onSubmit={handleSearch} className="relative hidden sm:block">
-              <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-44 rounded-full border border-gray-200 bg-gray-50 py-1 pl-8 pr-3 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </form>
-            <Link href="/submit" className="text-xs font-medium text-gray-500 no-underline hover:text-primary">
-              Submit
-            </Link>
+        <div className="border-b border-gray-100">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-10">
+            <div className="flex items-center gap-3">
+              <a href={socialLinks?.facebook || "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors" aria-label="Facebook">
+                <FacebookIcon className="h-4 w-4" />
+              </a>
+              <a href={socialLinks?.instagram || "https://www.instagram.com/langportwhereitsto?igsh=cWNmY24wcHdidzBk"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#E4405F] transition-colors" aria-label="Instagram">
+                <InstagramIcon className="h-4 w-4" />
+              </a>
+            </div>
+            <div className="flex items-center gap-4">
+              <form onSubmit={handleSearch} className="relative hidden sm:block">
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-44 rounded-full border border-gray-200 bg-gray-50 py-1 pl-8 pr-3 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </form>
+              <Link href="/submit" className="text-xs font-medium text-gray-500 no-underline hover:text-primary">
+                Submit
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Main navigation" ref={dropdownRef}>
@@ -222,7 +254,6 @@ export default function Header({
               alt="Langport Life"
               width={scrolled ? 160 : 220}
               height={scrolled ? 36 : 50}
-              className=""
               priority
             />
           </Link>
@@ -245,58 +276,122 @@ export default function Header({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  {openDropdown === item.name && (
-                    <div className={`absolute left-1/2 -translate-x-1/2 top-full z-20 mt-2 rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-black/5 ${item.mega.cards ? "w-[72rem]" : "w-[56rem]"}`}>
-                      <div className={item.mega.cards ? "flex gap-8" : ""}>
-                        {item.mega.groups && item.mega.groups.length > 0 && (
-                          <div className={item.mega.cards ? "w-48 flex-shrink-0 space-y-6" : "flex-1 flex gap-8"}>
-                            {item.mega.groups.map((group) => (
-                              <div key={group.heading}>
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-copper">{group.heading}</h3>
-                                <ul className="mt-3 space-y-1">
-                                  {group.items.map((child) => (
-                                    <li key={child.href}>
-                                      <Link href={child.href} className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 no-underline hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
-                                        {child.name}
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
+
+                  {openDropdown === item.name && (() => {
+                    const hasFeatured = !!(item.mega.showFeaturedEvents && events.length > 0);
+                    const dropdownWidth = item.mega.cards
+                      ? "w-[72rem]"
+                      : hasFeatured
+                        ? "w-[54rem]"
+                        : "w-[56rem]";
+                    const hasSidePanel = !!(item.mega.cards || hasFeatured);
+                    const currentEvent = hasFeatured ? events[currentEventIdx % events.length] : null;
+
+                    return (
+                      <div className={`absolute left-1/2 -translate-x-1/2 top-full z-20 mt-2 rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-black/5 ${dropdownWidth}`}>
+                        <div className={hasSidePanel ? "flex gap-8" : ""}>
+                          {/* Link groups */}
+                          {item.mega.groups && item.mega.groups.length > 0 && (
+                            <div className={item.mega.cards ? "w-48 flex-shrink-0 space-y-6" : "flex-1 flex gap-8"}>
+                              {item.mega.groups.map((group) => (
+                                <div key={group.heading}>
+                                  <h3 className="text-xs font-bold uppercase tracking-wider text-copper">{group.heading}</h3>
+                                  <ul className="mt-3 space-y-1">
+                                    {group.items.map((child) => (
+                                      <li key={child.href}>
+                                        <Link href={child.href} className="block rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 no-underline hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
+                                          {child.name}
+                                        </Link>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Thumbnail cards (Outdoor Life etc) */}
+                          {item.mega.cards && (
+                            <div className="flex-1">
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-copper mb-4">
+                                {item.mega.cardsHeading ?? "Things to Do"}
+                              </h3>
+                              <div className="grid grid-cols-3 gap-5">
+                                {item.mega.cards.map((card) => (
+                                  <Link key={card.href} href={card.href} className="group block overflow-hidden rounded-xl no-underline" onClick={() => setOpenDropdown(null)}>
+                                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
+                                      {card.image ? (
+                                        <Image src={card.image} alt={card.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                                      ) : (
+                                        <div className="h-full w-full bg-primary/10" />
+                                      )}
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                      <span className="absolute bottom-3 left-3 right-3 text-base font-bold text-white drop-shadow">{card.name}</span>
+                                    </div>
+                                    {card.description && <p className="mt-2 text-xs leading-relaxed text-gray-500 line-clamp-2">{card.description}</p>}
+                                  </Link>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        )}
-                        {item.mega.cards && (
-                          <div className="flex-1">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-copper mb-4">Things to Do</h3>
-                            <div className="grid grid-cols-3 gap-5">
-                            {item.mega.cards.map((card) => (
-                              <Link key={card.href} href={card.href} className="group block overflow-hidden rounded-xl no-underline" onClick={() => setOpenDropdown(null)}>
-                                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
-                                  {card.image ? (
-                                    <Image src={card.image} alt={card.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                            </div>
+                          )}
+
+                          {/* Rolling featured event (What's On) */}
+                          {hasFeatured && currentEvent && (
+                            <div className="w-56 flex-shrink-0">
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-copper mb-4">Coming up</h3>
+                              <Link
+                                href={`/events/${currentEvent.slug.current}`}
+                                className="group block no-underline"
+                                onClick={() => setOpenDropdown(null)}
+                              >
+                                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
+                                  {currentEvent.image?.asset?.url ? (
+                                    <Image
+                                      src={currentEvent.image.asset.url}
+                                      alt={currentEvent.image.alt || currentEvent.title}
+                                      fill
+                                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
                                   ) : (
                                     <div className="h-full w-full bg-primary/10" />
                                   )}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                                  <span className="absolute bottom-3 left-3 right-3 text-base font-bold text-white drop-shadow">{card.name}</span>
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                                  <div className="absolute bottom-3 left-3 right-3">
+                                    <p className="text-sm font-bold text-white leading-snug line-clamp-2">{currentEvent.title}</p>
+                                    <p className="mt-0.5 text-xs text-white/80">{formatEventDate(currentEvent.date)}</p>
+                                  </div>
                                 </div>
-                                {card.description && <p className="mt-2 text-xs leading-relaxed text-gray-500 line-clamp-2">{card.description}</p>}
                               </Link>
-                            ))}
+                              {events.length > 1 && (
+                                <div className="mt-3 flex justify-center gap-1.5">
+                                  {events.map((_, i) => (
+                                    <button
+                                      key={i}
+                                      onClick={() => setCurrentEventIdx(i)}
+                                      className={`rounded-full transition-all duration-200 ${
+                                        i === currentEventIdx % events.length
+                                          ? "h-1.5 w-4 bg-primary"
+                                          : "h-1.5 w-1.5 bg-gray-300 hover:bg-gray-400"
+                                      }`}
+                                      aria-label={`Show event ${i + 1}`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
                             </div>
+                          )}
+                        </div>
+
+                        {item.mega.footerLink && (
+                          <div className="mt-6 border-t border-gray-100 pt-5">
+                            <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
+                              {item.mega.footerLink.label} &rarr;
+                            </Link>
                           </div>
                         )}
                       </div>
-                      {item.mega.footerLink && (
-                        <div className="mt-6 border-t border-gray-100 pt-5">
-                          <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
-                            {item.mega.footerLink.label} &rarr;
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               ) : item.children ? (
                 <div key={item.name} className="relative">
@@ -336,7 +431,7 @@ export default function Header({
               )
             )}
 
-            {/* Search + social icons (compact, visible when scrolled) */}
+            {/* Compact search + social (visible when scrolled) */}
             <div className={`flex items-center gap-2 ml-3 transition-all duration-300 ${scrolled ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
               <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-400 hover:text-primary rounded-md hover:bg-gray-100 transition-colors" aria-label="Search">
                 <SearchIcon className="h-4 w-4" />
@@ -387,7 +482,6 @@ export default function Header({
         {/* Mobile nav */}
         {mobileOpen && (
           <div className="lg:hidden pb-4 max-h-[80vh] overflow-y-auto">
-            {/* Mobile social */}
             <div className="flex items-center gap-4 px-3 py-3 border-b border-gray-100 mb-2">
               <a href={socialLinks?.facebook || "https://www.facebook.com/share/1EbPeasW4k/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2]" aria-label="Facebook">
                 <FacebookIcon className="h-5 w-5" />
@@ -431,6 +525,24 @@ export default function Header({
                           </div>
                         </Link>
                       ))}
+                      {item.mega.showFeaturedEvents && events.length > 0 && (
+                        <div className="px-3 py-2">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-copper">Coming up</span>
+                          {events.slice(0, 3).map((ev) => (
+                            <Link key={ev._id} href={`/events/${ev.slug.current}`} className="flex items-center gap-3 py-2 no-underline hover:bg-gray-100 rounded-lg px-1" onClick={() => setMobileOpen(false)}>
+                              {ev.image?.asset?.url && (
+                                <div className="relative h-10 w-14 flex-shrink-0 overflow-hidden rounded">
+                                  <Image src={ev.image.asset.url} alt={ev.image.alt || ev.title} fill className="object-cover" />
+                                </div>
+                              )}
+                              <div>
+                                <span className="text-sm font-medium text-gray-900 line-clamp-1">{ev.title}</span>
+                                <p className="text-xs text-gray-500">{formatEventDate(ev.date)}</p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

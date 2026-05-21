@@ -15,7 +15,7 @@ const defaultNavCards = [
   { title: "Things to do", href: "/things-to-do", color: "copper", image: "/nav-things-to-do.jpg" },
   { title: "Shops & Services", href: "/listings", color: "light-blue", image: "/nav-shops.jpg" },
   { title: "History", href: "/history", color: "green", image: "/nav-history.jpg" },
-  { title: "Environment", href: "/environment", color: "maroon", image: "/nav-environment.jpg" },
+  { title: "Outdoor Life", href: "/things-to-do", color: "maroon", image: "/nav-things-to-do.jpg" },
   { title: "Town Council", href: "/council", color: "dark-green", image: "/nav-council.jpg" },
 ];
 
@@ -232,7 +232,6 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              { }
               {data.latestArticles.map((article: any, i: number) => (
                 <Link
                   key={article._id}

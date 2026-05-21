@@ -29,6 +29,13 @@ const cards = [
     href: "/submit/venue",
     icon: "🏛️",
   },
+  {
+    title: "Add a Group",
+    description:
+      "Run a local club, society or community group? Get listed so residents can find you and join.",
+    href: "/submit/group",
+    icon: "🤝",
+  },
 ];
 
 export default function SubmitPage() {
@@ -45,7 +52,7 @@ export default function SubmitPage() {
       />
 
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-3">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => (
             <Link
               key={card.href}

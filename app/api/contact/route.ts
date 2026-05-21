@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,8 +19,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: forward to email provider (Resend) or write to Sanity. For now, just log.
-    console.log("[contact] new message", { name, email, subject, message });
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey || apiKey === "your_resend_key_here") {
+      console.warn("[contact] RESEND_API_KEY not configured — message not delivered");
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
+
+    const to = process.env.CONTACT_RECIPIENT || "office@langport.life";
+    const from = process.env.RESEND_FROM_EMAIL || "Langport Life <noreply@langport.life>";
+
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to,
+      replyTo: email,
+      subject: `[Langport Life] ${subject}`,
+      text: [
+        `Name: ${name}`,
+        `Email: ${email}`,
+        ``,
+        message,
+      ].join("\n"),
+    });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err: unknown) {

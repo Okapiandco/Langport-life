@@ -31,9 +31,9 @@ export default async function ListingPage({ params }: Props) {
   return (
     <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       {listing.image?.asset && (
-        <div className="relative mb-8 h-64 w-full overflow-hidden rounded-lg sm:h-96">
+        <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-lg">
           <Image
-            src={urlFor(listing.image).width(900).height(500).url()}
+            src={urlFor(listing.image).width(1200).height(675).url()}
             alt={listing.image.alt || listing.title}
             fill
             className="object-cover"
@@ -67,9 +67,9 @@ export default async function ListingPage({ params }: Props) {
               <h2 className="font-heading text-2xl font-bold text-gray-900">Photos</h2>
               <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {listing.images.map((img: any, i: number) => (
-                  <div key={i} className="relative h-40 overflow-hidden rounded-lg">
+                  <div key={i} className="relative aspect-[16/9] overflow-hidden rounded-lg">
                     <Image
-                      src={urlFor(img).width(300).height(200).url()}
+                      src={urlFor(img).width(400).height(225).url()}
                       alt={img.alt || `${listing.title} photo ${i + 1}`}
                       fill
                       className="object-cover"

@@ -43,6 +43,32 @@ export const group = defineType({
       description: "Cost to attend (e.g. \"Free\" or \"£5 per session\").",
     }),
     defineField({
+      name: "organiser",
+      title: "Organiser",
+      type: "string",
+      description: "Name of the person or organisation that runs the group.",
+    }),
+    defineField({
+      name: "website",
+      title: "Website",
+      type: "url",
+    }),
+    defineField({
+      name: "tags",
+      title: "Tags",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+      description: "e.g. sport, arts, wellbeing, social",
+    }),
+    defineField({
+      name: "submittedBy",
+      title: "Submitted By",
+      type: "string",
+      description: "Name / email of the person who submitted this group.",
+      readOnly: true,
+    }),
+    defineField({
       name: "contactName",
       title: "Contact Name",
       type: "string",

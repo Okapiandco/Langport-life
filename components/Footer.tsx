@@ -27,7 +27,7 @@ const defaultColumns: FooterColumn[] = [
       { title: "Overview", href: "/council" },
       { title: "Members", href: "/council/members" },
       { title: "Documents", href: "/council/documents" },
-      { title: "Environment", href: "/environment" },
+      { title: "Outdoor Life", href: "/things-to-do" },
     ],
   },
   {

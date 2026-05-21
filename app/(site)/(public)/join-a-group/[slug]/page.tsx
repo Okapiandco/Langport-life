@@ -19,6 +19,9 @@ interface Group {
   location?: string;
   meetingTime?: string;
   cost?: string;
+  organiser?: string;
+  website?: string;
+  tags?: string[];
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
@@ -99,13 +102,19 @@ export default async function GroupDetailPage({ params }: Props) {
 
         {/* Sidebar */}
         <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
-          {/* When / Where / Cost */}
-          {(group.location || group.meetingTime || group.cost) && (
+          {/* Group Details */}
+          {(group.organiser || group.location || group.meetingTime || group.cost || group.website) && (
             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
               <h3 className="font-heading text-base font-bold text-primary">
                 Group Details
               </h3>
               <dl className="mt-3 space-y-3 text-sm">
+                {group.organiser && (
+                  <div>
+                    <dt className="font-medium text-gray-900">Organiser</dt>
+                    <dd className="text-gray-700">{group.organiser}</dd>
+                  </div>
+                )}
                 {group.location && (
                   <div>
                     <dt className="font-medium text-gray-900">Where</dt>
@@ -124,7 +133,27 @@ export default async function GroupDetailPage({ params }: Props) {
                     <dd className="text-gray-700">{group.cost}</dd>
                   </div>
                 )}
+                {group.website && (
+                  <div>
+                    <dt className="font-medium text-gray-900">Website</dt>
+                    <dd>
+                      <a href={group.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
+                        {group.website.replace(/^https?:\/\//, "")}
+                      </a>
+                    </dd>
+                  </div>
+                )}
               </dl>
+            </div>
+          )}
+
+          {group.tags && group.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {group.tags.map((tag) => (
+                <span key={tag} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                  {tag}
+                </span>
+              ))}
             </div>
           )}
 

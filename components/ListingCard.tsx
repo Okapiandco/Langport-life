@@ -20,24 +20,23 @@ export default function ListingCard({ listing }: ListingCardProps) {
       href={`/listings/${listing.slug.current}`}
       className="group block break-inside-avoid mb-5 overflow-hidden rounded-lg border border-gray-200 bg-white no-underline shadow-sm transition-shadow hover:shadow-md"
     >
-      {listing.image?.asset ? (
-        <div className="relative w-full overflow-hidden">
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-primary/5">
+        {listing.image?.asset ? (
           <Image
-            src={urlFor(listing.image).width(600).url()}
+            src={urlFor(listing.image).width(600).height(338).url()}
             alt={listing.image.alt || listing.title}
-            width={600}
-            height={400}
-            className="w-full h-auto object-cover transition-transform group-hover:scale-105"
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
-        </div>
-      ) : (
-        <div className="flex h-32 items-center justify-center bg-primary/5">
-          <span className="text-4xl font-heading font-bold text-primary/20">
-            {listing.title?.[0]}
-          </span>
-        </div>
-      )}
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-4xl font-heading font-bold text-primary/20">
+              {listing.title?.[0]}
+            </span>
+          </div>
+        )}
+      </div>
       <div className="p-4">
         <h3 className="font-heading text-lg font-semibold text-gray-900 group-hover:text-primary">
           {listing.title}

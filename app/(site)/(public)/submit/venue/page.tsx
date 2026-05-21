@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageHero from "@/components/PageHero";
+import ImageUploadField from "@/components/ImageUploadField";
 
 export default function SubmitVenuePage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -15,6 +17,21 @@ export default function SubmitVenuePage() {
     setSubmitting(true);
 
     const form = new FormData(e.currentTarget);
+
+    let imageAssetId: string | undefined;
+    if (imageFile) {
+      const fd = new FormData();
+      fd.append("image", imageFile);
+      const uploadRes = await fetch("/api/upload-image", { method: "POST", body: fd });
+      if (!uploadRes.ok) {
+        const uploadData = await uploadRes.json();
+        setError(uploadData.error || "Image upload failed.");
+        setSubmitting(false);
+        return;
+      }
+      const uploadData = await uploadRes.json();
+      imageAssetId = uploadData.assetId;
+    }
 
     const body = {
       type: "venue",
@@ -29,6 +46,7 @@ export default function SubmitVenuePage() {
       phone: form.get("phone") || undefined,
       email: form.get("email") || undefined,
       website: form.get("website") || undefined,
+      imageAssetId,
     };
 
     try {
@@ -231,12 +249,14 @@ export default function SubmitVenuePage() {
             </div>
           </fieldset>
 
+          <ImageUploadField label="Venue Photo" onFileChange={setImageFile} />
+
           <button
             type="submit"
             disabled={submitting}
             className="w-full rounded-lg bg-primary px-6 py-3 text-white font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {submitting ? "Submitting..." : "Submit Venue"}
+            {submitting ? (imageFile ? "Uploading image…" : "Submitting...") : "Submit Venue"}
           </button>
         </form>
       </section>

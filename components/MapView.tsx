@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
+import "leaflet/dist/leaflet.css";
 
 // Detect whether we're rendering on the client. Returns false during SSR and
 // the first client render (so server + hydration markup match), then `true`
@@ -74,16 +75,6 @@ function MapInner({
         setReactLeaflet(rl);
       }
     );
-  }, []);
-
-  useEffect(() => {
-    // Load Leaflet CSS
-    if (!document.querySelector('link[href*="leaflet"]')) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      document.head.appendChild(link);
-    }
   }, []);
 
   if (!L || !ReactLeaflet) {

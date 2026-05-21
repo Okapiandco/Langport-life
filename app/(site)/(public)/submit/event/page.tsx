@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import PageHero from "@/components/PageHero";
 
 // "YYYY-MM-DDTHH:mm" is the format <input type="datetime-local"> expects.
@@ -20,12 +21,58 @@ function defaultRecurrenceEnd(startIso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-type RecurrenceFreq = "none" | "weekly" | "biweekly" | "monthly" | "yearly";
+type RecurrenceFreq = "none" | "weekly" | "biweekly" | "monthly-date" | "monthly-weekday" | "yearly";
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const ORDINALS = ["", "1st", "2nd", "3rd", "4th"];
+
+function ordinalSuffix(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+}
+
+function recurrenceHint(freq: RecurrenceFreq, startIso: string): string {
+  if (freq === "none" || !startIso) return "";
+  const d = new Date(startIso);
+  if (isNaN(d.getTime())) return "";
+  const dayName = DAY_NAMES[d.getDay()];
+  const weekNum = Math.min(Math.ceil(d.getDate() / 7), 4);
+  const ordinal = ORDINALS[weekNum];
+  switch (freq) {
+    case "weekly":          return `Every ${dayName}`;
+    case "biweekly":        return `Every other ${dayName}`;
+    case "monthly-date":    return `On the ${ordinalSuffix(d.getDate())} of every month`;
+    case "monthly-weekday": return `On the ${ordinal} ${dayName} of every month`;
+    case "yearly":          return `Every year on ${d.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}`;
+  }
+}
 
 export default function SubmitEventPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Image picker
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setImageFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview("");
+    }
+  }
+
+  function clearImage() {
+    setImageFile(null);
+    setImagePreview("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   // Linked start/end. End auto-fills from start until the user edits it directly,
   // after which start changes shift end by the same delta (preserves duration).
@@ -95,6 +142,27 @@ export default function SubmitEventPage() {
     setError("");
     setSubmitting(true);
 
+    // Upload image first if one has been selected.
+    let imageAssetId: string | undefined;
+    if (imageFile) {
+      try {
+        const fd = new FormData();
+        fd.append("image", imageFile);
+        const uploadRes = await fetch("/api/upload-image", { method: "POST", body: fd });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          setError(uploadData.error || "Image upload failed.");
+          setSubmitting(false);
+          return;
+        }
+        imageAssetId = uploadData.assetId;
+      } catch {
+        setError("Image upload failed. Please check your connection and try again.");
+        setSubmitting(false);
+        return;
+      }
+    }
+
     const form = new FormData(e.currentTarget);
 
     const body = {
@@ -115,6 +183,7 @@ export default function SubmitEventPage() {
       // Frequency = "" for one-off events.
       recurrenceFrequency: form.get("recurrenceFrequency") || undefined,
       recurrenceEndDate: form.get("recurrenceEndDate") || undefined,
+      imageAssetId,
     };
 
     try {
@@ -280,11 +349,17 @@ export default function SubmitEventPage() {
                     className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                   >
                     <option value="none">No — one-off event</option>
-                    <option value="weekly">Weekly (same day each week)</option>
-                    <option value="biweekly">Every 2 weeks (same day)</option>
-                    <option value="monthly">Monthly (same day of month)</option>
-                    <option value="yearly">Yearly (same date each year)</option>
+                    <option value="weekly">Weekly — same day each week</option>
+                    <option value="biweekly">Every 2 weeks — same day</option>
+                    <option value="monthly-date">Monthly — same date (e.g. every 15th)</option>
+                    <option value="monthly-weekday">Monthly — same weekday (e.g. every 3rd Tuesday)</option>
+                    <option value="yearly">Yearly — same date each year</option>
                   </select>
+                  {recurrenceFrequency !== "none" && startDate && (
+                    <p className="mt-1.5 text-xs text-primary font-medium">
+                      {recurrenceHint(recurrenceFrequency, startDate)}
+                    </p>
+                  )}
                 </div>
                 {recurrenceFrequency !== "none" && (
                   <div>
@@ -379,12 +454,56 @@ export default function SubmitEventPage() {
             </div>
           </fieldset>
 
+          {/* Image */}
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700">
+              Event Image <span className="text-gray-400">(optional)</span>
+            </p>
+
+            {imagePreview ? (
+              <div className="relative">
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-gray-200">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="mt-2 text-sm text-red-600 hover:text-red-800"
+                >
+                  Remove image
+                </button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 text-center hover:border-primary transition-colors">
+                <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                </svg>
+                <span className="text-sm text-gray-600">
+                  Click to upload a photo
+                </span>
+                <span className="text-xs text-gray-400">JPEG, PNG or WebP — max 8 MB</span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  onChange={handleImageChange}
+                />
+              </label>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={submitting}
             className="w-full rounded-lg bg-primary px-6 py-3 text-white font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {submitting ? "Submitting..." : "Submit Event"}
+            {submitting ? (imageFile ? "Uploading image…" : "Submitting...") : "Submit Event"}
           </button>
         </form>
       </section>

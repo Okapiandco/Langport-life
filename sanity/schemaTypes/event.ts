@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { RecurrenceInput } from "../components/RecurrenceInput";
 
 export const event = defineType({
   name: "event",
@@ -128,10 +129,11 @@ export const event = defineType({
     }),
     defineField({
       name: "recurrenceRule",
-      title: "Recurrence Rule (RRULE)",
+      title: "Recurrence",
       type: "string",
+      components: { input: RecurrenceInput },
       description:
-        "RFC 5545 RRULE string (e.g. \"FREQ=WEEKLY;BYDAY=TU\"). Leave blank for one-off events. Public submitters use the guided picker on the form; this field stores the resulting string. The frontend expands this into individual occurrences capped at 12 months from now.",
+        "Set the start date and time first, then choose a repeat pattern. The RRULE string is generated automatically.",
     }),
     defineField({
       name: "recurrenceEndDate",
