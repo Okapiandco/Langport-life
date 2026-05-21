@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const from = process.env.RESEND_FROM_EMAIL || "Langport Life <noreply@langport.life>";
 
     const resend = new Resend(apiKey);
-    await resend.emails.send({
+    const { error: sendError } = await resend.emails.send({
       from,
       to,
       replyTo: email,
@@ -42,11 +42,20 @@ export async function POST(request: NextRequest) {
       ].join("\n"),
     });
 
+    if (sendError) {
+      console.error("Contact form email error:", sendError);
+      return NextResponse.json(
+        { error: "Your message could not be delivered right now. Please email office@langport.life directly." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err: unknown) {
     console.error("Contact form error:", err);
-    const messageText =
-      err instanceof Error ? err.message : "Something went wrong.";
-    return NextResponse.json({ error: messageText }, { status: 500 });
+    return NextResponse.json(
+      { error: "Your message could not be delivered right now. Please email office@langport.life directly." },
+      { status: 500 }
+    );
   }
 }

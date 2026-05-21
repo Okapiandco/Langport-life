@@ -402,14 +402,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Best-effort moderation notification (non-blocking).
-    notifyModerator({
+    // Best-effort moderation notification — awaited so any Resend error is
+    // caught here and never surfaces to the submitter as a 500.
+    await notifyModerator({
       type: type as "event" | "venue" | "listing" | "group",
       title,
       submitterName,
       submitterEmail,
       docId: doc!._id,
-    });
+    }).catch(() => {/* swallow — email failure must not block the submission */});
 
     return NextResponse.json(
       { success: true, id: doc!._id },
