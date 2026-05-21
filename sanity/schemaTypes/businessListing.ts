@@ -189,6 +189,12 @@ export const businessListing = defineType({
       initialValue: "draft",
     }),
     defineField({
+      name: "submittedBy",
+      title: "Submitted By",
+      type: "string",
+      description: "Name and email of the person who submitted this listing",
+    }),
+    defineField({
       name: "approvedAt",
       title: "Approved At",
       type: "datetime",
