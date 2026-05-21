@@ -259,10 +259,10 @@ export default function Header({
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden lg:flex lg:items-center lg:gap-1">
+          <div className="hidden lg:flex lg:items-center lg:gap-1 relative">
             {navItems.map((item) =>
               item.mega ? (
-                <div key={item.name} className="relative">
+                <div key={item.name}>
                   <button
                     onClick={() => toggleDropdown(item.name)}
                     className={`px-3 py-2 text-sm font-medium rounded-md no-underline transition-colors ${
