@@ -47,7 +47,20 @@ const navigation: NavItem[] = [
       footerLink: { label: "View all events", href: "/events" },
     },
   },
-  { name: "Shops & Services", href: "/listings", children: [{ name: "All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
+  {
+    name: "Shops & Services",
+    href: "/listings",
+    mega: {
+      columnLayout: true,
+      groups: [
+        { heading: "Accommodation", image: "/nav-accommodation.jpg", items: [{ name: "Hotels & B&Bs", href: "/listings" }, { name: "Self-Catering", href: "/listings" }] },
+        { heading: "Shops", image: "/nav-shops.jpg", items: [{ name: "All Shops", href: "/listings" }, { name: "Gifts & Gallery", href: "/listings" }, { name: "Outdoor & Garden", href: "/listings" }] },
+        { heading: "Food & Drink", image: "/nav-food-drink.jpg", items: [{ name: "Cafés & Coffee", href: "/listings" }, { name: "Pubs & Bars", href: "/listings" }, { name: "Restaurants", href: "/listings" }, { name: "Takeaways", href: "/listings" }] },
+        { heading: "Browse All", image: "/nav-explore.jpg", items: [{ name: "View All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
+      ],
+      footerLink: { label: "View all listings", href: "/listings" },
+    },
+  },
   { name: "History", href: "/history" },
   {
     name: "Outdoor Life",
@@ -124,9 +137,15 @@ interface SocialLinks {
 
 // Static images for column-layout group headings (avoids needing image fields in Sanity)
 const GROUP_COLUMN_IMAGES: Record<string, string> = {
+  // What's On columns
   "Events": "/nav-whats-on.jpg",
   "Venues": "/nav-shops.jpg",
   "Groups": "/things-to-do/kayaking.jpg",
+  // Shops & Services columns
+  "Accommodation": "/nav-accommodation.jpg",
+  "Shops": "/nav-shops.jpg",
+  "Food & Drink": "/nav-food-drink.jpg",
+  "Browse All": "/nav-explore.jpg",
 };
 
 function sanityToNav(items: SanityNavItem[]): NavItem[] {
