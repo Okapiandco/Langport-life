@@ -375,8 +375,6 @@ export async function POST(request: NextRequest) {
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
           : undefined,
       });
-    }
-
     } else if (type === "group") {
       const { location, meetingTime, cost, contactName, contactEmail, contactPhone } = body;
       doc = await writeClient.create({
