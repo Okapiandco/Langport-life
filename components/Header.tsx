@@ -122,6 +122,13 @@ interface SocialLinks {
   youtube?: string;
 }
 
+// Static images for column-layout group headings (avoids needing image fields in Sanity)
+const GROUP_COLUMN_IMAGES: Record<string, string> = {
+  "Events": "/nav-whats-on.jpg",
+  "Venues": "/nav-shops.jpg",
+  "Groups": "/things-to-do/kayaking.jpg",
+};
+
 function sanityToNav(items: SanityNavItem[]): NavItem[] {
   return items.map((item) => {
     const nav: NavItem = { name: item.title, href: item.href || "#" };
@@ -132,6 +139,7 @@ function sanityToNav(items: SanityNavItem[]): NavItem[] {
       const groups: NavGroup[] = (item.children || []).map((child) => ({
         heading: child.groupTitle || "",
         items: (child.links || []).map((l) => ({ name: l.title, href: l.href })),
+        image: GROUP_COLUMN_IMAGES[child.groupTitle || ""],
       }));
 
       nav.mega = {

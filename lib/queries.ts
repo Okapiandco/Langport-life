@@ -260,7 +260,7 @@ export const siteSettingsQuery = groq`
 export const navigationQuery = groq`
   *[_type == "navigation"][0] {
     mainMenu[] {
-      title, href,
+      title, href, columnLayout, cardsHeading,
       children[] {
         groupTitle,
         links[] { title, href, description }
