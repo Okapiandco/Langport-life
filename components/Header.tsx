@@ -49,6 +49,18 @@ const navigation: NavItem[] = [
   },
   { name: "Shops & Services", href: "/listings", children: [{ name: "All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
   { name: "History", href: "/history" },
+  {
+    name: "Outdoor Life",
+    href: "/things-to-do",
+    mega: {
+      cardsHeading: "Explore the Outdoors",
+      cards: [
+        { name: "The Outdoor Life", href: "/things-to-do/outdoor-life", image: "/things-to-do/outdoor-life.jpg", description: "Water sports, fishing, golf and activities on the River Parrett" },
+        { name: "Walking & Cycling", href: "/things-to-do/walking-and-cycling", image: "/things-to-do/walking-cycling.jpg", description: "Routes and trails through the Somerset Levels" },
+        { name: "Exploring the Wild", href: "/things-to-do/exploring-the-wild", image: "/things-to-do/explore-wild.jpg", description: "Wildlife and wild places on your doorstep" },
+      ],
+    },
+  },
   { name: "Town News", href: "/news" },
   {
     name: "Town Council",
