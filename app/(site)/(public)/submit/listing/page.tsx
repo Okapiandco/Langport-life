@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import PageHero from "@/components/PageHero";
+import ImageUploadField from "@/components/ImageUploadField";
 
 const LocationPickerMap = dynamic(
   () => import("@/components/LocationPickerMap"),
@@ -20,6 +21,7 @@ export default function SubmitListingPage() {
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   async function findOnMap() {
     if (!formRef.current) return;
@@ -65,6 +67,21 @@ export default function SubmitListingPage() {
 
     const form = new FormData(e.currentTarget);
 
+    let imageAssetId: string | undefined;
+    if (imageFile) {
+      const fd = new FormData();
+      fd.append("image", imageFile);
+      const uploadRes = await fetch("/api/upload-image", { method: "POST", body: fd });
+      if (!uploadRes.ok) {
+        const uploadData = await uploadRes.json();
+        setError(uploadData.error || "Image upload failed.");
+        setSubmitting(false);
+        return;
+      }
+      const uploadData = await uploadRes.json();
+      imageAssetId = uploadData.assetId;
+    }
+
     const body = {
       type: "listing",
       submitterName: form.get("submitterName"),
@@ -81,6 +98,7 @@ export default function SubmitListingPage() {
       // Pass confirmed pin coordinates if the user set them
       lat: pin?.lat,
       lng: pin?.lng,
+      imageAssetId,
     };
 
     try {
@@ -257,12 +275,14 @@ export default function SubmitListingPage() {
             </div>
           </fieldset>
 
+          <ImageUploadField label="Business Photo" onFileChange={setImageFile} />
+
           <button
             type="submit"
             disabled={submitting}
             className="w-full rounded-lg bg-primary px-6 py-3 text-white font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {submitting ? "Submitting..." : "Submit Business Listing"}
+            {submitting ? (imageFile ? "Uploading image…" : "Submitting...") : "Submit Business Listing"}
           </button>
         </form>
       </section>
