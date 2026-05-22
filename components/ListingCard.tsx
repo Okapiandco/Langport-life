@@ -18,9 +18,9 @@ export default function ListingCard({ listing }: ListingCardProps) {
   return (
     <Link
       href={`/listings/${listing.slug.current}`}
-      className="group block break-inside-avoid mb-5 overflow-hidden rounded-lg border border-gray-200 bg-white no-underline shadow-sm transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white no-underline shadow-sm transition-shadow hover:shadow-md"
     >
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-primary/5">
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-primary/5 shrink-0">
         {listing.image?.asset ? (
           <Image
             src={urlFor(listing.image).width(600).height(338).url()}
@@ -37,7 +37,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
           </div>
         )}
       </div>
-      <div className="p-4">
+      <div className="flex flex-col flex-1 p-4">
         <h3 className="font-heading text-lg font-semibold text-gray-900 group-hover:text-primary">
           {listing.title}
         </h3>

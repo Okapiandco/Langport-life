@@ -130,7 +130,7 @@ export default function ListingSearch({ listings, categories, initialCategory }:
 
       {/* Results */}
       {filtered.length > 0 ? (
-        <div className="mt-4 columns-1 sm:columns-2 lg:columns-3 gap-5">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((listing: any) => (
             <ListingCard key={listing._id} listing={listing} />
           ))}
