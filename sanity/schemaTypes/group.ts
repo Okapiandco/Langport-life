@@ -110,6 +110,13 @@ export const group = defineType({
       initialValue: "pending",
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
+      name: "editToken",
+      title: "Edit Token",
+      type: "string",
+      description: "Unique token for the submitter's magic edit link. Do not share.",
+      readOnly: true,
+    }),
   ],
   preview: {
     select: {

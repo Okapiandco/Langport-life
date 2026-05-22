@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { Resend } from "resend";
 import { client, writeClient } from "@/lib/sanity";
 
@@ -61,6 +62,52 @@ async function notifyModerator(args: {
     });
   } catch (err) {
     console.error(`[notifyModerator] Email send failed for ${args.docId}:`, err);
+  }
+}
+
+// Send the submitter a confirmation email with their magic edit link.
+async function notifySubmitter(args: {
+  type: "event" | "venue" | "listing" | "group";
+  title: string;
+  submitterName: string;
+  submitterEmail: string;
+  editToken: string;
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey === "your_resend_key_here") {
+    console.warn(`[notifySubmitter] RESEND_API_KEY not configured — skipping confirmation for ${args.submitterEmail}`);
+    return;
+  }
+  const from = process.env.RESEND_FROM_EMAIL || "Langport Life <onboarding@resend.dev>";
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL || "https://langport.life";
+  const editUrl = `${siteBase}/edit/${args.editToken}`;
+  const typeLabel = { event: "event", venue: "venue", listing: "business listing", group: "group" } as const;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from,
+      to: args.submitterEmail,
+      subject: `Your ${typeLabel[args.type]} has been received — Langport Life`,
+      text: [
+        `Hi ${args.submitterName},`,
+        ``,
+        `Thanks for submitting "${args.title}" to Langport Life.`,
+        ``,
+        `Your ${typeLabel[args.type]} is now pending approval from our team. We'll review it shortly and it will appear on the site once approved.`,
+        ``,
+        `You can update your submission at any time using this link:`,
+        editUrl,
+        ``,
+        `Please save this link — it's the only way to edit your submission without contacting us.`,
+        ``,
+        `If you have any questions, email office@langport.life`,
+        ``,
+        `— The Langport Life Team`,
+      ].join("\n"),
+    });
+  } catch (err) {
+    console.error(`[notifySubmitter] Email failed for ${args.submitterEmail}:`, err);
   }
 }
 
@@ -272,6 +319,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate a unique token for the submitter's magic edit link
+    const editToken = randomUUID();
+
     let doc;
 
     if (type === "event") {
@@ -308,6 +358,7 @@ export async function POST(request: NextRequest) {
           ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
           : undefined,
         submittedBy: `${submitterName} (${submitterEmail})`,
+        editToken,
         status: "pendingApproval",
         recurrenceRule,
         recurrenceEndDate: recurrenceRule ? recurrenceEndDate || undefined : undefined,
@@ -346,6 +397,7 @@ export async function POST(request: NextRequest) {
           : undefined,
         ownerName: submitterName,
         ownerEmail: submitterEmail,
+        editToken,
         status: "pendingApproval",
         description: description
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
@@ -372,6 +424,7 @@ export async function POST(request: NextRequest) {
         email: email || undefined,
         website: website || undefined,
         submittedBy: `${submitterName} (${submitterEmail})`,
+        editToken,
         status: "pendingApproval",
         description: description
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
@@ -395,6 +448,7 @@ export async function POST(request: NextRequest) {
           ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
           : undefined,
         submittedBy: `${submitterName} (${submitterEmail})`,
+        editToken,
         status: "pending",
         description: description
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
@@ -410,6 +464,14 @@ export async function POST(request: NextRequest) {
       submitterName,
       submitterEmail,
       docId: doc!._id,
+    }).catch(() => {/* swallow — email failure must not block the submission */});
+
+    await notifySubmitter({
+      type: type as "event" | "venue" | "listing" | "group",
+      title,
+      submitterName,
+      submitterEmail,
+      editToken,
     }).catch(() => {/* swallow — email failure must not block the submission */});
 
     return NextResponse.json(
