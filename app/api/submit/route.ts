@@ -27,8 +27,12 @@ async function notifyModerator(args: {
     console.warn(`[notifyModerator] RESEND_API_KEY not configured — skipping email for ${args.docId}`);
     return;
   }
-  const to =
-    process.env.MODERATION_RECIPIENT || "office@langport.life";
+  // MODERATION_RECIPIENT may be a comma-separated list so notifications can go
+  // to more than one inbox (e.g. office@ plus the site owner).
+  const to = (process.env.MODERATION_RECIPIENT || "office@langport.life")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   const from =
     process.env.RESEND_FROM_EMAIL || "Langport Life <onboarding@resend.dev>";
   const studioBase =
