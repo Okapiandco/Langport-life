@@ -21,8 +21,13 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey || apiKey === "your_resend_key_here") {
-      console.warn("[contact] RESEND_API_KEY not configured — message not delivered");
-      return NextResponse.json({ success: true }, { status: 200 });
+      // Never report success when we can't actually send — otherwise a
+      // misconfiguration silently swallows enquiries. Fail loudly instead.
+      console.error("[contact] RESEND_API_KEY not configured — message NOT delivered");
+      return NextResponse.json(
+        { error: "Your message could not be delivered right now. Please email office@langport.life directly." },
+        { status: 500 }
+      );
     }
 
     const to = process.env.CONTACT_RECIPIENT || "office@langport.life";
