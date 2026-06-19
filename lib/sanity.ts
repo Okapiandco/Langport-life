@@ -3,7 +3,10 @@ import { createImageUrlBuilder } from "@sanity/image-url";
 
 type SanityImageSource = any;
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+// Fallback to the known project id (as sanity.config.ts does) so builds in
+// environments without the env var set (e.g. Vercel Preview) don't throw
+// "Configuration must contain `projectId`" at module load.
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "8ecf405k";
 export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 export const apiVersion = "2024-01-01";
 

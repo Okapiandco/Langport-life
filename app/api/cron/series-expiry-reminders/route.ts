@@ -60,7 +60,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ skipped: true, reason: "no API key", candidates: candidates.length });
   }
 
-  const to = process.env.MODERATION_RECIPIENT || "office@langport.life";
+  const to = (process.env.MODERATION_RECIPIENT || "office@langport.life")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   const from = process.env.RESEND_FROM_EMAIL || "Langport Life <onboarding@resend.dev>";
   const studioBase = process.env.NEXT_PUBLIC_STUDIO_URL || "https://langport.life/studio";
 

@@ -21,8 +21,11 @@ export const upcomingEventsQuery = groq`
   }
 `;
 
+// Public detail page. Only published or cancelled events are viewable — the
+// page shows a banner for cancelled ones. Pending/rejected submissions must not
+// be reachable by URL (slugs are derived from the title and so are guessable).
 export const eventBySlugQuery = groq`
-  *[_type == "event" && slug.current == $slug][0] {
+  *[_type == "event" && slug.current == $slug && status in ["published", "cancelled"]][0] {
     _id, title, slug, description, date, endDate, eventType, isFree,
     tags, organiser, contactName, contactEmail, contactPhone,
     accessibilityInfo, maxAttendees, ticketsUrl, status,
@@ -49,8 +52,9 @@ export const allVenuesQuery = groq`
   }
 `;
 
+// Public detail page — only active venues are viewable (matches allVenuesQuery).
 export const venueBySlugQuery = groq`
-  *[_type == "venue" && slug.current == $slug][0] {
+  *[_type == "venue" && slug.current == $slug && status == "active"][0] {
     _id, title, slug, description, street, town, postcode, coordinates,
     phone, email, website, capacity, facilities, tags, status,
     image { asset->{url}, alt },
@@ -76,8 +80,9 @@ export const allListingsQuery = groq`
   }
 `;
 
+// Public detail page — only published listings are viewable (matches allListingsQuery).
 export const listingBySlugQuery = groq`
-  *[_type == "businessListing" && slug.current == $slug][0] {
+  *[_type == "businessListing" && slug.current == $slug && status == "published"][0] {
     _id, title, slug, description, street, town, postcode, coordinates,
     phone, email, website, tags, status,
     mondayOpen, mondayClose, tuesdayOpen, tuesdayClose,
