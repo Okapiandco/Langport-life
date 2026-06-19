@@ -156,6 +156,14 @@ Submitters can revisit `/edit/<token>` any time. Editing a previously-approved
 item sends it **back to pending** for re-approval. The edit endpoint only allows
 a fixed allow-list of fields per type (it cannot change status, token, owner, etc.).
 
+**Bulk approvals.** Studio has a dedicated **"Approvals"** screen (left-hand
+nav, tick icon) that lists every pending event, venue, listing and group in one
+place, with an **Approve all** button per section and per-row Approve/Reject.
+Approving flips the `status` field the public queries filter on
+(event→`published`, venue→`active`, listing→`published`, group→`approved`), so
+items go live immediately (subject to revalidation). The per-type "Pending
+Approval" queues in the sidebar still work as before.
+
 See `docs/MODERATION.md` for the plain-English moderator guide.
 
 ---
@@ -171,9 +179,14 @@ All transactional email goes through **Resend**. There are four senders:
 | Contact form message | `/api/contact` | `office@langport.life` | `CONTACT_RECIPIENT` |
 | Recurring series expiring in 30 days | cron `/api/cron/series-expiry-reminders` | `office@langport.life` | `MODERATION_RECIPIENT` |
 
-- **From address**: `RESEND_FROM_EMAIL` (currently `Langport Life <noreply@langport.life>`).
-  For this to deliver, **`langport.life` must be a verified domain in Resend**
-  (SPF/DKIM records). If it is not verified, sends fail.
+- **From address**: `RESEND_FROM_EMAIL`. `langport.life` is verified in Resend.
+  Production previously sent **from `office@langport.life` to `office@langport.life`**
+  (a self-send, which mailboxes often file as Junk). This has been changed to send
+  **from `noreply@langport.life`**, and `MODERATION_RECIPIENT` now lists both
+  `office@langport.life` and `jim@okapiandco.co.uk`.
+- Resend's send history shows these notifications were being **delivered** all
+  along (most recently 8 June) — so if they appeared missing, check the
+  `office@langport.life` **Junk/Spam** folder and allowlist `noreply@langport.life`.
 - If `RESEND_API_KEY` is missing, moderator/submitter emails are skipped and
   logged. **The contact form, however, returns "success" to the visitor even
   when no key is configured — so a misconfiguration silently loses messages.**
@@ -248,8 +261,8 @@ The findings below are the gaps worth addressing, in priority order.
 | **S2** | Medium | ✅ Fixed | Detail pages rendered **unapproved** submissions: `eventBySlugQuery` / `venueBySlugQuery` / `listingBySlugQuery` had no status filter, so a pending/rejected item was viewable by URL (slugs are guessable), exposing submitter email & phone. Status filters now added (events: published/cancelled; venues: active; listings: published). |
 | **S3** | Medium | ✅ Fixed | Contact form silently returned success when `RESEND_API_KEY` was missing. Now returns a 500 error instead of dropping the message silently. |
 | **S4** | Medium | ⬜ Outstanding | No spam protection on public POST endpoints (`/api/submit`, `/api/upload-image`, `/api/contact`). No rate limit, CAPTCHA or honeypot — open to bot floods (junk pending docs, image-store abuse, inbox spam). Suggested fix: honeypot field + simple rate limit, or Cloudflare Turnstile. |
-| **S5** | Low | ✅ Fixed in code · ⚠️ update Vercel + Sanity | `SANITY_REVALIDATE_SECRET` was guessable. A strong random value is now in `.env.local`. **Update the same value in Vercel env and the Sanity webhook config** or production revalidation breaks. |
-| **S6** | Low | ⬜ Verify | Confirm `CRON_SECRET` is set in Vercel. If unset, both cron jobs return 401 and silently never run. |
+| **S5** | Low | ✅ Fixed · ⚠️ update Sanity webhook | A strong `SANITY_REVALIDATE_SECRET` is now set in both `.env.local` and Vercel production. **The Sanity revalidate webhook URL must use the same value** in its `?secret=` query param or revalidation stays broken (it was previously 401-ing — the var was missing from Vercel entirely). |
+| **S6** | Low | ✅ Fixed | `CRON_SECRET` was missing from Vercel (both cron jobs were silently 401-ing and never running). A strong value is now set in Vercel production. Takes effect on next deploy. |
 | **S7** | Info | — | Edit tokens never expire and travel in plaintext email. UUIDs are unguessable, but a forwarded email grants permanent edit access to that one submission. Acceptable; add expiry only if desired. |
 | **S8** | Info | — | `/studio` is publicly reachable but gated by Sanity login. Keep project membership limited and enable 2FA on Sanity accounts. |
 
