@@ -3,16 +3,18 @@ export function formatDate(dateString: string): string {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "Europe/London",
   });
 }
 
 export function formatDateTime(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-GB", {
+  return new Date(dateString).toLocaleString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/London",
   });
 }
 
