@@ -60,7 +60,19 @@ function toDatetimeLocal(iso: string | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
-  return d.toISOString().slice(0, 16);
+  // Format as Europe/London local time so the input shows the correct UK time,
+  // not the UTC time stored in Sanity (which would be 1 hour behind in BST).
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const p = (type: string) => parts.find((x) => x.type === type)?.value ?? "00";
+  return `${p("year")}-${p("month")}-${p("day")}T${p("hour")}:${p("minute")}`;
 }
 
 const inputClass =
@@ -160,12 +172,21 @@ export default function EditPage() {
       ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: descValue }] }]
       : undefined;
 
+    // Convert a datetime-local string (London local time) to a UTC ISO string
+    // for storage in Sanity. The browser interprets no-timezone strings as local
+    // time, so new Date("2026-07-01T00:00") in BST = midnight BST = June 30 23:00 UTC.
+    const localToUTCISO = (v: FormDataEntryValue | null): string | undefined => {
+      if (!v) return undefined;
+      const d = new Date(v as string);
+      return isNaN(d.getTime()) ? undefined : d.toISOString();
+    };
+
     if (type === "event") {
       body = {
         title: fd.get("title"),
         description: descBlock,
-        date: fd.get("date") || undefined,
-        endDate: fd.get("endDate") || undefined,
+        date: localToUTCISO(fd.get("date")),
+        endDate: localToUTCISO(fd.get("endDate")),
         eventType: fd.get("eventType") || undefined,
         venueName: fd.get("venueName") || undefined,
         isFree: fd.get("isFree") === "true",
