@@ -97,6 +97,14 @@ export const group = defineType({
       ],
     }),
     defineField({
+      name: "linkedEvent",
+      title: "Linked Calendar Event",
+      type: "reference",
+      to: [{ type: "event" }],
+      description:
+        "Link to a recurring event that represents this group's regular meetings. Once set, upcoming sessions will appear on the group's page and in the What's On calendar.",
+    }),
+    defineField({
       name: "status",
       title: "Status",
       type: "string",

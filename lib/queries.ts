@@ -261,6 +261,18 @@ export const siteSettingsQuery = groq`
   }
 `;
 
+// ─── Nav category images ───
+// Pulls one submitted image per nav column from real content, falling back to
+// any published listing. URLs go straight to next/image (CDN domain is allowed).
+export const navCategoryImagesQuery = groq`{
+  "accommodation": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Accommodation" || category->name match "Hotel" || category->name match "B&B")][0].image.asset->url,
+  "shops": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Shop" || category->name match "Gift" || category->name match "Retail")][0].image.asset->url,
+  "foodDrink": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Food" || category->name match "Drink" || category->name match "Pub" || category->name match "Café" || category->name match "Cafe" || category->name match "Restaurant")][0].image.asset->url,
+  "any": *[_type == "businessListing" && status == "published" && defined(image.asset)][0].image.asset->url,
+  "events": *[_type == "event" && status == "published" && defined(image.asset)][0].image.asset->url,
+  "venues": *[_type == "venue" && status == "active" && defined(image.asset)][0].image.asset->url
+}`;
+
 // ─── Navigation ───
 export const navigationQuery = groq`
   *[_type == "navigation"][0] {
@@ -344,7 +356,8 @@ export const groupBySlugQuery = groq`
     _id, name, slug, description, location, meetingTime, cost,
     organiser, website, tags,
     contactName, contactEmail, contactPhone,
-    image { asset->{url}, alt }
+    image { asset->{url}, alt },
+    linkedEvent->{ _id, title, slug, date, endDate, recurrenceRule, recurrenceEndDate, excludedDates }
   }
 `;
 

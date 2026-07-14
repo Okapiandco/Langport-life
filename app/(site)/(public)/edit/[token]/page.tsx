@@ -31,6 +31,7 @@ interface Doc {
   contactEmail?: string;
   contactPhone?: string;
   recurrenceRule?: string;
+  recurrenceEndDate?: string;
   // listing / venue
   street?: string;
   town?: string;
@@ -60,8 +61,37 @@ function toDatetimeLocal(iso: string | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
-  return d.toISOString().slice(0, 16);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(d);
+  const p = (type: string) => parts.find((x) => x.type === type)?.value ?? "00";
+  return `${p("year")}-${p("month")}-${p("day")}T${p("hour")}:${p("minute")}`;
 }
+
+function localToUTCISO(v: FormDataEntryValue | null): string | undefined {
+  if (!v) return undefined;
+  const d = new Date(v as string);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
+}
+
+function parseFreq(rule: string | undefined): string {
+  if (!rule) return "none";
+  const r = rule.replace(/^RRULE:/, "");
+  if (/FREQ=WEEKLY/.test(r) && /INTERVAL=2/.test(r)) return "fortnightly";
+  if (/FREQ=WEEKLY/.test(r)) return "weekly";
+  if (/FREQ=MONTHLY/.test(r)) return "monthly";
+  if (/FREQ=YEARLY/.test(r)) return "annually";
+  return "custom";
+}
+
+const FREQ_TO_RRULE: Record<string, string> = {
+  weekly: "FREQ=WEEKLY",
+  fortnightly: "FREQ=WEEKLY;INTERVAL=2",
+  monthly: "FREQ=MONTHLY",
+  annually: "FREQ=YEARLY",
+};
 
 const inputClass =
   "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary";
@@ -79,6 +109,7 @@ export default function EditPage() {
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState("");
+  const [recurrenceFreq, setRecurrenceFreq] = useState("none");
   const formRef = useRef<HTMLFormElement>(null);
 
   // ── Load document ──
@@ -96,6 +127,7 @@ export default function EditPage() {
         if (data.coordinates?.lat && data.coordinates?.lng) {
           setPin({ lat: data.coordinates.lat, lng: data.coordinates.lng });
         }
+        setRecurrenceFreq(parseFreq(data.recurrenceRule));
       })
       .catch(() => setLoadError("Could not load your submission. Please try again."));
   }, [token]);
@@ -161,11 +193,16 @@ export default function EditPage() {
       : undefined;
 
     if (type === "event") {
+      const freq = fd.get("recurrenceFreq") as string;
+      const recurrenceRule = freq && freq !== "none" && freq !== "custom"
+        ? FREQ_TO_RRULE[freq] ?? null
+        : freq === "none" ? null : undefined;
+      const recurrenceEndDate = (fd.get("recurrenceEndDate") as string) || null;
       body = {
         title: fd.get("title"),
         description: descBlock,
-        date: fd.get("date") || undefined,
-        endDate: fd.get("endDate") || undefined,
+        date: localToUTCISO(fd.get("date")),
+        endDate: localToUTCISO(fd.get("endDate")),
         eventType: fd.get("eventType") || undefined,
         venueName: fd.get("venueName") || undefined,
         isFree: fd.get("isFree") === "true",
@@ -174,6 +211,8 @@ export default function EditPage() {
         contactName: fd.get("contactName") || undefined,
         contactEmail: fd.get("contactEmail") || undefined,
         contactPhone: fd.get("contactPhone") || undefined,
+        recurrenceRule,
+        recurrenceEndDate,
       };
     } else if (type === "businessListing") {
       body = {
@@ -329,12 +368,58 @@ export default function EditPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="eventType" className="block text-sm font-medium text-gray-700">Event Type</label>
-                  <input type="text" id="eventType" name="eventType" defaultValue={doc.eventType} className={inputClass} placeholder="e.g. Music, Sport, Community…" />
+                  <select id="eventType" name="eventType" defaultValue={doc.eventType ?? ""} className={inputClass}>
+                    <option value="">Select a type…</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="social">Social</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="market">Market</option>
+                    <option value="performance">Performance</option>
+                    <option value="community">Community</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
                 <div>
                   <label htmlFor="venueName" className="block text-sm font-medium text-gray-700">Venue Name</label>
                   <input type="text" id="venueName" name="venueName" defaultValue={doc.venueName} className={inputClass} />
                 </div>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
+                <p className="text-sm font-medium text-gray-700">Repeating event</p>
+                <div>
+                  <label htmlFor="recurrenceFreq" className="block text-sm text-gray-600 mb-1">Does this event repeat?</label>
+                  <select
+                    id="recurrenceFreq"
+                    name="recurrenceFreq"
+                    value={recurrenceFreq}
+                    onChange={(e) => setRecurrenceFreq(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="none">No — one-off event</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="fortnightly">Every 2 weeks</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="annually">Annually</option>
+                    {recurrenceFreq === "custom" && (
+                      <option value="custom">Custom (set in Studio)</option>
+                    )}
+                  </select>
+                </div>
+                {recurrenceFreq !== "none" && (
+                  <div>
+                    <label htmlFor="recurrenceEndDate" className="block text-sm text-gray-600 mb-1">
+                      Repeat until <span className="text-gray-400">(optional — leave blank for 1 year)</span>
+                    </label>
+                    <input
+                      type="date"
+                      id="recurrenceEndDate"
+                      name="recurrenceEndDate"
+                      defaultValue={doc.recurrenceEndDate ?? ""}
+                      className={`${inputClass} sm:max-w-xs`}
+                    />
+                  </div>
+                )}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>

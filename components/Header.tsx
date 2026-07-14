@@ -135,20 +135,30 @@ interface SocialLinks {
   youtube?: string;
 }
 
-// Static images for column-layout group headings (avoids needing image fields in Sanity)
-const GROUP_COLUMN_IMAGES: Record<string, string> = {
-  // What's On columns
-  "Events": "/nav-whats-on.jpg",
-  "Venues": "/nav-shops.jpg",
-  "Groups": "/things-to-do/kayaking.jpg",
-  // Shops & Services columns
-  "Accommodation": "/nav-accommodation.jpg",
-  "Shops": "/nav-shops.jpg",
-  "Food & Drink": "/nav-food-drink.jpg",
-  "Browse All": "/nav-explore.jpg",
-};
+interface NavImages {
+  accommodation?: string;
+  shops?: string;
+  foodDrink?: string;
+  any?: string;
+  events?: string;
+  venues?: string;
+}
 
-function sanityToNav(items: SanityNavItem[]): NavItem[] {
+function buildColumnImages(ni?: NavImages): Record<string, string | undefined> {
+  const fallback = ni?.any;
+  return {
+    "Events":       ni?.events      ?? "/nav-whats-on.jpg",
+    "Venues":       ni?.venues      ?? fallback ?? "/nav-shops.jpg",
+    "Groups":       fallback        ?? "/things-to-do/kayaking.jpg",
+    "Accommodation":ni?.accommodation ?? fallback ?? "/nav-accommodation.jpg",
+    "Shops":        ni?.shops       ?? fallback ?? "/nav-shops.jpg",
+    "Food & Drink": ni?.foodDrink   ?? fallback ?? "/nav-food-drink.jpg",
+    "Browse All":   fallback        ?? "/nav-explore.jpg",
+  };
+}
+
+function sanityToNav(items: SanityNavItem[], navImages?: NavImages): NavItem[] {
+  const columnImages = buildColumnImages(navImages);
   return items.map((item) => {
     const nav: NavItem = { name: item.title, href: item.href || "#" };
     const hasChildren = !!item.children?.length;
@@ -158,7 +168,7 @@ function sanityToNav(items: SanityNavItem[]): NavItem[] {
       const groups: NavGroup[] = (item.children || []).map((child) => ({
         heading: child.groupTitle || "",
         items: (child.links || []).map((l) => ({ name: l.title, href: l.href })),
-        image: GROUP_COLUMN_IMAGES[child.groupTitle || ""],
+        image: columnImages[child.groupTitle || ""],
       }));
 
       nav.mega = {
@@ -190,12 +200,14 @@ export default function Header({
   sanityNav,
   socialLinks,
   featuredEvents,
+  navImages,
 }: {
   sanityNav?: SanityNavItem[];
   socialLinks?: SocialLinks;
   featuredEvents?: FeaturedEvent[];
+  navImages?: NavImages;
 }) {
-  const navItems: NavItem[] = sanityNav?.length ? sanityToNav(sanityNav) : navigation;
+  const navItems: NavItem[] = sanityNav?.length ? sanityToNav(sanityNav, navImages) : navigation;
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);

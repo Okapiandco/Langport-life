@@ -85,13 +85,16 @@ export async function PATCH(
   const body = await req.json();
   const allowed = EDITABLE_FIELDS[existing._type] ?? [];
 
-  // Only pass through explicitly allowed fields
+  // Split allowed fields into set (non-null) and unset (null — caller wants to clear the field)
   const patch: Record<string, unknown> = {};
+  const unsetKeys: string[] = [];
   for (const key of allowed) {
-    if (key in body) patch[key] = body[key];
+    if (!(key in body)) continue;
+    if (body[key] === null) unsetKeys.push(key);
+    else patch[key] = body[key];
   }
 
-  if (Object.keys(patch).length === 0) {
+  if (Object.keys(patch).length === 0 && unsetKeys.length === 0) {
     return NextResponse.json({ error: "No valid fields to update." }, { status: 400 });
   }
 
@@ -101,7 +104,10 @@ export async function PATCH(
   }
 
   try {
-    await writeClient.patch(existing._id).set(patch).commit();
+    let p = writeClient.patch(existing._id);
+    if (Object.keys(patch).length > 0) p = p.set(patch);
+    if (unsetKeys.length > 0) p = p.unset(unsetKeys);
+    await p.commit();
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Edit patch error:", err);

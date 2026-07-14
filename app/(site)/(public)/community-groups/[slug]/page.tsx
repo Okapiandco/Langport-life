@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { groupBySlugQuery } from "@/lib/queries";
+import { expandEvents } from "@/lib/recurrence";
+import { formatDate } from "@/lib/utils";
 
 export const revalidate = 3600;
 
@@ -26,6 +29,16 @@ interface Group {
   contactEmail?: string;
   contactPhone?: string;
   image?: { asset: { url: string }; alt?: string };
+  linkedEvent?: {
+    _id: string;
+    title: string;
+    slug: { current: string };
+    date: string;
+    endDate?: string;
+    recurrenceRule?: string;
+    recurrenceEndDate?: string;
+    excludedDates?: string[];
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -46,6 +59,13 @@ export default async function GroupDetailPage({ params }: Props) {
   if (!group) notFound();
 
   const hasContact = group.contactName || group.contactEmail || group.contactPhone;
+
+  // Expand the linked event into next 5 upcoming sessions (3-month window)
+  const now = new Date();
+  const threeMonths = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 90);
+  const upcomingSessions = group.linkedEvent
+    ? expandEvents([group.linkedEvent], now, threeMonths).slice(0, 5)
+    : [];
 
   // JSON-LD Organization schema for SEO
   const jsonLd: Record<string, unknown> = {
@@ -144,6 +164,29 @@ export default async function GroupDetailPage({ params }: Props) {
                   </div>
                 )}
               </dl>
+            </div>
+          )}
+
+          {/* Upcoming Sessions */}
+          {upcomingSessions.length > 0 && group.linkedEvent && (
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h3 className="font-heading text-base font-bold text-primary">
+                Upcoming Sessions
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                {upcomingSessions.map((session, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                    {formatDate(session.date)}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={`/events/${group.linkedEvent.slug.current}`}
+                className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                View in calendar →
+              </Link>
             </div>
           )}
 
