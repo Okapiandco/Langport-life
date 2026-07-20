@@ -96,7 +96,7 @@ export const listingBySlugQuery = groq`
 `;
 
 export const listingCategoriesQuery = groq`
-  *[_type == "listingCategory"] | order(name asc) {
+  *[_type == "listingCategory" && count(*[_type == "businessListing" && references(^._id) && status == "published"]) > 0] | order(name asc) {
     _id, name, slug, description, icon, color,
     "count": count(*[_type == "businessListing" && references(^._id) && status == "published"])
   }
