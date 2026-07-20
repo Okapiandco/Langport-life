@@ -76,6 +76,22 @@ const navigation: NavItem[] = [
   },
   { name: "Town News", href: "/news" },
   {
+    name: "Guides",
+    href: "/guides",
+    mega: {
+      groups: [
+        {
+          heading: "Community Guides",
+          items: [
+            { name: "How to Submit, Edit & Claim a Listing", href: "/guides/how-to-list" },
+            { name: "Content Standards & Guidelines", href: "/guides/submission-guidelines" },
+          ],
+        },
+      ],
+      footerLink: { label: "View all guides", href: "/guides" },
+    },
+  },
+  {
     name: "Town Council",
     href: "/council",
     mega: {
