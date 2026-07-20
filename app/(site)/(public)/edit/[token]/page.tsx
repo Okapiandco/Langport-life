@@ -372,10 +372,10 @@ export default function EditPage() {
                     <option value="">Select a type…</option>
                     <option value="meeting">Meeting</option>
                     <option value="social">Social</option>
+                    <option value="class">Class</option>
                     <option value="workshop">Workshop</option>
                     <option value="market">Market</option>
                     <option value="performance">Performance</option>
-                    <option value="community">Community</option>
                     <option value="other">Other</option>
                   </select>
                 </div>

@@ -71,10 +71,10 @@ export const event = defineType({
         list: [
           { title: "Meeting", value: "meeting" },
           { title: "Social", value: "social" },
+          { title: "Class", value: "class" },
           { title: "Workshop", value: "workshop" },
           { title: "Market", value: "market" },
           { title: "Performance", value: "performance" },
-          { title: "Community", value: "community" },
           { title: "Other", value: "other" },
         ],
       },

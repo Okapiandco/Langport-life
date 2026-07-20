@@ -40,6 +40,22 @@ export default async function VenuesPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <p className="text-gray-600 text-sm">
+            {venues.length > 0
+              ? `${venues.length} venue${venues.length === 1 ? "" : "s"} listed`
+              : "Be the first to add your venue"}
+          </p>
+          <a
+            href="/submit/venue"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white no-underline hover:bg-primary/90 transition"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Submit Your Venue
+          </a>
+        </div>
         {venues.length > 0 ? (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
             {venues.map((venue: any) => (

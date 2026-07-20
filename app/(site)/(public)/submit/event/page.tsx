@@ -307,6 +307,7 @@ export default function SubmitEventPage() {
                   id="eventDate"
                   name="eventDate"
                   required
+                  step={900}
                   value={startDate}
                   onChange={handleStartChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -320,6 +321,7 @@ export default function SubmitEventPage() {
                   type="datetime-local"
                   id="eventEndDate"
                   name="eventEndDate"
+                  step={900}
                   value={endDate}
                   onChange={handleEndChange}
                   min={startDate || undefined}
@@ -404,7 +406,7 @@ export default function SubmitEventPage() {
                 >
                   <option value="">Select type...</option>
                   <option value="social">Social</option>
-                  <option value="community">Community</option>
+                  <option value="class">Class</option>
                   <option value="market">Market</option>
                   <option value="performance">Performance</option>
                   <option value="workshop">Workshop</option>
