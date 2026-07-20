@@ -76,6 +76,7 @@ export default function SubmitVenuePage() {
         section="submit"
         title="Add a Venue"
         subtitle="Add your hall, pub, or community space so event organisers can find it."
+        guideHref="/guides/how-to-list"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Submit", href: "/submit" },

@@ -14,9 +14,11 @@ interface PageHeroProps {
   subtitle?: string;
   image?: string;
   breadcrumbs?: Breadcrumb[];
+  guideHref?: string;
+  guideLabel?: string;
 }
 
-export default function PageHero({ section, title, subtitle, image, breadcrumbs }: PageHeroProps) {
+export default function PageHero({ section, title, subtitle, image, breadcrumbs, guideHref, guideLabel }: PageHeroProps) {
   const theme = sectionThemes[section];
 
   return (
@@ -86,6 +88,13 @@ export default function PageHero({ section, title, subtitle, image, breadcrumbs 
         {subtitle && (
           <p className="mt-3 max-w-3xl text-lg opacity-90 drop-shadow">
             {subtitle}
+          </p>
+        )}
+        {guideHref && (
+          <p className="mt-4">
+            <Link href={guideHref} className="inline-flex items-center gap-1.5 text-sm font-medium opacity-75 hover:opacity-100 underline underline-offset-2 decoration-current transition-opacity no-underline" style={{ textDecoration: "underline" }}>
+              {guideLabel ?? "How it works"} &rarr;
+            </Link>
           </p>
         )}
       </div>

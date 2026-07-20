@@ -213,6 +213,7 @@ export default function SubmitEventPage() {
         section="events"
         title="Submit an Event"
         subtitle="Tell us about your event and we'll add it to the listings."
+        guideHref="/guides/how-to-list"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Submit", href: "/submit" },

@@ -82,6 +82,7 @@ export default function SubmitGroupPage() {
         section="submit"
         title="Add a Group"
         subtitle="Tell us about your group and we'll add it to the listings."
+        guideHref="/guides/how-to-list"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Community Groups", href: "/community-groups" },

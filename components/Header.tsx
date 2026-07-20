@@ -14,6 +14,7 @@ interface MegaMenu {
   cardsHeading?: string;
   cardsImage?: string;
   footerLink?: { label: string; href: string };
+  footerSecondary?: { label: string; href: string };
   showFeaturedEvents?: boolean;
   columnLayout?: boolean;
 }
@@ -45,6 +46,7 @@ const navigation: NavItem[] = [
         { name: "Exploring the Wild", href: "/things-to-do/exploring-the-wild" },
       ],
       footerLink: { label: "View all events", href: "/events" },
+      footerSecondary: { label: "How it works", href: "/guides/how-to-list" },
     },
   },
   {
@@ -59,6 +61,7 @@ const navigation: NavItem[] = [
         { heading: "Browse All", image: "/nav-explore.jpg", items: [{ name: "View All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
       ],
       footerLink: { label: "View all listings", href: "/listings" },
+      footerSecondary: { label: "How it works", href: "/guides/how-to-list" },
     },
   },
   { name: "History", href: "/history" },
@@ -406,11 +409,18 @@ export default function Header({
                               </div>
                             )}
                           </div>
-                          {item.mega.footerLink && (
-                            <div className="mt-6 border-t border-gray-100 pt-5">
-                              <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
-                                {item.mega.footerLink.label} &rarr;
-                              </Link>
+                          {(item.mega.footerLink || item.mega.footerSecondary) && (
+                            <div className="mt-6 border-t border-gray-100 pt-5 flex items-center justify-between">
+                              {item.mega.footerLink && (
+                                <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
+                                  {item.mega.footerLink.label} &rarr;
+                                </Link>
+                              )}
+                              {item.mega.footerSecondary && (
+                                <Link href={item.mega.footerSecondary.href} className="text-sm font-medium text-gray-500 no-underline hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
+                                  {item.mega.footerSecondary.label} &rarr;
+                                </Link>
+                              )}
                             </div>
                           )}
                         </div>
@@ -497,11 +507,18 @@ export default function Header({
                             </div>
                           )}
                         </div>
-                        {item.mega.footerLink && (
-                          <div className="mt-6 border-t border-gray-100 pt-5">
-                            <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
-                              {item.mega.footerLink.label} &rarr;
-                            </Link>
+                        {(item.mega.footerLink || item.mega.footerSecondary) && (
+                          <div className="mt-6 border-t border-gray-100 pt-5 flex items-center justify-between">
+                            {item.mega.footerLink && (
+                              <Link href={item.mega.footerLink.href} className="text-sm font-semibold text-primary no-underline hover:text-primary-dark" onClick={() => setOpenDropdown(null)}>
+                                {item.mega.footerLink.label} &rarr;
+                              </Link>
+                            )}
+                            {item.mega.footerSecondary && (
+                              <Link href={item.mega.footerSecondary.href} className="text-sm font-medium text-gray-500 no-underline hover:text-primary transition-colors" onClick={() => setOpenDropdown(null)}>
+                                {item.mega.footerSecondary.label} &rarr;
+                              </Link>
+                            )}
                           </div>
                         )}
                       </div>

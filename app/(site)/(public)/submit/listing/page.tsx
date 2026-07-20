@@ -130,6 +130,7 @@ export default function SubmitListingPage() {
         section="listings"
         title="Add a Business"
         subtitle="Get your business listed on Langport Life."
+        guideHref="/guides/how-to-list"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Submit", href: "/submit" },

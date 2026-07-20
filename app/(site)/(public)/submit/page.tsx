@@ -45,6 +45,7 @@ export default function SubmitPage() {
         section="submit"
         title="Submit to Langport Life"
         subtitle="Help us keep the community informed. All submissions are reviewed before publishing."
+        guideHref="/guides/how-to-list"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Submit" },
