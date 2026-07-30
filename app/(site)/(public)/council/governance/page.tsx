@@ -4,6 +4,7 @@ import { client } from "@/lib/sanity";
 import { documentsByTagQuery } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
 import PageHero from "@/components/PageHero";
+import CollapsibleSection from "@/components/CollapsibleSection";
 
 export const metadata: Metadata = {
   title: "Governance & Transparency",
@@ -40,37 +41,32 @@ export default async function GovernancePage() {
         {documents.length === 0 ? (
           <p className="text-gray-600">No documents available yet.</p>
         ) : (
-          <div className="space-y-10">
-            {Array.from(grouped.entries()).map(([section, docs]) => (
-              <section key={section}>
-                <h2 className="font-heading text-lg font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">
-                  {section}
-                </h2>
-                <div className="space-y-2">
-                  {docs.map((doc: any) => (
-                    <div key={doc._id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white px-4 py-3 hover:border-green/20 hover:bg-green/5 transition-colors">
-                      <Link
-                        href={`/council/documents/${doc.slug.current}`}
-                        className="text-sm font-medium text-gray-900 no-underline hover:text-green"
-                      >
-                        {doc.title}
-                      </Link>
-                      <div className="flex items-center gap-4 ml-4 flex-shrink-0">
-                        <span className="text-xs text-gray-500">{formatDate(doc.date)}</span>
-                        {doc.file?.asset?.url && (
-                          <a
-                            href={`${doc.file.asset.url}?dl=`}
-                            download
-                            className="text-xs font-medium text-green hover:text-green/80 no-underline whitespace-nowrap"
-                          >
-                            Download
-                          </a>
-                        )}
-                      </div>
+          <div>
+            {Array.from(grouped.entries()).map(([section, docs], index) => (
+              <CollapsibleSection key={section} title={section} count={docs.length} defaultOpen={index === 0}>
+                {docs.map((doc: any) => (
+                  <div key={doc._id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white px-4 py-3 hover:border-green/20 hover:bg-green/5 transition-colors">
+                    <Link
+                      href={`/council/documents/${doc.slug.current}`}
+                      className="text-sm font-medium text-gray-900 no-underline hover:text-green"
+                    >
+                      {doc.title}
+                    </Link>
+                    <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+                      <span className="text-xs text-gray-500">{formatDate(doc.date)}</span>
+                      {doc.file?.asset?.url && (
+                        <a
+                          href={`${doc.file.asset.url}?dl=`}
+                          download
+                          className="text-xs font-medium text-green hover:text-green/80 no-underline whitespace-nowrap"
+                        >
+                          Download
+                        </a>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </section>
+                  </div>
+                ))}
+              </CollapsibleSection>
             ))}
           </div>
         )}

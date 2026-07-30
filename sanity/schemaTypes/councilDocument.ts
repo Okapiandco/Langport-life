@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
 
 export const councilDocument = defineType({
   name: "councilDocument",
@@ -78,6 +79,7 @@ export const councilDocument = defineType({
       },
       initialValue: "public",
     }),
+    orderRankField({ type: "councilDocument" }),
     defineField({
       name: "tags",
       title: "Tags",
@@ -102,6 +104,7 @@ export const councilDocument = defineType({
     }),
   ],
   orderings: [
+    orderRankOrdering,
     {
       title: "Date, Newest",
       name: "dateDesc",

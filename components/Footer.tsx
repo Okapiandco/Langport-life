@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ManageCookiesLink from "@/components/ManageCookiesLink";
 
 interface FooterColumn {
   title: string;
@@ -102,8 +103,14 @@ export default function Footer({
           ))}
         </div>
 
-        <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm">
-          <p>
+        <div className="mt-8 border-t border-gray-700 pt-8 text-sm">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4">
+            <Link href="/privacy-policy" className="text-gray-400 no-underline hover:text-white">Privacy Policy</Link>
+            <Link href="/cookie-policy" className="text-gray-400 no-underline hover:text-white">Cookie Policy</Link>
+            <Link href="/accessibility" className="text-gray-400 no-underline hover:text-white">Accessibility</Link>
+            <ManageCookiesLink />
+          </div>
+          <p className="text-center text-gray-500">
             {footerText ||
               `\u00A9 ${new Date().getFullYear()} Langport Town Council. All rights reserved.`}
           </p>

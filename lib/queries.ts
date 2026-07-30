@@ -127,14 +127,14 @@ export const councilMemberBySlugQuery = groq`
 
 // Council Documents
 export const allDocumentsQuery = groq`
-  *[_type == "councilDocument" && visibility == "public"] | order(date desc) {
+  *[_type == "councilDocument" && visibility == "public"] | order(orderRank asc) {
     _id, title, slug, documentType, date, meetingDate,
     file { asset->{url, originalFilename} }
   }
 `;
 
 export const documentsByTagQuery = groq`
-  *[_type == "councilDocument" && visibility == "public" && $tag in tags] | order(date desc) {
+  *[_type == "councilDocument" && visibility == "public" && $tag in tags] | order(orderRank asc) {
     _id, title, slug, documentType, date, meetingDate, tags,
     file { asset->{url, originalFilename} }
   }
@@ -262,16 +262,30 @@ export const siteSettingsQuery = groq`
 `;
 
 // ─── Nav category images ───
-// Pulls one submitted image per nav column from real content, falling back to
-// any published listing. URLs go straight to next/image (CDN domain is allowed).
-export const navCategoryImagesQuery = groq`{
-  "accommodation": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Accommodation" || category->name match "Hotel" || category->name match "B&B")][0].image.asset->url,
-  "shops": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Shop" || category->name match "Gift" || category->name match "Retail")][0].image.asset->url,
-  "foodDrink": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Food" || category->name match "Drink" || category->name match "Pub" || category->name match "Café" || category->name match "Cafe" || category->name match "Restaurant")][0].image.asset->url,
-  "any": *[_type == "businessListing" && status == "published" && defined(image.asset)][0].image.asset->url,
-  "events": *[_type == "event" && status == "published" && defined(image.asset)][0].image.asset->url,
-  "venues": *[_type == "venue" && status == "active" && defined(image.asset)][0].image.asset->url
-}`;
+// Manual overrides from siteSettings.navImages take priority.
+// Falls back to auto-pulled images from real published content.
+export const navCategoryImagesQuery = groq`
+  *[_type == "siteSettings"][0] {
+    "manual": navImages {
+      "events":        events.asset->url,
+      "venues":        venues.asset->url,
+      "groups":        groups.asset->url,
+      "thingsToDo":    thingsToDo.asset->url,
+      "accommodation": accommodation.asset->url,
+      "shops":         shops.asset->url,
+      "foodDrink":     foodDrink.asset->url,
+      "browseAll":     browseAll.asset->url,
+    },
+    "auto": {
+      "accommodation": *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Accommodation" || category->name match "Hotel" || category->name match "B&B")][0].image.asset->url,
+      "shops":         *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Shop" || category->name match "Gift" || category->name match "Retail")][0].image.asset->url,
+      "foodDrink":     *[_type == "businessListing" && status == "published" && defined(image.asset) && (category->name match "Food" || category->name match "Drink" || category->name match "Pub" || category->name match "Café" || category->name match "Cafe" || category->name match "Restaurant")][0].image.asset->url,
+      "any":           *[_type == "businessListing" && status == "published" && defined(image.asset)][0].image.asset->url,
+      "events":        *[_type == "event" && status == "published" && defined(image.asset)][0].image.asset->url,
+      "venues":        *[_type == "venue" && status == "active" && defined(image.asset)][0].image.asset->url,
+    }
+  }
+`;
 
 // ─── Navigation ───
 export const navigationQuery = groq`

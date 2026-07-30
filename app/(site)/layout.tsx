@@ -3,6 +3,8 @@ import { navigationQuery, siteSettingsQuery, upcomingEventsQuery, navCategoryIma
 import Header from "@/components/Header";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Footer from "@/components/Footer";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export default async function SiteLayout({
   children,
@@ -13,7 +15,7 @@ export default async function SiteLayout({
     client.fetch(navigationQuery).catch(() => null),
     client.fetch(siteSettingsQuery).catch(() => null),
     client.fetch(upcomingEventsQuery, { limit: 4 }).catch(() => []),
-    client.fetch(navCategoryImagesQuery).catch(() => ({})),
+    client.fetch(navCategoryImagesQuery).catch(() => null),
   ]);
 
   return (
@@ -22,7 +24,17 @@ export default async function SiteLayout({
         sanityNav={nav?.mainMenu}
         socialLinks={settings?.socialLinks}
         featuredEvents={featuredEvents ?? []}
-        navImages={navImages}
+        navImages={{
+          events:        navImages?.manual?.events        ?? navImages?.auto?.events,
+          venues:        navImages?.manual?.venues        ?? navImages?.auto?.venues,
+          groups:        navImages?.manual?.groups        ?? navImages?.auto?.any,
+          thingsToDo:    navImages?.manual?.thingsToDo,
+          accommodation: navImages?.manual?.accommodation ?? navImages?.auto?.accommodation,
+          shops:         navImages?.manual?.shops         ?? navImages?.auto?.shops,
+          foodDrink:     navImages?.manual?.foodDrink     ?? navImages?.auto?.foodDrink,
+          browseAll:     navImages?.manual?.browseAll     ?? navImages?.auto?.any,
+          any:           navImages?.auto?.any,
+        }}
       />
       <Breadcrumbs />
       <main id="main-content" className="flex-1">
@@ -33,6 +45,8 @@ export default async function SiteLayout({
         footerText={settings?.footerText}
         socialLinks={settings?.socialLinks}
       />
+      <CookieConsentBanner />
+      <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
     </div>
   );
 }

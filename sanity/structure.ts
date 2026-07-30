@@ -1,4 +1,5 @@
 import type { StructureResolver } from "sanity/structure";
+import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 
 // Singleton helper — shows a single document editor with no list
 const singletonItem = (
@@ -14,7 +15,7 @@ const singletonItem = (
       S.document().schemaType(typeName).documentId(documentId).title(title)
     );
 
-export const structure: StructureResolver = (S) =>
+export const structure: StructureResolver = (S, context) =>
   S.list()
     .title("Langport Life")
     .items([
@@ -368,77 +369,77 @@ export const structure: StructureResolver = (S) =>
                     .title("Council Documents")
                     .items([
 
-                      // ── By Committee ──
+                      // ── By Committee ── (drag to reorder — sets the order shown on the public site)
                       S.listItem()
                         .title("By Committee")
                         .child(
                           S.list()
                             .title("By Committee")
                             .items([
-                              S.listItem()
-                                .title("Full Council")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Full Council")
-                                    .filter('_type == "councilDocument" && "full-council" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Finance & Personnel")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Finance & Personnel")
-                                    .filter('_type == "councilDocument" && "finance-personnel" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Tourism & Marketing")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Tourism & Marketing")
-                                    .filter('_type == "councilDocument" && "tourism-marketing" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Annual Assembly")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Annual Assembly")
-                                    .filter('_type == "councilDocument" && "annual-assembly" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Joint Committee")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Joint Committee")
-                                    .filter('_type == "councilDocument" && "joint-committee" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Governance")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Governance")
-                                    .filter('_type == "councilDocument" && "governance" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Finance")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Finance")
-                                    .filter('_type == "councilDocument" && "finance" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
-                              S.listItem()
-                                .title("Archived")
-                                .child(
-                                  S.documentTypeList("councilDocument")
-                                    .title("Archived")
-                                    .filter('_type == "councilDocument" && "archived" in tags')
-                                    .defaultOrdering([{ field: "date", direction: "desc" }])
-                                ),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-full-council",
+                                title: "Full Council",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "full-council" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-finance-personnel",
+                                title: "Finance & Personnel",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "finance-personnel" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-tourism-marketing",
+                                title: "Tourism & Marketing",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "tourism-marketing" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-annual-assembly",
+                                title: "Annual Assembly",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "annual-assembly" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-joint-committee",
+                                title: "Joint Committee",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "joint-committee" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-governance",
+                                title: "Governance",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "governance" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-finance",
+                                title: "Finance",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "finance" in tags',
+                              }),
+                              orderableDocumentListDeskItem({
+                                type: "councilDocument",
+                                id: "councilDocument-archived",
+                                title: "Archived",
+                                S,
+                                context,
+                                filter: '_type == "councilDocument" && "archived" in tags',
+                              }),
                               S.divider(),
                               S.listItem()
                                 .title("Untagged")

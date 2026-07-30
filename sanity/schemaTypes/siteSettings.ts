@@ -194,6 +194,24 @@ export const siteSettings = defineType({
       description: "Copyright / legal text shown in the footer",
     }),
 
+    // Mega-menu column images
+    defineField({
+      name: "navImages",
+      title: "Navigation Menu Images",
+      description: "Images shown behind each column in the mega menu dropdowns. Upload here to override the automatic images.",
+      type: "object",
+      fields: [
+        defineField({ name: "events", title: "What's On — Events column", type: "image", options: { hotspot: true } }),
+        defineField({ name: "venues", title: "What's On — Venues column", type: "image", options: { hotspot: true } }),
+        defineField({ name: "groups", title: "What's On — Groups column", type: "image", options: { hotspot: true } }),
+        defineField({ name: "thingsToDo", title: "What's On — Things to Do panel", type: "image", options: { hotspot: true } }),
+        defineField({ name: "accommodation", title: "Shops — Accommodation column", type: "image", options: { hotspot: true } }),
+        defineField({ name: "shops", title: "Shops — Shops column", type: "image", options: { hotspot: true } }),
+        defineField({ name: "foodDrink", title: "Shops — Food & Drink column", type: "image", options: { hotspot: true } }),
+        defineField({ name: "browseAll", title: "Shops — Browse All column", type: "image", options: { hotspot: true } }),
+      ],
+    }),
+
     // Emergency / important contacts
     defineField({
       name: "emergencyContacts",

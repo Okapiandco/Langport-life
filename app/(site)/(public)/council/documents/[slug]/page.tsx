@@ -7,6 +7,7 @@ import { documentBySlugQuery, documentsByTagQuery } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
 import { COMMITTEES, getCommitteeByTag } from "@/lib/committees";
 import PageHero from "@/components/PageHero";
+import CollapsibleSection from "@/components/CollapsibleSection";
 
 export const revalidate = 3600;
 
@@ -84,17 +85,15 @@ async function CommitteePage({ tag, name, description }: { tag: string; name: st
         {documents.length === 0 ? (
           <p className="text-gray-600">No documents available yet.</p>
         ) : (
-          <div className="space-y-10">
-            {Array.from(grouped.entries()).map(([monthKey, docs]) => {
-              const [year, month] = monthKey.split("-");
-              const monthName = new Date(Number(year), Number(month) - 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+          <div>
+            {Array.from(grouped.entries())
+              .sort(([a], [b]) => (a < b ? 1 : -1))
+              .map(([monthKey, docs], index) => {
+                const [year, month] = monthKey.split("-");
+                const monthName = new Date(Number(year), Number(month) - 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
-              return (
-                <section key={monthKey}>
-                  <h2 className="font-heading text-lg font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">
-                    {monthName}
-                  </h2>
-                  <div className="space-y-2">
+                return (
+                  <CollapsibleSection key={monthKey} title={monthName} count={docs.length} defaultOpen={index === 0}>
                     {docs.map((doc: any) => (
                       <div key={doc._id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white px-4 py-3 hover:border-green/20 hover:bg-green/5 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
@@ -122,10 +121,9 @@ async function CommitteePage({ tag, name, description }: { tag: string; name: st
                         </div>
                       </div>
                     ))}
-                  </div>
-                </section>
-              );
-            })}
+                  </CollapsibleSection>
+                );
+              })}
           </div>
         )}
       </div>

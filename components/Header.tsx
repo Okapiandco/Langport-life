@@ -102,7 +102,7 @@ const navigation: NavItem[] = [
         { heading: "Councillor Information", items: [{ name: "Town Councillors", href: "/council/members" }, { name: "Somerset Councillors", href: "/council/somerset-councillors" }, { name: "Staff & Volunteers", href: "/council/staff-and-volunteers" }] },
         { heading: "Governance & Transparency", items: [{ name: "Finance", href: "/council/finance" }, { name: "Policies & Procedures", href: "/council/policies" }, { name: "Governance", href: "/council/governance" }] },
         { heading: "Agendas & Minutes", items: [{ name: "All Committees", href: "/council/documents" }, { name: "Full Council", href: "/council/documents/full-council" }, { name: "Finance & Personnel", href: "/council/documents/finance-personnel" }, { name: "Tourism & Marketing", href: "/council/documents/tourism-marketing" }, { name: "Joint Committee", href: "/council/documents/joint-committee" }, { name: "Annual Assembly", href: "/council/documents/annual-assembly" }, { name: "Archived Minutes", href: "/council/documents/archived" }] },
-        { heading: "Our Work", items: [{ name: "What We Do", href: "/council/what-we-do" }, { name: "Services", href: "/council/services" }] },
+        { heading: "Our Work", items: [{ name: "Services", href: "/council/services" }] },
       ],
       footerLink: { label: "Town Council Overview", href: "/council" },
     },
@@ -158,21 +158,24 @@ interface NavImages {
   accommodation?: string;
   shops?: string;
   foodDrink?: string;
+  browseAll?: string;
   any?: string;
   events?: string;
   venues?: string;
+  groups?: string;
+  thingsToDo?: string;
 }
 
 function buildColumnImages(ni?: NavImages): Record<string, string | undefined> {
   const fallback = ni?.any;
   return {
-    "Events":       ni?.events      ?? "/nav-whats-on.jpg",
-    "Venues":       ni?.venues      ?? fallback ?? "/nav-shops.jpg",
-    "Groups":       fallback        ?? "/things-to-do/kayaking.jpg",
-    "Accommodation":ni?.accommodation ?? fallback ?? "/nav-accommodation.jpg",
-    "Shops":        ni?.shops       ?? fallback ?? "/nav-shops.jpg",
-    "Food & Drink": ni?.foodDrink   ?? fallback ?? "/nav-food-drink.jpg",
-    "Browse All":   fallback        ?? "/nav-explore.jpg",
+    "Events":        ni?.events        ?? "/nav-whats-on.jpg",
+    "Venues":        ni?.venues        ?? fallback ?? "/nav-shops.jpg",
+    "Groups":        ni?.groups        ?? fallback ?? "/things-to-do/kayaking.jpg",
+    "Accommodation": ni?.accommodation ?? fallback ?? "/nav-accommodation.jpg",
+    "Shops":         ni?.shops         ?? fallback ?? "/nav-shops.jpg",
+    "Food & Drink":  ni?.foodDrink     ?? fallback ?? "/nav-food-drink.jpg",
+    "Browse All":    ni?.browseAll     ?? fallback ?? "/nav-explore.jpg",
   };
 }
 
@@ -194,8 +197,7 @@ function sanityToNav(items: SanityNavItem[], navImages?: NavImages): NavItem[] {
         groups: groups.length ? groups : undefined,
         columnLayout: item.columnLayout ?? false,
         cardsHeading: item.cardsHeading,
-        // Use a static fallback image for the cards column when none stored in Sanity
-        cardsImage: hasCards ? "/nav-things-to-do.jpg" : undefined,
+        cardsImage: hasCards ? (navImages?.thingsToDo ?? "/nav-things-to-do.jpg") : undefined,
       };
 
       if (hasCards) {

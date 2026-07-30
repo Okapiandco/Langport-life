@@ -29,8 +29,76 @@
   font-family: var(--font-heading);
 }
 
-/* Prose links: applies only to user-content blocks wrapped in `.prose` (e.g. PortableText).
-   Navigation, cards, and CTAs use Tailwind utilities directly and should not inherit this. */
+/* Prose typography: applies only to user-content blocks wrapped in `.prose` (e.g. PortableText).
+   Navigation, cards, and CTAs use Tailwind utilities directly and should not inherit this.
+   Tailwind's preflight zeroes out paragraph/heading margins and sizes, so PortableText output
+   needs these rules reinstated by hand (no @tailwindcss/typography plugin is installed). */
+.prose p {
+  margin-top: 0;
+  margin-bottom: 1.25em;
+  line-height: 1.75;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose h4 {
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose h2:first-child,
+.prose h3:first-child,
+.prose h4:first-child {
+  margin-top: 0;
+}
+
+.prose ul,
+.prose ol {
+  margin-top: 0;
+  margin-bottom: 1.25em;
+  padding-left: 1.5em;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+
+.prose blockquote {
+  margin: 1.5em 0;
+  padding-left: 1em;
+  border-left: 3px solid var(--color-primary);
+  font-style: italic;
+  color: #4b5563;
+}
+
 .prose a {
   color: var(--color-primary);
   text-decoration: underline;
