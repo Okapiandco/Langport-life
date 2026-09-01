@@ -17,13 +17,8 @@ export const client = createClient({
   useCdn: true,
 });
 
-export const writeClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token: process.env.SANITY_API_TOKEN,
-});
+// The write-enabled client lives in lib/sanity.server.ts (server-only) so the
+// token can never reach a client bundle.
 
 const builder = createImageUrlBuilder({ projectId, dataset });
 

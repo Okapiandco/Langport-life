@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { groq } from "next-sanity";
 import { client } from "@/lib/sanity";
 import { expandEvents, type BaseEvent, type Occurrence } from "@/lib/recurrence";
 import PrintControls from "./PrintControls";
 
 export const metadata: Metadata = {
-  title: "Events Print View — Langport Life",
+  title: "Events Print View",
   robots: "noindex,nofollow",
 };
 
@@ -88,6 +89,7 @@ export default async function EventsPrintPage({
 
   const fromDate = new Date(fromStr + "T00:00:00");
   const toDate = new Date(toStr + "T23:59:59");
+  if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) notFound();
 
   const rawEvents = await client.fetch<PrintEvent[]>(printEventsQuery, {
     from: fromDate.toISOString(),

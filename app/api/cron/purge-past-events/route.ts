@@ -11,7 +11,7 @@
  *   { "path": "/api/cron/purge-past-events", "schedule": "0 3 * * *" }
  */
 import { NextRequest, NextResponse } from "next/server";
-import { writeClient } from "@/lib/sanity";
+import { writeClient } from "@/lib/sanity.server";
 
 const GRACE_DAYS = 30;
 

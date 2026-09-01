@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const activity = await client.fetch(activityBySlugQuery, { slug });
   if (!activity) return {};
   return {
-    title: `${activity.title} — Things to Do — Langport Life`,
+    title: `${activity.title} — Things to Do`,
     description: activity.excerpt || undefined,
   };
 }

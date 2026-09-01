@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
-import { client, writeClient } from "@/lib/sanity";
+import { client } from "@/lib/sanity";
+import { writeClient } from "@/lib/sanity.server";
 
 // Convert datetime-local value (e.g. "2026-04-15T19:00") to full ISO 8601
 function toISODateTime(value: string | undefined | null): string | undefined {
@@ -302,6 +303,38 @@ export async function POST(request: NextRequest) {
       lat,
       lng,
     } = body;
+
+    // Honeypot: hidden field real users never fill. Pretend success so bots
+    // don't learn they were caught.
+    if (typeof body.website_url === "string" && body.website_url.trim() !== "") {
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
+
+    // Length caps — nothing legitimate needs more than this.
+    const caps: Record<string, number> = {
+      submitterName: 120,
+      submitterEmail: 254,
+      submitterPhone: 40,
+      title: 200,
+      description: 10000,
+      organiser: 200,
+      street: 200,
+      town: 100,
+      postcode: 12,
+      phone: 40,
+      email: 254,
+      website: 500,
+      ticketsUrl: 500,
+    };
+    for (const [field, cap] of Object.entries(caps)) {
+      const value = body[field];
+      if (typeof value === "string" && value.length > cap) {
+        return NextResponse.json(
+          { error: `${field} is too long (maximum ${cap} characters).` },
+          { status: 400 }
+        );
+      }
+    }
 
     // Validate required fields
     if (!type || !["event", "listing", "venue", "group"].includes(type)) {

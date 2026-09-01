@@ -17,7 +17,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { writeClient } from "@/lib/sanity";
+import { writeClient } from "@/lib/sanity.server";
 
 interface SeriesDoc {
   _id: string;

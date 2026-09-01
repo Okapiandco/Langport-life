@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import PageHero from "@/components/PageHero";
+import HoneypotField from "@/components/HoneypotField";
 import ImageUploadField from "@/components/ImageUploadField";
 
 const LocationPickerMap = dynamic(
@@ -84,6 +85,7 @@ export default function SubmitListingPage() {
 
     const body = {
       type: "listing",
+      website_url: form.get("website_url"),
       submitterName: form.get("submitterName"),
       submitterEmail: form.get("submitterEmail"),
       submitterPhone: form.get("submitterPhone") || undefined,
@@ -145,7 +147,8 @@ export default function SubmitListingPage() {
           </div>
         )}
 
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
+        <form ref={formRef} onSubmit={handleSubmit} className="relative space-y-8">
+          <HoneypotField name="website_url" />
           {/* Your details */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-gray-900">Your Details</legend>

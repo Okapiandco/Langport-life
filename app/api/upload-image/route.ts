@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeClient } from "@/lib/sanity";
+import { writeClient } from "@/lib/sanity.server";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB

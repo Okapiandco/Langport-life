@@ -24,6 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
+.env.development
+.env.production
 .env*.local
 
 # audit / diagnostic script output

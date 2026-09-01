@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { groq } from "next-sanity";
 import { client } from "@/lib/sanity";
+import { COMMITTEES } from "@/lib/committees";
 
 const BASE = "https://langport.life";
 
@@ -31,12 +32,15 @@ const dynamicQuery = groq`{
   },
   "documents": *[_type == "councilDocument" && visibility == "public" && defined(slug.current)] {
     "slug": slug.current, _updatedAt
+  },
+  "pages": *[_type == "page" && published == true && defined(slug.current)] {
+    "slug": slug.current, _updatedAt
   }
 }`;
 
 type SanitySlug = { slug: string; _updatedAt: string };
 type DynamicData = Record<
-  "events" | "listings" | "venues" | "groups" | "articles" | "historicSites" | "activities" | "councilMembers" | "documents",
+  "events" | "listings" | "venues" | "groups" | "articles" | "historicSites" | "activities" | "councilMembers" | "documents" | "pages",
   SanitySlug[]
 >;
 
@@ -68,6 +72,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/council/governance`,                  priority: 0.5, changeFrequency: "monthly" },
     { url: `${BASE}/council/services`,                    priority: 0.5, changeFrequency: "monthly" },
     { url: `${BASE}/council/staff-and-volunteers`,        priority: 0.5, changeFrequency: "monthly" },
+    { url: `${BASE}/submit`,                              priority: 0.4, changeFrequency: "yearly" },
+    // Committee agendas & minutes landing pages
+    ...COMMITTEES.map((c) => ({
+      url: `${BASE}/council/documents/${c.tag}`,
+      priority: 0.5 as number,
+      changeFrequency: "weekly" as const,
+    })),
   ];
 
   const dynamicPages: MetadataRoute.Sitemap = [
@@ -125,7 +136,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.4 as number,
       changeFrequency: "yearly" as const,
     })),
+    // NOTE: CMS `page` documents are deliberately NOT in the sitemap yet — the
+    // dataset still holds ~60 published WordPress-migration stub pages (cart,
+    // login, sample-page, GD-* scaffolding, duplicates). Re-add data.pages here
+    // once the junk pages are unpublished in Studio.
   ];
 
-  return [...staticPages, ...dynamicPages];
+  // CMS pages can overlap the hardcoded static list (e.g. /about) — keep the
+  // first occurrence of each URL.
+  const seen = new Set<string>();
+  return [...staticPages, ...dynamicPages].filter((entry) => {
+    const key = entry.url.replace(/\/$/, "");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

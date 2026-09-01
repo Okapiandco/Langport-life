@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { client } from "@/lib/sanity";
 import { allVenuesQuery } from "@/lib/queries";
 import VenueCard from "@/components/VenueCard";
@@ -46,7 +47,7 @@ export default async function VenuesPage() {
               ? `${venues.length} venue${venues.length === 1 ? "" : "s"} listed`
               : "Be the first to add your venue"}
           </p>
-          <a
+          <Link
             href="/submit/venue"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white no-underline hover:bg-primary/90 transition"
           >
@@ -54,7 +55,7 @@ export default async function VenuesPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
             Submit Your Venue
-          </a>
+          </Link>
         </div>
         {venues.length > 0 ? (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">

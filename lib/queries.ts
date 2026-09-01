@@ -152,7 +152,7 @@ export const documentTagCountsQuery = groq`{
 }`;
 
 export const documentBySlugQuery = groq`
-  *[_type == "councilDocument" && slug.current == $slug][0] {
+  *[_type == "councilDocument" && slug.current == $slug && visibility == "public"][0] {
     _id, title, slug, documentType, date, meetingDate, description,
     htmlContent, visibility, tags,
     file { asset->{url, originalFilename, size} }
@@ -211,7 +211,7 @@ export const articleCategoriesQuery = groq`
 // Search
 export const searchQuery = groq`
   *[
-    _type in ["event", "venue", "businessListing", "article", "page", "historicSite", "activity", "group"] &&
+    _type in ["event", "venue", "businessListing", "article", "page", "historicSite", "activity", "group", "councilDocument"] &&
     (
       title match $query ||
       name match $query ||
@@ -227,6 +227,7 @@ export const searchQuery = groq`
       _type == "article" => published == true,
       _type == "page" => published == true,
       _type == "activity" => published == true,
+      _type == "councilDocument" => visibility == "public",
       true
     )
   ] | order(_type asc, coalesce(title, name) asc) [0...30] {

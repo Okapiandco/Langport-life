@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
+import HoneypotField from "@/components/HoneypotField";
 
 // "YYYY-MM-DDTHH:mm" is the format <input type="datetime-local"> expects.
 function toDatetimeLocalString(d: Date): string {
@@ -165,6 +166,7 @@ export default function SubmitEventPage() {
 
     const body = {
       type: "event",
+      website_url: form.get("website_url"),
       submitterName: form.get("submitterName"),
       submitterEmail: form.get("submitterEmail"),
       submitterPhone: form.get("submitterPhone") || undefined,
@@ -228,7 +230,8 @@ export default function SubmitEventPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="relative space-y-8">
+          <HoneypotField name="website_url" />
           {/* Your details */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-gray-900">Your Details</legend>

@@ -5,7 +5,7 @@ import { PortableText } from "@portabletext/react";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Getting Here — Langport Life",
+  title: "Getting Here",
   description: "How to get to Langport, Somerset by train, bus, car, and bicycle. Parking information and travel tips.",
 };
 

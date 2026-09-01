@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { client } from "@/lib/sanity";
@@ -8,6 +9,13 @@ import EventCard from "@/components/EventCard";
 import FadeIn from "@/components/FadeIn";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: { absolute: "Langport Life — What's On, Shops & Town Council News in Langport, Somerset" },
+  description:
+    "Find events, local shops and services, community groups, and Langport Town Council agendas, minutes and news. The official community hub for Langport, Somerset.",
+  alternates: { canonical: "/" },
+};
 
 // Fallback cards when siteSettings hasn't been configured yet
 const defaultNavCards = [

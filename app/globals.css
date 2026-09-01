@@ -108,6 +108,33 @@
   color: var(--color-primary-dark);
 }
 
+/* Accessibility controls (see components/AccessibilityWidget.tsx).
+   The widget itself is mounted as a sibling of .site-content, not inside it,
+   so its own button/panel never gets zoomed or contrast-filtered. */
+.site-content {
+  zoom: var(--font-scale, 1);
+}
+
+html.a11y-contrast .site-content {
+  filter: contrast(1.15) saturate(1.1);
+}
+
+html.a11y-contrast .site-content a {
+  text-decoration: underline;
+}
+
+html.a11y-reduce-motion {
+  scroll-behavior: auto;
+}
+
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
 /* Skip to main content link for accessibility */
 .skip-link {
   position: absolute;

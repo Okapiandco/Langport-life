@@ -8,6 +8,7 @@ import PageHero from "@/components/PageHero";
 export const metadata: Metadata = {
   title: "Search",
   description: "Search Langport Life for events, venues, businesses, news and more.",
+  robots: { index: false, follow: true },
 };
 
 // Don't cache search pages — results depend on user input.
@@ -31,6 +32,7 @@ const TYPE_LABEL: Record<string, string> = {
   historicSite: "Historic Site",
   activity: "Activity",
   group: "Group",
+  councilDocument: "Council Document",
 };
 
 function resultHref(r: SearchResult): string | null {
@@ -44,6 +46,7 @@ function resultHref(r: SearchResult): string | null {
     case "historicSite": return `/history/${slug}`;
     case "activity": return `/things-to-do/${slug}`;
     case "group": return `/community-groups/${slug}`;
+    case "councilDocument": return `/council/documents/${slug}`;
     case "page": return `/${slug}`;
     default: return null;
   }

@@ -14,7 +14,11 @@ export default defineConfig({
   title: "Langport Life",
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "8ecf405k",
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
-  plugins: [structureTool({ structure }), visionTool()],
+  plugins: [
+    structureTool({ structure }),
+    // Vision is a raw GROQ console — dev convenience only
+    ...(process.env.NODE_ENV !== "production" ? [visionTool()] : []),
+  ],
   tools: (prev) => [
     {
       name: "approvals",

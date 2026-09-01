@@ -4,7 +4,24 @@ import { Resend } from "resend";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, subject, message } = body ?? {};
+    const { name, email, subject, message, website } = body ?? {};
+
+    // Honeypot: hidden field real users never fill. Pretend success so bots
+    // don't learn they were caught.
+    if (typeof website === "string" && website.trim() !== "") {
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
+
+    const caps: Record<string, number> = { name: 120, email: 254, subject: 200, message: 5000 };
+    for (const [field, cap] of Object.entries(caps)) {
+      const value = (body ?? {})[field];
+      if (typeof value === "string" && value.length > cap) {
+        return NextResponse.json(
+          { error: `${field} is too long (maximum ${cap} characters).` },
+          { status: 400 }
+        );
+      }
+    }
 
     if (!name || !email || !subject || !message) {
       return NextResponse.json(

@@ -7,7 +7,7 @@ import PageHero from "@/components/PageHero";
 import MapView from "@/components/MapView";
 
 export const metadata: Metadata = {
-  title: "Shops & Services — Langport Life",
+  title: "Shops & Services",
   description: "Find shops, services, food & drink, and more in Langport and the surrounding area.",
 };
 

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Thank You — Langport Life",
+  title: "Thank You",
 };
 
 export default function ThankYouPage() {

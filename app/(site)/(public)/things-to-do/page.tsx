@@ -6,7 +6,7 @@ import { allActivitiesQuery } from "@/lib/queries";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Things to Do — Langport Life",
+  title: "Things to Do",
   description: "Discover outdoor activities, walks, cycling routes, and wildlife around Langport and the Somerset Levels.",
 };
 

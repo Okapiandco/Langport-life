@@ -43,8 +43,57 @@ export default async function EventPage({ params }: Props) {
   const hasCoordinates =
     event.venue?.coordinates?.lat && event.venue?.coordinates?.lng;
 
+  // Event structured data — feeds Google's event rich results
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    startDate: event.date,
+    ...(event.endDate && { endDate: event.endDate }),
+    eventStatus:
+      event.status === "cancelled"
+        ? "https://schema.org/EventCancelled"
+        : "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...(event.venue && {
+      location: {
+        "@type": "Place",
+        name: event.venue.title,
+        address: {
+          "@type": "PostalAddress",
+          ...(event.venue.street && { streetAddress: event.venue.street }),
+          addressLocality: event.venue.town || "Langport",
+          ...(event.venue.postcode && { postalCode: event.venue.postcode }),
+          addressCountry: "GB",
+        },
+      },
+    }),
+    ...(event.image?.asset?.url && { image: [event.image.asset.url] }),
+    ...(event.isFree && {
+      isAccessibleForFree: true,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "GBP",
+        availability: "https://schema.org/InStock",
+        ...(event.ticketsUrl && { url: event.ticketsUrl }),
+      },
+    }),
+    organizer: {
+      "@type": "Organization",
+      name: event.organiser || "Langport Life",
+      url: "https://langport.life",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(eventJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <article className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Title & accent bar */}
         <header>

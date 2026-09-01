@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import HoneypotField from "@/components/HoneypotField";
 
 export default function ContactForm() {
   const [submitting, setSubmitting] = useState(false);
@@ -18,6 +19,7 @@ export default function ContactForm() {
       email: form.get("email"),
       subject: form.get("subject"),
       message: form.get("message"),
+      website: form.get("website"),
     };
 
     try {
@@ -61,7 +63,8 @@ export default function ContactForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit} className="relative mt-8 space-y-4">
+        <HoneypotField name="website" />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">

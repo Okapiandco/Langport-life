@@ -21,12 +21,21 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://langport.life"),
   title: {
     default: "Langport Life — Community Hub for Langport, Somerset",
     template: "%s | Langport Life",
   },
   description:
     "Your community hub for events, venues, businesses, and council information in Langport, Somerset.",
+  openGraph: {
+    type: "website",
+    siteName: "Langport Life",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
@@ -36,7 +45,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="en-GB"
       className={`${playfair.variable} ${montserrat.variable} ${roboto.variable}`}
     >
       <body>{children}</body>

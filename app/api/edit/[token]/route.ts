@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { groq } from "next-sanity";
-import { client, writeClient } from "@/lib/sanity";
+import { client } from "@/lib/sanity";
+import { writeClient } from "@/lib/sanity.server";
 
 // Fields the submitter is allowed to edit on each document type.
 // Deliberately excludes: _id, _type, slug, editToken, status, approvedAt,
