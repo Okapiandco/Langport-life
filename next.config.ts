@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+// Old WordPress news posts lived at the root (e.g. /wildlife) — these 233 slugs
+// have an exact matching article at /news/<slug>. Generated from the pre-cutover
+// crawl (docs/old-site-crawl/), regenerate via the diff in redirect-diff.json.
+import newsRedirectSlugs from "./lib/news-redirects.generated.json";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -24,9 +28,36 @@ const nextConfig: NextConfig = {
       { source: "/join-a-group", destination: "/community-groups", permanent: true },
       { source: "/join-a-group/:slug", destination: "/community-groups/:slug", permanent: true },
 
-      // Old WordPress site (same domain): GeoDirectory business directory
+      // Old WordPress site (same domain): GeoDirectory business directory.
+      // Explicit misses first (deleted during migration), then category
+      // archives (two segments, so before the one-segment wildcard).
+      { source: "/directory/koleman-creative-picture-framing-2", destination: "/listings", permanent: true },
+      { source: "/directory/category/:path*", destination: "/listings", permanent: true },
       { source: "/directory", destination: "/listings", permanent: true },
       { source: "/directory/:slug", destination: "/listings/:slug", permanent: true },
+
+      // Old GeoDirectory venues: /venue/<slug> -> /venues/<slug>
+      { source: "/venue/cocklemoor-park", destination: "/venues", permanent: true },
+      { source: "/venue/category/:path*", destination: "/venues", permanent: true },
+      { source: "/venue", destination: "/venues", permanent: true },
+      { source: "/venue/:slug", destination: "/venues/:slug", permanent: true },
+
+      // Old GeoDirectory event pages (all past events) and category archives
+      { source: "/events/category/:path*", destination: "/events", permanent: true },
+      { source: "/events/illustrated-talk-west-moor-its-hidden-stories", destination: "/events", permanent: true },
+      { source: "/events/illustrated-talk-smallpox-benjamin-jesty", destination: "/events", permanent: true },
+      { source: "/events/cambodian-food-at-the-angel-cafe", destination: "/events", permanent: true },
+
+      // Old WP blog category/tag archives
+      { source: "/category/:path*", destination: "/news", permanent: true },
+      { source: "/tag/:path*", destination: "/news", permanent: true },
+
+      // Old root-level news posts with an exact new home at /news/<slug>
+      ...newsRedirectSlugs.map((slug: string) => ({
+        source: `/${slug}`,
+        destination: `/news/${slug}`,
+        permanent: true,
+      })),
 
       // Old WordPress: committee agendas & minutes (old paths recorded in lib/committees.ts;
       // "finance-and-personel" is the old site's genuine spelling)
@@ -42,8 +73,9 @@ const nextConfig: NextConfig = {
       { source: "/town-council/:path*", destination: "/council", permanent: true },
       { source: "/town-council", destination: "/council", permanent: true },
 
-      // Old WordPress: uploaded media (exact per-file map not recoverable — see docs/launch-audit-2026-09-01.md)
-      { source: "/wp-content/:path*", destination: "/council/documents", permanent: true },
+      // Old WordPress /wp-content/uploads/* media is handled by the route
+      // handler at app/wp-content/[...path]/route.ts, which looks each file up
+      // in Sanity by original filename and redirects to its document page.
     ];
   },
   images: {
