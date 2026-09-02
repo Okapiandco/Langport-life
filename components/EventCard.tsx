@@ -20,8 +20,8 @@ interface EventCardProps {
 
 function DateStamp({ date }: { date: string }) {
   const d = new Date(date);
-  const day = d.getDate();
-  const month = d.toLocaleDateString("en-GB", { month: "short" });
+  const day = d.toLocaleDateString("en-GB", { day: "numeric", timeZone: "Europe/London" });
+  const month = d.toLocaleDateString("en-GB", { month: "short", timeZone: "Europe/London" });
 
   return (
     <div className="absolute top-3 left-3 z-10 flex flex-col items-center rounded-lg bg-white px-2.5 py-1.5 text-center shadow-md">
