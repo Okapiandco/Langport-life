@@ -14,7 +14,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const member = await client.fetch(councilMemberBySlugQuery, { slug });
   if (!member) return { title: "Member Not Found" };
-  return { title: member.name, description: `${member.name} — ${member.role || "Council Member"}` };
+  return {
+    title: member.name,
+    description: `${member.name} — ${member.role || "Council Member"}`,
+    alternates: { canonical: `/council/members/${slug}` },
+  };
 }
 
 export default async function CouncilMemberPage({ params }: Props) {

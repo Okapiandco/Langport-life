@@ -20,14 +20,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const committee = getCommitteeByTag(slug);
   if (committee) {
     return {
-      title: committee.name,
+      title: `${committee.name} Agendas & Minutes`,
       description: committee.description,
+      alternates: { canonical: `/council/documents/${slug}` },
     };
   }
 
   const doc = await client.fetch(documentBySlugQuery, { slug });
   if (!doc) return { title: "Document Not Found" };
-  return { title: doc.title };
+  return {
+    title: doc.title,
+    description: `${doc.title} — Langport Town Council document.`,
+    alternates: { canonical: `/council/documents/${slug}` },
+  };
 }
 
 // Generate static params for committee pages

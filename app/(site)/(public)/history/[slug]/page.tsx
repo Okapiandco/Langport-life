@@ -14,7 +14,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const site = await client.fetch(historicSiteBySlugQuery, { slug });
   if (!site) return { title: "Historic Site Not Found" };
-  return { title: site.title, description: `Learn about ${site.title} in Langport` };
+  return {
+    title: site.title,
+    description: `Learn about ${site.title} in Langport`,
+    alternates: { canonical: `/history/${slug}` },
+  };
 }
 
 export default async function HistoricSitePage({ params }: Props) {

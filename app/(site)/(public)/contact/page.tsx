@@ -5,7 +5,8 @@ import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
+  title: "Contact Langport Town Council",
+  alternates: { canonical: "/contact" },
   description: "Get in touch with the Langport Town Council team.",
 };
 

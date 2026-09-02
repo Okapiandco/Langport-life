@@ -6,7 +6,8 @@ import { allCouncilMembersQuery } from "@/lib/queries";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Town Councillors",
+  title: "Langport Town Councillors",
+  alternates: { canonical: "/council/members" },
   description: "Meet the elected councillors and officers of Langport Town Council.",
 };
 

@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Submit",
+  title: "Add Your Event or Business",
+  alternates: { canonical: "/submit" },
   description: "Submit an event, business listing, or venue to Langport Life.",
 };
 

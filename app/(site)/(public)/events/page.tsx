@@ -7,7 +7,8 @@ import EventsViewTabs from "@/components/EventsViewTabs";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Events",
+  title: "What's On in Langport",
+  alternates: { canonical: "/events" },
   description: "Discover events happening in and around Langport, Somerset.",
 };
 

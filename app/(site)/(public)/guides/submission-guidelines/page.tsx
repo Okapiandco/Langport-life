@@ -3,7 +3,8 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Content Standards & Guidelines | Guides",
+  title: "Content Standards & Guidelines",
+  alternates: { canonical: "/guides/submission-guidelines" },
   description: "What makes a good listing on Langport Life — guidance on titles, descriptions, photos, and what to include for events, businesses, venues, and community groups.",
 };
 

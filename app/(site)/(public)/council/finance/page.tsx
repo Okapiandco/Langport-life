@@ -7,7 +7,8 @@ import PageHero from "@/components/PageHero";
 import CollapsibleSection from "@/components/CollapsibleSection";
 
 export const metadata: Metadata = {
-  title: "Finance",
+  title: "Council Finance",
+  alternates: { canonical: "/council/finance" },
   description: "Langport Town Council budgets, annual returns, asset register and grant information.",
 };
 

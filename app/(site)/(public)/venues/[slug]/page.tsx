@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: venue.title,
     description: `${venue.title} in ${venue.town || "Langport"}`,
+    alternates: { canonical: `/venues/${slug}` },
   };
 }
 

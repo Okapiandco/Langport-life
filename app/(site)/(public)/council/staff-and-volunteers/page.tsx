@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Staff & Volunteers",
+  title: "Council Staff & Volunteers",
+  alternates: { canonical: "/council/staff-and-volunteers" },
   description: "Meet the staff and volunteers who support Langport Town Council.",
 };
 

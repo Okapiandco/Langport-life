@@ -6,7 +6,8 @@ import { somersetCouncillorsQuery } from "@/lib/queries";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Somerset Councillors",
+  title: "Somerset Councillors for Langport",
+  alternates: { canonical: "/council/somerset-councillors" },
   description: "Meet your Somerset and District councillors representing the Langport area.",
 };
 

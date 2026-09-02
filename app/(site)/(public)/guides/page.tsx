@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Guides",
+  alternates: { canonical: "/guides" },
   description: "Helpful guides for getting the most out of Langport Life — how to submit listings, content standards, and more.",
 };
 

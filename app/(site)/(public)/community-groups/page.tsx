@@ -6,7 +6,8 @@ import GroupCard from "@/components/GroupCard";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Community Groups",
+  title: "Community Groups in Langport",
+  alternates: { canonical: "/community-groups" },
   description:
     "Find local groups, clubs and societies in and around Langport, Somerset.",
 };

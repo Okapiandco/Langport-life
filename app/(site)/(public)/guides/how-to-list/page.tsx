@@ -3,7 +3,8 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "How to Submit, Edit & Claim a Listing | Guides",
+  title: "How to Submit, Edit & Claim a Listing",
+  alternates: { canonical: "/guides/how-to-list" },
   description: "Step-by-step guide to adding your event, business, venue, or community group to Langport Life, and how to edit or claim an existing listing.",
 };
 

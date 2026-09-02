@@ -3,6 +3,7 @@ import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Council Services",
+  alternates: { canonical: "/council/services" },
   description:
     "Services and facilities owned and managed by Langport Town Council and the Langport Town Trust.",
 };

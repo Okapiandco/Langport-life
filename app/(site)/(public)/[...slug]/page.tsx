@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: page.title,
     description: page.seoDescription || page.description,
+    alternates: { canonical: `/${pageSlug}` },
   };
 }
 

@@ -6,6 +6,7 @@ import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "About Langport",
+  alternates: { canonical: "/about" },
   description: "Learn about Langport, a historic market town in Somerset.",
 };
 

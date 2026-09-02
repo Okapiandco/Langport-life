@@ -3,7 +3,8 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Town Council",
+  title: "Langport Town Council",
+  alternates: { canonical: "/council" },
   description: "Langport Town Council information, members, and documents.",
 };
 

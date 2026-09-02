@@ -6,7 +6,8 @@ import { COMMITTEES } from "@/lib/committees";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Agendas & Minutes",
+  title: "Council Agendas & Minutes",
+  alternates: { canonical: "/council/documents" },
   description: "Access Langport Town Council meeting agendas, minutes and supporting papers.",
 };
 

@@ -5,7 +5,8 @@ import NewsSearch from "@/components/NewsSearch";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Town News",
+  title: "Langport Town News",
+  alternates: { canonical: "/news" },
   description:
     "Latest news and stories from the Langport community in Somerset.",
 };

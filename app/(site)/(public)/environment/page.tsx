@@ -6,7 +6,8 @@ import { siteSettingsQuery } from "@/lib/queries";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Environment & Flooding",
+  title: "Environment & Flooding in Langport",
+  alternates: { canonical: "/environment" },
   description:
     "Flooding information, environmental resources, and conservation for Langport and the Somerset Levels.",
 };

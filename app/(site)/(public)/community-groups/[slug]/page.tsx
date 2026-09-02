@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description:
       `${group.name} — local group in Langport.` +
       (group.location ? ` Meets at ${group.location}.` : ""),
+    alternates: { canonical: `/community-groups/${slug}` },
   };
 }
 

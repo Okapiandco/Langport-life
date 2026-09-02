@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${activity.title} — Things to Do`,
     description: activity.excerpt || undefined,
+    alternates: { canonical: `/things-to-do/${slug}` },
   };
 }
 

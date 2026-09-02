@@ -13,7 +13,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const listing = await client.fetch(listingBySlugQuery, { slug });
   if (!listing) return { title: "Listing Not Found" };
-  return { title: listing.title, description: `${listing.title} in ${listing.town || "Langport"}` };
+  return {
+    title: listing.title,
+    description: `${listing.title} in ${listing.town || "Langport"}`,
+    alternates: { canonical: `/listings/${slug}` },
+  };
 }
 
 const DAYS = [

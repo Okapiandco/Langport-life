@@ -7,7 +7,8 @@ import PageHero from "@/components/PageHero";
 import MapView from "@/components/MapView";
 
 export const metadata: Metadata = {
-  title: "Venues",
+  title: "Venues in Langport",
+  alternates: { canonical: "/venues" },
   description: "Discover venues in Langport — pubs, halls, gardens, and more.",
 };
 

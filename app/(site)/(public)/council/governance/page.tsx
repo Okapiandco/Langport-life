@@ -8,6 +8,7 @@ import CollapsibleSection from "@/components/CollapsibleSection";
 
 export const metadata: Metadata = {
   title: "Governance & Transparency",
+  alternates: { canonical: "/council/governance" },
   description: "Langport Town Council standing orders, financial regulations, policies and procedures.",
 };
 
