@@ -1,11 +1,12 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
-import { CheckmarkCircleIcon, UploadIcon } from "@sanity/icons";
+import { CheckmarkCircleIcon, HelpCircleIcon, UploadIcon } from "@sanity/icons";
 import { schemaTypes } from "./sanity/schemaTypes";
 import { structure } from "./sanity/structure";
 import { ApprovalsTool } from "./sanity/tools/ApprovalsTool";
 import { BulkUploadTool } from "./sanity/tools/BulkUploadTool";
+import { HelpTool } from "./sanity/tools/HelpTool";
 
 // Singleton types that should not appear in "Create new document" menu
 const singletonTypes = new Set(["siteSettings", "navigation"]);
@@ -32,6 +33,12 @@ export default defineConfig({
       title: "Bulk Upload",
       icon: UploadIcon,
       component: BulkUploadTool,
+    },
+    {
+      name: "how-to",
+      title: "How To",
+      icon: HelpCircleIcon,
+      component: HelpTool,
     },
     ...prev,
   ],
