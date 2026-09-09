@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { groq } from "next-sanity";
 import { client } from "@/lib/sanity";
 import { writeClient } from "@/lib/sanity.server";
+import { lookupEditToken } from "@/lib/editTokens.server";
 
 // Fields the submitter is allowed to edit on each document type.
 // Deliberately excludes: _id, _type, slug, editToken, status, approvedAt,
@@ -26,9 +27,11 @@ const EDITABLE_FIELDS: Record<string, string[]> = {
   ],
 };
 
-// Fetch query — groq tag required for parameterised queries with next-sanity
-const docByTokenQuery = groq`*[editToken == $token][0]{
-  _id, _type, status, editToken,
+// The token itself never touches Sanity: it is hashed and looked up in Neon,
+// which returns the document id. The Sanity dataset is public, so a queryable
+// plaintext token would let anyone edit any submission.
+const docByIdQuery = groq`*[_id == $id][0]{
+  _id, _type, status,
   title, name,
   description,
   date, endDate, eventType, venueName, isFree, ticketsUrl, organiser,
@@ -39,7 +42,7 @@ const docByTokenQuery = groq`*[editToken == $token][0]{
   image { asset->{ _id, url }, alt }
 }`;
 
-const docStatusByTokenQuery = groq`*[editToken == $token][0]{ _id, _type, status }`;
+const docStatusByIdQuery = groq`*[_id == $id][0]{ _id, _type, status }`;
 
 export async function GET(
   _req: NextRequest,
@@ -48,9 +51,17 @@ export async function GET(
   const { token } = await params;
   if (!token) return NextResponse.json({ error: "Missing token." }, { status: 400 });
 
+  const record = await lookupEditToken(token).catch(() => null);
+  if (!record) {
+    return NextResponse.json(
+      { error: "This edit link is not valid or has been revoked." },
+      { status: 404 }
+    );
+  }
+
   const doc = await client
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .fetch(docByTokenQuery, { token } as any)
+    .fetch(docByIdQuery, { id: record.docId } as any)
     .catch(() => null);
 
   if (!doc) {
@@ -70,10 +81,18 @@ export async function PATCH(
   const { token } = await params;
   if (!token) return NextResponse.json({ error: "Missing token." }, { status: 400 });
 
-  // Verify the token matches a real document
+  // Verify the token via Neon, then confirm the document still exists
+  const record = await lookupEditToken(token).catch(() => null);
+  if (!record) {
+    return NextResponse.json(
+      { error: "This edit link is not valid or has been revoked." },
+      { status: 404 }
+    );
+  }
+
   const existing = await client
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .fetch(docStatusByTokenQuery, { token } as any)
+    .fetch(docStatusByIdQuery, { id: record.docId } as any)
     .catch(() => null);
 
   if (!existing) {

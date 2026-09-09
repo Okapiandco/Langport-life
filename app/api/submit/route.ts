@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { Resend } from "resend";
 import { client } from "@/lib/sanity";
 import { writeClient } from "@/lib/sanity.server";
+import { createEditToken, hashToken } from "@/lib/editTokens.server";
 
 // Convert datetime-local value (e.g. "2026-04-15T19:00") to full ISO 8601
 function toISODateTime(value: string | undefined | null): string | undefined {
@@ -356,8 +357,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate a unique token for the submitter's magic edit link
+    // Generate a unique token for the submitter's magic edit link. The raw
+    // token goes only into the confirmation email; Sanity stores its hash
+    // (the dataset is public) and Neon holds the hash → document mapping
+    // together with the submitter's contact details.
     const editToken = randomUUID();
+    const editTokenHash = hashToken(editToken);
 
     let doc;
 
@@ -394,8 +399,8 @@ export async function POST(request: NextRequest) {
         image: imageAssetId
           ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
           : undefined,
-        submittedBy: `${submitterName} (${submitterEmail})`,
-        editToken,
+        submittedBy: submitterName,
+        editTokenHash,
         status: "pendingApproval",
         recurrenceRule,
         recurrenceEndDate: recurrenceRule ? recurrenceEndDate || undefined : undefined,
@@ -433,8 +438,7 @@ export async function POST(request: NextRequest) {
           ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
           : undefined,
         ownerName: submitterName,
-        ownerEmail: submitterEmail,
-        editToken,
+        editTokenHash,
         status: "pendingApproval",
         description: description
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
@@ -460,8 +464,8 @@ export async function POST(request: NextRequest) {
         phone: phone || undefined,
         email: email || undefined,
         website: website || undefined,
-        submittedBy: `${submitterName} (${submitterEmail})`,
-        editToken,
+        submittedBy: submitterName,
+        editTokenHash,
         status: "pendingApproval",
         description: description
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
@@ -484,13 +488,33 @@ export async function POST(request: NextRequest) {
         image: imageAssetId
           ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
           : undefined,
-        submittedBy: `${submitterName} (${submitterEmail})`,
-        editToken,
+        submittedBy: submitterName,
+        editTokenHash,
         status: "pending",
         description: description
           ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
           : undefined,
       });
+    }
+
+    // Record the token → document mapping (and submitter contact details) in
+    // Neon. If this fails the edit link would be dead, so remove the document
+    // and report an error rather than leaving an orphaned submission.
+    try {
+      await createEditToken(editToken, {
+        docId: doc!._id,
+        docType: doc!._type,
+        submitterName,
+        submitterEmail,
+        submitterPhone: submitterPhone || null,
+      });
+    } catch (err) {
+      console.error("Edit token store failed — rolling back submission:", err);
+      await writeClient.delete(doc!._id).catch(() => {/* best effort */});
+      return NextResponse.json(
+        { error: "Something went wrong saving your submission. Please try again." },
+        { status: 500 }
+      );
     }
 
     // Best-effort moderation notification — awaited so any Resend error is

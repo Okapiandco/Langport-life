@@ -119,10 +119,11 @@ export const group = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "editToken",
-      title: "Edit Token",
+      name: "editTokenHash",
+      title: "Edit Link Fingerprint",
       type: "string",
-      description: "Unique token for the submitter's magic edit link. Do not share.",
+      description:
+        "SHA-256 hash of the submitter's edit-link token. The token itself is never stored here (this dataset is publicly readable) — it lives hashed in the site database.",
       readOnly: true,
     }),
   ],

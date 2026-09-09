@@ -12,6 +12,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { writeClient } from "@/lib/sanity.server";
+import { deleteTokensForDocs } from "@/lib/editTokens.server";
 
 const GRACE_DAYS = 30;
 
@@ -49,6 +50,12 @@ export async function GET(request: NextRequest) {
       errors.push({ id: doc._id, error: err instanceof Error ? err.message : String(err) });
     }
   }
+
+  // Tidy the matching edit-token rows in Neon (best effort — a leftover row
+  // for a deleted doc is harmless, it just points at nothing).
+  await deleteTokensForDocs(deleted).catch((err) =>
+    console.error("[cron purge-past-events] token cleanup failed:", err)
+  );
 
   console.log(
     `[cron purge-past-events] Considered ${targets.length}, deleted ${deleted.length}, errors ${errors.length}`
