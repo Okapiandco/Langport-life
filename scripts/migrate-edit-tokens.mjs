@@ -80,10 +80,13 @@ async function run() {
     const parsed = parseSubmittedBy(doc.submittedBy);
     const name = parsed.name || doc.ownerName || null;
     const email = parsed.email || doc.ownerEmail || null;
+    // Draft/published pairs share one token — always point the row at the
+    // published id, which is the one the edit API can read and patch.
+    const docId = doc._id.replace(/^drafts\./, "");
 
     await sql`
       INSERT INTO edit_tokens (token_hash, doc_id, doc_type, submitter_name, submitter_email, submitter_phone)
-      VALUES (${hashToken(doc.editToken)}, ${doc._id}, ${doc._type}, ${name}, ${email}, ${doc.contactPhone ?? null})
+      VALUES (${hashToken(doc.editToken)}, ${docId}, ${doc._type}, ${name}, ${email}, ${doc.contactPhone ?? null})
       ON CONFLICT (token_hash) DO NOTHING
     `;
 
@@ -122,15 +125,19 @@ async function run() {
   }
 
   // ── Verify ────────────────────────────────────────────────────────────────
-  const remaining = await sanity.fetch(
+  // (GROQ `match` is word-based and blind to punctuation, so check the actual
+  // strings in JS rather than trusting a match pattern.)
+  const check = await sanity.fetch(
     `{ "tokens": count(*[defined(editToken)]),
-       "emails": count(*[defined(submittedBy) && submittedBy match "*(*"]),
-       "owners": count(*[defined(ownerEmail)]) }`
+       "owners": count(*[defined(ownerEmail)]),
+       "subs": *[defined(submittedBy)].submittedBy }`
   );
+  const emailsLeft = check.subs.filter((s) => String(s).includes("@")).length;
   const rows = await sql`SELECT count(*)::int AS n FROM edit_tokens`;
+  const draftRows = await sql`SELECT count(*)::int AS n FROM edit_tokens WHERE doc_id LIKE ${"drafts.%"}`;
   console.log(
-    `\nDone. Migrated ${migrated} tokens. Neon rows: ${rows[0].n}.` +
-      `\nRemaining in Sanity — plaintext tokens: ${remaining.tokens}, submittedBy emails: ${remaining.emails}, ownerEmail: ${remaining.owners} (all should be 0).`
+    `\nDone. Migrated ${migrated} tokens. Neon rows: ${rows[0].n} (draft-pointing: ${draftRows[0].n}).` +
+      `\nRemaining in Sanity — plaintext tokens: ${check.tokens}, submittedBy emails: ${emailsLeft}, ownerEmail: ${check.owners} (all should be 0).`
   );
 }
 
