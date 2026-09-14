@@ -8,3 +8,26 @@ updates:
       minor-and-patch:
         update-types: ["minor", "patch"]
     open-pull-requests-limit: 5
+    ignore:
+      # The Sanity family must be upgraded together as a planned job —
+      # uncoordinated majors don't even install (peer dep conflicts).
+      - dependency-name: "sanity"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@sanity/vision"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next-sanity"
+        update-types: ["version-update:semver-major"]
+      # Dev tooling majors are reviewed deliberately, not auto-bumped.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # Framework majors are a planned migration, never a bot PR.
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
