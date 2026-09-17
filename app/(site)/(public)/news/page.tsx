@@ -31,6 +31,7 @@ export default async function NewsPage() {
         subtitle="Latest news and stories from the Langport community."
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">Latest news from Langport</h2>
         <NewsSearch articles={articles} categories={categoryNames} />
       </div>
     </>

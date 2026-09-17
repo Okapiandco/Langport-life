@@ -32,8 +32,52 @@ export default async function ListingPage({ params }: Props) {
   const hasHours = DAYS.some((d) => listing[`${d}Open`]);
   const hasCoordinates = listing.coordinates?.lat && listing.coordinates?.lng;
 
+  // LocalBusiness structured data — feeds Google's local business results
+  const openingHours = DAYS.filter(
+    (d) => listing[`${d}Open`] && listing[`${d}Close`]
+  ).map((d) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: d.charAt(0).toUpperCase() + d.slice(1),
+    opens: listing[`${d}Open`],
+    closes: listing[`${d}Close`],
+  }));
+
+  const businessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: listing.title,
+    url: `https://langport.life/listings/${slug}`,
+    address: {
+      "@type": "PostalAddress",
+      ...(listing.street && { streetAddress: listing.street }),
+      addressLocality: listing.town || "Langport",
+      ...(listing.postcode && { postalCode: listing.postcode }),
+      addressCountry: "GB",
+    },
+    ...(hasCoordinates && {
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: listing.coordinates.lat,
+        longitude: listing.coordinates.lng,
+      },
+    }),
+    ...(listing.image?.asset?.url && { image: [listing.image.asset.url] }),
+    ...(listing.phone && { telephone: listing.phone }),
+    ...(listing.email && { email: listing.email }),
+    ...(listing.website && { sameAs: [listing.website] }),
+    ...(openingHours.length > 0 && {
+      openingHoursSpecification: openingHours,
+    }),
+  };
+
   return (
     <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(businessJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       {listing.image?.asset && (
         <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-lg">
           <Image

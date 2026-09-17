@@ -42,6 +42,7 @@ export default async function EventsCalendarPage() {
         subtitle="Calendar view of upcoming and past events."
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">Langport events calendar</h2>
         <EventsViewTabs active="calendar" />
         <EventsCalendar events={events} />
       </div>

@@ -42,6 +42,7 @@ export default async function CommunityGroupsPage() {
       />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">All community groups in Langport</h2>
         {/* Header row */}
         <div className="flex items-center justify-between mb-8">
           <p className="text-gray-600 text-sm">

@@ -42,8 +42,40 @@ export default async function VenuePage({ params }: Props) {
     horizon
   );
 
+  // Place structured data — describes the venue for search engines
+  const venueJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Place",
+    name: venue.title,
+    url: `https://langport.life/venues/${slug}`,
+    address: {
+      "@type": "PostalAddress",
+      ...(venue.street && { streetAddress: venue.street }),
+      addressLocality: venue.town || "Langport",
+      ...(venue.postcode && { postalCode: venue.postcode }),
+      addressCountry: "GB",
+    },
+    ...(hasCoordinates && {
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: venue.coordinates.lat,
+        longitude: venue.coordinates.lng,
+      },
+    }),
+    ...(venue.image?.asset?.url && { image: [venue.image.asset.url] }),
+    ...(venue.phone && { telephone: venue.phone }),
+    ...(venue.website && { sameAs: [venue.website] }),
+    ...(venue.capacity && { maximumAttendeeCapacity: venue.capacity }),
+  };
+
   return (
     <article className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(venueJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       {/* Title & accent bar */}
       <header>
         <h1 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">

@@ -38,6 +38,7 @@ export default async function EventsPage() {
         subtitle="Discover events happening in and around Langport."
       />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">Upcoming events in Langport</h2>
         <EventsViewTabs active="list" />
         <EventSearch events={events} venues={venues} eventTypes={eventTypes} />
       </div>

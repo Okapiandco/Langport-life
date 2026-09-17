@@ -19,8 +19,49 @@ export default async function SiteLayout({
     client.fetch(navCategoryImagesQuery).catch(() => null),
   ]);
 
+  // Sitewide structured data — identifies the site and enables the
+  // sitelinks search box in Google results.
+  const siteJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://langport.life/#website",
+        url: "https://langport.life",
+        name: "Langport Life",
+        description:
+          "Community hub for events, venues, businesses, and council information in Langport, Somerset.",
+        inLanguage: "en-GB",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: "https://langport.life/search?q={search_term_string}",
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://langport.life/#organization",
+        name: "Langport Life",
+        url: "https://langport.life",
+        areaServed: {
+          "@type": "Place",
+          name: "Langport, Somerset, UK",
+        },
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(siteJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="site-content flex min-h-screen flex-col">
         <Header
           sanityNav={nav?.mainMenu}

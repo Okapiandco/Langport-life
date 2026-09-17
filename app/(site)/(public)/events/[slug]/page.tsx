@@ -49,6 +49,8 @@ export default async function EventPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Event",
     name: event.title,
+    description: `${event.title} at ${event.venue?.title || "Langport"} on ${formatDateTime(event.date)}`,
+    url: `https://langport.life/events/${slug}`,
     startDate: event.date,
     ...(event.endDate && { endDate: event.endDate }),
     eventStatus:
@@ -70,16 +72,27 @@ export default async function EventPage({ params }: Props) {
       },
     }),
     ...(event.image?.asset?.url && { image: [event.image.asset.url] }),
-    ...(event.isFree && {
-      isAccessibleForFree: true,
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "GBP",
-        availability: "https://schema.org/InStock",
-        ...(event.ticketsUrl && { url: event.ticketsUrl }),
-      },
-    }),
+    ...(event.isFree
+      ? {
+          isAccessibleForFree: true,
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "GBP",
+            availability: "https://schema.org/InStock",
+            ...(event.ticketsUrl && { url: event.ticketsUrl }),
+          },
+        }
+      : event.ticketsUrl
+        ? {
+            offers: {
+              "@type": "Offer",
+              url: event.ticketsUrl,
+              priceCurrency: "GBP",
+              availability: "https://schema.org/InStock",
+            },
+          }
+        : {}),
     organizer: {
       "@type": "Organization",
       name: event.organiser || "Langport Life",

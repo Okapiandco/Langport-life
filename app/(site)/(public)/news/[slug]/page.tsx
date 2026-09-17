@@ -40,8 +40,33 @@ export default async function ArticlePage({ params }: Props) {
     id: article._id,
   });
 
+  // NewsArticle structured data — feeds Google's article rich results
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    ...(article.excerpt && { description: article.excerpt }),
+    ...(article.image?.asset?.url && { image: [article.image.asset.url] }),
+    ...(article.publishedAt && { datePublished: article.publishedAt }),
+    author: article.author
+      ? [{ "@type": "Person", name: article.author }]
+      : [{ "@type": "Organization", name: "Langport Life" }],
+    publisher: {
+      "@type": "Organization",
+      name: "Langport Life",
+      url: "https://langport.life",
+    },
+    mainEntityOfPage: `https://langport.life/news/${slug}`,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <article className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Header */}
         <header>

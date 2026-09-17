@@ -15,6 +15,9 @@ export default function CollapsibleSection({ title, count, defaultOpen = false, 
 
   return (
     <section className="border-b border-gray-200">
+      {/* h2 wrapper gives the accordion a real heading for SEO/a11y; Tailwind
+          preflight keeps it visually identical to the old bare button. */}
+      <h2>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -39,6 +42,7 @@ export default function CollapsibleSection({ title, count, defaultOpen = false, 
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
+      </h2>
       <div
         id={contentId}
         aria-hidden={!open}

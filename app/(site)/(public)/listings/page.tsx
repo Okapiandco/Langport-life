@@ -56,6 +56,7 @@ export default async function ListingsPage({
 
       {/* Map */}
       <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">Business map</h2>
         <MapView
           pins={listings
             .filter((l: { coordinates?: { lat: number; lng: number } }) => l.coordinates?.lat)
@@ -73,6 +74,7 @@ export default async function ListingsPage({
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">All shops and services in Langport</h2>
         <ListingSearch listings={listings} categories={categories} initialCategory={category} />
       </div>
     </>

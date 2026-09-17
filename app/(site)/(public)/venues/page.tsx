@@ -26,6 +26,7 @@ export default async function VenuesPage() {
       />
       {/* Map */}
       <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">Venue map</h2>
         <MapView
           pins={venues
             .filter((v: { coordinates?: { lat: number; lng: number } }) => v.coordinates?.lat)
@@ -42,6 +43,7 @@ export default async function VenuesPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <h2 className="sr-only">All venues in Langport</h2>
         <div className="flex items-center justify-between mb-8">
           <p className="text-gray-600 text-sm">
             {venues.length > 0
