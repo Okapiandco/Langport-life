@@ -4,6 +4,8 @@ import { Resend } from "resend";
 import { client } from "@/lib/sanity";
 import { writeClient } from "@/lib/sanity.server";
 import { createEditToken, hashToken } from "@/lib/editTokens.server";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit.server";
+import { sanitizeHttpUrl } from "@/lib/validateUrl.server";
 
 // Convert datetime-local value (e.g. "2026-04-15T19:00") to full ISO 8601
 function toISODateTime(value: string | undefined | null): string | undefined {
@@ -273,6 +275,15 @@ async function geocodeAddress(parts: {
 
 export async function POST(request: NextRequest) {
   try {
+    // 5 submissions per IP per 10 minutes — each one creates a Sanity document
+    // and sends two emails, so this must not be free to loop.
+    if (!checkRateLimit(`submit:${clientIp(request)}`, 5, 10 * 60_000)) {
+      return NextResponse.json(
+        { error: "Too many submissions. Please wait a few minutes and try again." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
 
     const {
@@ -357,6 +368,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // URL fields end up as href attributes on the public site — http(s) only.
+    const safeTicketsUrl = sanitizeHttpUrl(ticketsUrl);
+    const safeWebsite = sanitizeHttpUrl(website);
+    if (safeTicketsUrl === null || safeWebsite === null) {
+      return NextResponse.json(
+        { error: "Links must be web addresses starting with http:// or https://." },
+        { status: 400 }
+      );
+    }
+
     // Generate a unique token for the submitter's magic edit link. The raw
     // token goes only into the confirmation email; Sanity stores its hash
     // (the dataset is public) and Neon holds the hash → document mapping
@@ -391,7 +412,7 @@ export async function POST(request: NextRequest) {
         eventType: eventType || undefined,
         venueName: eventVenue || undefined,
         isFree: eventIsFree ?? true,
-        ticketsUrl: ticketsUrl || undefined,
+        ticketsUrl: safeTicketsUrl,
         organiser: organiser || undefined,
         contactName: submitterName,
         contactEmail: submitterEmail,
@@ -433,7 +454,7 @@ export async function POST(request: NextRequest) {
         distanceFromCentreMiles: catchment.distanceMiles ?? undefined,
         phone: phone || undefined,
         email: email || undefined,
-        website: website || undefined,
+        website: safeWebsite,
         image: imageAssetId
           ? { _type: "image", asset: { _type: "reference", _ref: imageAssetId } }
           : undefined,
@@ -463,7 +484,7 @@ export async function POST(request: NextRequest) {
         coordinatesVerified: false,
         phone: phone || undefined,
         email: email || undefined,
-        website: website || undefined,
+        website: safeWebsite,
         submittedBy: submitterName,
         editTokenHash,
         status: "pendingApproval",
@@ -481,7 +502,7 @@ export async function POST(request: NextRequest) {
         location: location || undefined,
         meetingTime: meetingTime || undefined,
         cost: cost || undefined,
-        website: website || undefined,
+        website: safeWebsite,
         contactName: contactName || undefined,
         contactEmail: contactEmail || undefined,
         contactPhone: contactPhone || undefined,
@@ -541,10 +562,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (err: unknown) {
     console.error("Submission error:", err);
-    const message =
-      err instanceof Error ? err.message : "Something went wrong.";
+    // Generic message only — raw error text can leak Sanity/internal details.
     return NextResponse.json(
-      { error: message },
+      { error: "Something went wrong saving your submission. Please try again." },
       { status: 500 }
     );
   }

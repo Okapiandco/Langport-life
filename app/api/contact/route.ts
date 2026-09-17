@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit.server";
 
 export async function POST(request: NextRequest) {
   try {
+    // 5 messages per IP per 10 minutes — every request costs a Resend send.
+    if (!checkRateLimit(`contact:${clientIp(request)}`, 5, 10 * 60_000)) {
+      return NextResponse.json(
+        { error: "Too many messages. Please wait a few minutes and try again." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { name, email, subject, message, website } = body ?? {};
 

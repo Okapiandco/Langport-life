@@ -3,6 +3,8 @@ import { groq } from "next-sanity";
 import { client } from "@/lib/sanity";
 import { writeClient } from "@/lib/sanity.server";
 import { lookupEditToken } from "@/lib/editTokens.server";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit.server";
+import { sanitizeHttpUrl } from "@/lib/validateUrl.server";
 
 // Fields the submitter is allowed to edit on each document type.
 // Deliberately excludes: _id, _type, slug, editToken, status, approvedAt,
@@ -74,12 +76,45 @@ export async function GET(
   return NextResponse.json(doc);
 }
 
+// Same length caps as the submit route — edits must not become the loophole.
+const FIELD_CAPS: Record<string, number> = {
+  title: 200,
+  name: 200,
+  organiser: 200,
+  street: 200,
+  town: 100,
+  postcode: 12,
+  phone: 40,
+  email: 254,
+  website: 500,
+  ticketsUrl: 500,
+  venueName: 200,
+  contactName: 120,
+  contactEmail: 254,
+  contactPhone: 40,
+  location: 200,
+  meetingTime: 200,
+  cost: 200,
+};
+
+// URL fields render as href on the public site, so PATCH must sanitise them
+// exactly like the submit route does.
+const URL_FIELDS = ["website", "ticketsUrl"];
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
   if (!token) return NextResponse.json({ error: "Missing token." }, { status: 400 });
+
+  // 20 edits per IP per 10 minutes — also slows brute-force token guessing.
+  if (!checkRateLimit(`edit:${clientIp(req)}`, 20, 10 * 60_000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a few minutes and try again." },
+      { status: 429 }
+    );
+  }
 
   // Verify the token via Neon, then confirm the document still exists
   const record = await lookupEditToken(token).catch(() => null);
@@ -110,8 +145,33 @@ export async function PATCH(
   const unsetKeys: string[] = [];
   for (const key of allowed) {
     if (!(key in body)) continue;
-    if (body[key] === null) unsetKeys.push(key);
-    else patch[key] = body[key];
+    if (body[key] === null) {
+      unsetKeys.push(key);
+      continue;
+    }
+    let value = body[key];
+    const cap = FIELD_CAPS[key];
+    if (cap && typeof value === "string" && value.length > cap) {
+      return NextResponse.json(
+        { error: `${key} is too long (maximum ${cap} characters).` },
+        { status: 400 }
+      );
+    }
+    if (URL_FIELDS.includes(key)) {
+      const safe = sanitizeHttpUrl(value);
+      if (safe === null) {
+        return NextResponse.json(
+          { error: "Links must be web addresses starting with http:// or https://." },
+          { status: 400 }
+        );
+      }
+      if (safe === undefined) {
+        unsetKeys.push(key);
+        continue;
+      }
+      value = safe;
+    }
+    patch[key] = value;
   }
 
   if (Object.keys(patch).length === 0 && unsetKeys.length === 0) {
