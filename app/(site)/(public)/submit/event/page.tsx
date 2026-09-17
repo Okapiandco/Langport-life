@@ -296,10 +296,12 @@ export default function SubmitEventPage() {
               <textarea
                 id="description"
                 name="description"
-                rows={4}
+                rows={8}
+                aria-describedby="description-hint"
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                 placeholder="Tell people what the event is about..."
               />
+              <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>

@@ -5,21 +5,55 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { eventBySlugQuery } from "@/lib/queries";
-import { formatDateTime } from "@/lib/utils";
+import { expandEvents, MAX_EXPANSION_MONTHS } from "@/lib/recurrence";
+import { londonDateKey } from "@/lib/londonTime";
+import { describeRecurrence, formatLongDate, formatTime, formatTimeRange } from "@/lib/eventDates";
 import EventCard from "@/components/EventCard";
 import { groq } from "next-sanity";
 
 export const revalidate = 3600;
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ date?: string }>;
+};
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+/**
+ * For a repeating event, the occurrence the visitor clicked (?date=YYYY-MM-DD)
+ * or else the next one coming up. One-off events just use their own dates.
+ */
+function pickOccurrence(event: any, dateParam?: string) {
+  if (!event.recurrenceRule) {
+    return {
+      start: event.date as string,
+      end: event.endDate as string | undefined,
+      upcoming: [] as any[],
+      isPast: new Date(event.endDate || event.date).getTime() < Date.now(),
+    };
+  }
+  const from = new Date(Date.now() - 12 * 60 * 60 * 1000); // keep today's session if it has just started
+  const to = new Date();
+  to.setMonth(to.getMonth() + MAX_EXPANSION_MONTHS);
+  const occurrences = expandEvents([event], from, to);
+  const selected =
+    (dateParam && occurrences.find((o) => londonDateKey(o.date) === dateParam)) || occurrences[0];
+  return {
+    start: (selected?.date ?? event.date) as string,
+    end: (selected ? selected.endDate : event.endDate) as string | undefined,
+    upcoming: occurrences.filter((o) => o !== selected).slice(0, 6),
+    isPast: !selected,
+  };
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const { date } = await searchParams;
   const event = await client.fetch(eventBySlugQuery, { slug });
   if (!event) return { title: "Event Not Found" };
+  const { start } = pickOccurrence(event, date);
   return {
     title: event.title,
-    description: `${event.title} at ${event.venue?.title || "Langport"} on ${formatDateTime(event.date)}`,
+    description: `${event.title} at ${event.venue?.title || "Langport"} on ${formatLongDate(start)} at ${formatTime(start)}`,
     alternates: { canonical: `/events/${slug}` },
   };
 }
@@ -32,10 +66,14 @@ const relatedEventsQuery = groq`
   }
 `;
 
-export default async function EventPage({ params }: Props) {
+export default async function EventPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { date: dateParam } = await searchParams;
   const event = await client.fetch(eventBySlugQuery, { slug });
   if (!event) notFound();
+
+  const { start, end, upcoming, isPast } = pickOccurrence(event, dateParam);
+  const repeats = describeRecurrence(event.recurrenceRule, event.recurrenceEndDate);
 
   const relatedEvents = await client.fetch(relatedEventsQuery, {
     id: event._id,
@@ -49,10 +87,10 @@ export default async function EventPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Event",
     name: event.title,
-    description: `${event.title} at ${event.venue?.title || "Langport"} on ${formatDateTime(event.date)}`,
+    description: `${event.title} at ${event.venue?.title || "Langport"} on ${formatLongDate(start)} at ${formatTime(start)}`,
     url: `https://langport.life/events/${slug}`,
-    startDate: event.date,
-    ...(event.endDate && { endDate: event.endDate }),
+    startDate: start,
+    ...(end && { endDate: end }),
     eventStatus:
       event.status === "cancelled"
         ? "https://schema.org/EventCancelled"
@@ -115,6 +153,27 @@ export default async function EventPage({ params }: Props) {
             {event.title}
           </h1>
           <div className="mt-3 h-1 w-20 rounded-full bg-primary" />
+
+          {/* When — the date the visitor came for, shown big */}
+          <div className="mt-6 flex items-center gap-4 rounded-xl border border-primary/15 bg-primary/5 p-4 sm:gap-5 sm:p-5">
+            <div className="flex w-16 flex-shrink-0 flex-col items-center overflow-hidden rounded-lg bg-white text-center shadow-sm sm:w-20">
+              <span className="w-full bg-primary py-1 text-xs font-semibold uppercase tracking-wide text-white">
+                {new Date(start).toLocaleDateString("en-GB", { month: "short", timeZone: "Europe/London" })}
+              </span>
+              <span className="py-1 font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
+                {new Date(start).toLocaleDateString("en-GB", { day: "numeric", timeZone: "Europe/London" })}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="font-heading text-xl font-bold text-gray-900 sm:text-3xl">{formatLongDate(start)}</p>
+              <p className="mt-1 text-base text-gray-700 sm:text-lg">{formatTimeRange(start, end)}</p>
+              {repeats && <p className="mt-1 text-sm font-medium text-primary">{repeats}</p>}
+              {isPast && event.status !== "cancelled" && (
+                <p className="mt-1 text-sm text-gray-500">This event has already taken place.</p>
+              )}
+            </div>
+          </div>
+
           {event.status === "cancelled" && (
             <p className="mt-4 inline-block rounded-full bg-red-100 px-4 py-1 text-sm font-semibold text-red-700">
               This event has been cancelled
@@ -165,6 +224,27 @@ export default async function EventPage({ params }: Props) {
             {event.description && (
               <div className="prose prose-gray max-w-none prose-headings:font-heading prose-a:text-primary">
                 <PortableText value={event.description} />
+              </div>
+            )}
+
+            {/* More dates for repeating events */}
+            {upcoming.length > 0 && (
+              <div>
+                <h2 className="font-heading text-2xl font-bold text-gray-900">More dates</h2>
+                <div className="mt-2 h-1 w-12 rounded-full bg-copper" />
+                <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {upcoming.map((o: any) => (
+                    <li key={o.occurrenceId}>
+                      <Link
+                        href={`/events/${slug}?date=${londonDateKey(o.date)}`}
+                        className="block rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 no-underline hover:border-primary/40 hover:bg-primary/5"
+                      >
+                        <span className="font-medium text-gray-900">{formatLongDate(o.date)}</span>
+                        <span className="text-gray-500">, {formatTimeRange(o.date, o.endDate)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -248,13 +328,7 @@ export default async function EventPage({ params }: Props) {
                 />
               </svg>
               <p className="text-sm text-gray-700">
-                {formatDateTime(event.date)}
-                {event.endDate && (
-                  <>
-                    {" "}
-                    &ndash; {formatDateTime(event.endDate)}
-                  </>
-                )}
+                {formatLongDate(start)}, {formatTimeRange(start, end)}
               </p>
             </div>
 

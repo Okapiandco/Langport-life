@@ -179,8 +179,10 @@ export default function SubmitListingPage() {
             </div>
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-              <textarea id="description" name="description" rows={4} className={inputClass}
+              <textarea id="description" name="description" rows={8} className={inputClass}
+                aria-describedby="description-hint"
                 placeholder="What does your business do? What can customers expect?" />
+              <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
             </div>
           </fieldset>
 

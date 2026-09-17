@@ -6,6 +6,7 @@ import { PortableText } from "@portabletext/react";
 import { client, urlFor } from "@/lib/sanity";
 import { venueBySlugQuery } from "@/lib/queries";
 import { expandEvents, MAX_EXPANSION_MONTHS } from "@/lib/recurrence";
+import { eventHref } from "@/lib/eventDates";
 import { formatDateTime, getFacilityLabel } from "@/lib/utils";
 import Gallery from "@/components/Gallery";
 
@@ -163,7 +164,7 @@ export default async function VenuePage({ params }: Props) {
                       return (
                       <Link
                         key={occ.occurrenceId}
-                        href={`/events/${event.slug.current}`}
+                        href={eventHref(event)}
                         className="group overflow-hidden rounded-xl border border-gray-200 bg-white no-underline shadow-sm hover:shadow-md transition-shadow"
                       >
                         <div className="relative h-36 w-full overflow-hidden bg-gray-100">

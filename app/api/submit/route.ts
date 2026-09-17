@@ -6,15 +6,24 @@ import { writeClient } from "@/lib/sanity.server";
 import { createEditToken, hashToken } from "@/lib/editTokens.server";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit.server";
 import { sanitizeHttpUrl } from "@/lib/validateUrl.server";
+import { londonLocalToUtcIso, toLondonWall } from "@/lib/londonTime";
+import { textToBlocks } from "@/lib/portableText";
 
-// Convert datetime-local value (e.g. "2026-04-15T19:00") to full ISO 8601
-function toISODateTime(value: string | undefined | null): string | undefined {
-  if (!value) return undefined;
-  if (value.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(value)) return value;
-  const normalized = value.includes("T")
-    ? value.length <= 16 ? `${value}:00Z` : `${value}Z`
-    : undefined;
-  return normalized;
+// Convert datetime-local value (e.g. "2026-04-15T19:00", typed in UK time) to UTC ISO 8601
+const toISODateTime = londonLocalToUtcIso;
+
+// Slug from the title, with -2, -3… added if another document already uses it
+async function uniqueSlug(type: string, title: string): Promise<string> {
+  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || type;
+  for (let n = 1; n < 50; n++) {
+    const candidate = n === 1 ? base : `${base}-${n}`;
+    const taken = await writeClient.fetch<number>(
+      `count(*[_type == $type && slug.current == $slug])`,
+      { type, slug: candidate }
+    );
+    if (taken === 0) return candidate;
+  }
+  return `${base}-${randomUUID().slice(0, 6)}`;
 }
 
 // Best-effort moderation notification. Fires after a successful submission;
@@ -147,9 +156,11 @@ function buildRRule(args: {
   }
 
   const dayCodes = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-  const dayCode = dayCodes[start.getDay()];
-  const dayOfMonth = start.getDate();
-  const month = start.getMonth() + 1;
+  // Day/month as seen in the UK, not in the server's UTC
+  const ukStart = toLondonWall(start);
+  const dayCode = dayCodes[ukStart.getUTCDay()];
+  const dayOfMonth = ukStart.getUTCDate();
+  const month = ukStart.getUTCMonth() + 1;
   // Cap at week 4 so months with fewer than 5 occurrences always have a match.
   const weekNum = Math.min(Math.ceil(dayOfMonth / 7), 4);
 
@@ -406,7 +417,7 @@ export async function POST(request: NextRequest) {
       doc = await writeClient.create({
         _type: "event",
         title,
-        slug: { _type: "slug", current: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        slug: { _type: "slug", current: await uniqueSlug("event", title as string) },
         date: toISODateTime(eventDate),
         endDate: toISODateTime(eventEndDate),
         eventType: eventType || undefined,
@@ -425,9 +436,7 @@ export async function POST(request: NextRequest) {
         status: "pendingApproval",
         recurrenceRule,
         recurrenceEndDate: recurrenceRule ? recurrenceEndDate || undefined : undefined,
-        description: description
-          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
-          : undefined,
+        description: textToBlocks(description),
       });
     } else if (type === "venue") {
       // Auto-geocode the address as a starting suggestion. Editor verifies and
@@ -444,7 +453,7 @@ export async function POST(request: NextRequest) {
       doc = await writeClient.create({
         _type: "venue",
         title,
-        slug: { _type: "slug", current: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        slug: { _type: "slug", current: await uniqueSlug("venue", title as string) },
         street: street || undefined,
         town: town || "Langport",
         postcode: postcode || undefined,
@@ -461,9 +470,7 @@ export async function POST(request: NextRequest) {
         ownerName: submitterName,
         editTokenHash,
         status: "pendingApproval",
-        description: description
-          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
-          : undefined,
+        description: textToBlocks(description),
       });
     } else if (type === "listing") {
       // Use submitter-confirmed pin if provided; otherwise auto-geocode as a
@@ -476,7 +483,7 @@ export async function POST(request: NextRequest) {
       doc = await writeClient.create({
         _type: "businessListing",
         title,
-        slug: { _type: "slug", current: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        slug: { _type: "slug", current: await uniqueSlug("businessListing", title as string) },
         street: street || undefined,
         town: town || "Langport",
         postcode: postcode || undefined,
@@ -488,16 +495,14 @@ export async function POST(request: NextRequest) {
         submittedBy: submitterName,
         editTokenHash,
         status: "pendingApproval",
-        description: description
-          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
-          : undefined,
+        description: textToBlocks(description),
       });
     } else if (type === "group") {
       const { location, meetingTime, cost, contactName, contactEmail, contactPhone } = body;
       doc = await writeClient.create({
         _type: "group",
         name: title,
-        slug: { _type: "slug", current: (title as string).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") },
+        slug: { _type: "slug", current: await uniqueSlug("group", title as string) },
         organiser: organiser || undefined,
         location: location || undefined,
         meetingTime: meetingTime || undefined,
@@ -512,9 +517,7 @@ export async function POST(request: NextRequest) {
         submittedBy: submitterName,
         editTokenHash,
         status: "pending",
-        description: description
-          ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: description }] }]
-          : undefined,
+        description: textToBlocks(description),
       });
     }
 

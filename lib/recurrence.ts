@@ -7,6 +7,7 @@
  * "approve once = 12 months public" decision).
  */
 import { RRule, rrulestr } from "rrule";
+import { fromLondonWall as fromWall, toLondonWall as toWall } from "./londonTime";
 
 export const MAX_EXPANSION_MONTHS = 12;
 
@@ -41,6 +42,8 @@ function toIsoDate(d: Date): string {
   return d.toISOString();
 }
 
+// RRULE maths runs on London wall-clock time stored as fake UTC, so a 7pm
+// weekly event stays at 7pm either side of the clocks changing.
 function toDateOnly(d: Date): string {
   // YYYY-MM-DD for excludedDates comparison
   return d.toISOString().slice(0, 10);
@@ -93,7 +96,7 @@ export function expandEvent<E extends BaseEvent>(
   let rule: RRule;
   try {
     // RRULEs are typically supplied without DTSTART; supply it from event.date.
-    const dtstart = new Date(event.date);
+    const dtstart = toWall(new Date(event.date));
     const baseRule =
       event.recurrenceRule.toUpperCase().startsWith("RRULE:")
         ? event.recurrenceRule
@@ -126,13 +129,14 @@ export function expandEvent<E extends BaseEvent>(
 
   const excluded = new Set((event.excludedDates ?? []).map((d) => d.slice(0, 10)));
 
-  const dates = rule.between(windowStart, seriesUntil, true);
+  const dates = rule.between(toWall(windowStart), toWall(seriesUntil), true);
 
   return dates
+    // wall-clock dates, so exclusions match the London calendar day
     .filter((d) => !excluded.has(toDateOnly(d)))
     .map((d, i) => {
-      const occStart = d;
-      const occEnd = new Date(d.getTime() + durationMs);
+      const occStart = fromWall(d);
+      const occEnd = new Date(occStart.getTime() + durationMs);
       return {
         occurrenceId: `${event._id}::${toDateOnly(d)}`,
         seriesId: event._id,

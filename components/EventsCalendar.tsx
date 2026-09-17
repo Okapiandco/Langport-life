@@ -4,6 +4,7 @@ import { Calendar, dateFnsLocalizer, type Event } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enGB } from "date-fns/locale";
 import { useRouter } from "next/navigation";
+import { eventHref } from "@/lib/eventDates";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 interface CalendarEventData {
@@ -60,7 +61,7 @@ export default function EventsCalendar({ events }: { events: CalendarEventData[]
         endAccessor="end"
         style={{ height: 700 }}
         onSelectEvent={(event) =>
-          router.push(`/events/${(event as RBCEvent).resource.slug.current}`)
+          router.push(eventHref((event as RBCEvent).resource))
         }
         views={["month", "week", "agenda"]}
         defaultView="month"

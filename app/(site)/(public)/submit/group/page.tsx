@@ -141,10 +141,12 @@ export default function SubmitGroupPage() {
               <textarea
                 id="description"
                 name="description"
-                rows={4}
+                rows={8}
+                aria-describedby="description-hint"
                 className={inputClass}
                 placeholder="Tell people what to expect — activities, atmosphere, who it's for..."
               />
+              <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

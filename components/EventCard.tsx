@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/lib/sanity";
+import { eventHref } from "@/lib/eventDates";
 
 interface EventCardProps {
   event: {
@@ -10,6 +11,7 @@ interface EventCardProps {
     title: string;
     slug: { current: string };
     date: string;
+    recurrenceRule?: string | null;
     eventType?: string;
     isFree?: boolean;
     tags?: string[];
@@ -38,7 +40,7 @@ function DateStamp({ date }: { date: string }) {
 export default function EventCard({ event }: EventCardProps) {
   return (
     <Link
-      href={`/events/${event.slug.current}`}
+      href={eventHref(event)}
       className="group block overflow-hidden rounded-xl border border-gray-200 bg-white no-underline shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative h-48 w-full overflow-hidden">

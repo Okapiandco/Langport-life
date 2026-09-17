@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import ImageUploadField from "@/components/ImageUploadField";
+import { londonLocalToUtcIso } from "@/lib/londonTime";
+import { blocksToText, textToBlocks } from "@/lib/portableText";
 
 const LocationPickerMap = dynamic(
   () => import("@/components/LocationPickerMap"),
@@ -51,10 +53,7 @@ interface Doc {
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function descriptionText(doc: Doc): string {
-  if (!doc.description) return "";
-  return doc.description
-    .map((block) => block.children?.map((c) => c.text).join("") ?? "")
-    .join("\n");
+  return blocksToText(doc.description);
 }
 
 function toDatetimeLocal(iso: string | undefined): string {
@@ -193,19 +192,13 @@ export default function EditPage() {
     const type = doc!._type;
     let body: Record<string, unknown> = {};
 
-    const descValue = fd.get("description") as string;
-    const descBlock = descValue
-      ? [{ _type: "block", _key: "desc", children: [{ _type: "span", _key: "s", text: descValue }] }]
-      : undefined;
+    // One paragraph per line typed
+    const descBlock = textToBlocks(fd.get("description") as string);
 
-    // Convert a datetime-local string (London local time) to a UTC ISO string
-    // for storage in Sanity. The browser interprets no-timezone strings as local
-    // time, so new Date("2026-07-01T00:00") in BST = midnight BST = June 30 23:00 UTC.
-    const localToUTCISO = (v: FormDataEntryValue | null): string | undefined => {
-      if (!v) return undefined;
-      const d = new Date(v as string);
-      return isNaN(d.getTime()) ? undefined : d.toISOString();
-    };
+    // datetime-local values are UK time; convert to UTC for Sanity whatever
+    // timezone the visitor's device is set to
+    const localToUTCISO = (v: FormDataEntryValue | null): string | undefined =>
+      londonLocalToUtcIso(v as string | null);
 
     if (type === "event") {
       const freq = fd.get("recurrenceFreq") as string;
@@ -366,7 +359,8 @@ export default function EditPage() {
               </div>
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea id="description" name="description" rows={4} defaultValue={descriptionText(doc)} className={inputClass} />
+                <textarea id="description" name="description" rows={8} aria-describedby="description-hint" defaultValue={descriptionText(doc)} className={inputClass} />
+                <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -486,7 +480,8 @@ export default function EditPage() {
               </div>
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea id="description" name="description" rows={4} defaultValue={descriptionText(doc)} className={inputClass} />
+                <textarea id="description" name="description" rows={8} aria-describedby="description-hint" defaultValue={descriptionText(doc)} className={inputClass} />
+                <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
               </div>
             </fieldset>
 
@@ -560,7 +555,8 @@ export default function EditPage() {
               </div>
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea id="description" name="description" rows={4} defaultValue={descriptionText(doc)} className={inputClass} />
+                <textarea id="description" name="description" rows={8} aria-describedby="description-hint" defaultValue={descriptionText(doc)} className={inputClass} />
+                <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
               </div>
             </fieldset>
 
@@ -613,7 +609,8 @@ export default function EditPage() {
               </div>
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea id="description" name="description" rows={4} defaultValue={descriptionText(doc)} className={inputClass} />
+                <textarea id="description" name="description" rows={8} aria-describedby="description-hint" defaultValue={descriptionText(doc)} className={inputClass} />
+                <p id="description-hint" className="mt-1 text-xs text-gray-500">Press Enter to start a new paragraph.</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
