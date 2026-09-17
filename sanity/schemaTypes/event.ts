@@ -29,12 +29,14 @@ export const event = defineType({
       name: "date",
       title: "Start Date & Time",
       type: "datetime",
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "endDate",
       title: "End Date & Time",
       type: "datetime",
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
     }),
     defineField({
       name: "image",
@@ -139,6 +141,7 @@ export const event = defineType({
       name: "recurrenceEndDate",
       title: "Recurrence End Date",
       type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
       description:
         "When the recurring event series ends. Defaults to one year from the start date. Approving the event approves all occurrences up to this date (capped at 12 months from now).",
     }),
@@ -146,7 +149,7 @@ export const event = defineType({
       name: "excludedDates",
       title: "Excluded Dates",
       type: "array",
-      of: [{ type: "date" }],
+      of: [{ type: "date", options: { dateFormat: "DD/MM/YYYY" } }],
       description:
         "Specific dates on which this recurring event will NOT happen (e.g. cancelled due to weather, or skipping a public holiday).",
     }),
@@ -154,6 +157,7 @@ export const event = defineType({
       name: "expiryReminderSentAt",
       title: "Expiry Reminder Sent At",
       type: "datetime",
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
       description:
         "Set automatically by the daily reminder cron when an email is sent about this series approaching its recurrence end date. Prevents duplicate reminders. Do not edit by hand.",
       readOnly: true,
@@ -191,6 +195,7 @@ export const event = defineType({
       name: "approvedAt",
       title: "Approved At",
       type: "datetime",
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
     }),
   ],
   preview: {
@@ -203,7 +208,7 @@ export const event = defineType({
     prepare({ title, date, venue, media }) {
       return {
         title,
-        subtitle: `${venue || "No venue"} — ${date ? new Date(date).toLocaleDateString() : "No date"}`,
+        subtitle: `${venue || "No venue"} — ${date ? new Date(date).toLocaleDateString("en-GB") : "No date"}`,
         media,
       };
     },

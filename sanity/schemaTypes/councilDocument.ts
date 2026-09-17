@@ -40,12 +40,14 @@ export const councilDocument = defineType({
       name: "date",
       title: "Document Date",
       type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "meetingDate",
       title: "Meeting Date",
       type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
     }),
     defineField({
       name: "description",

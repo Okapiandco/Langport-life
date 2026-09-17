@@ -84,6 +84,7 @@ export const article = defineType({
       name: "publishedAt",
       title: "Published At",
       type: "datetime",
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
     }),
   ],
   orderings: [

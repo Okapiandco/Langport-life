@@ -200,6 +200,7 @@ export const businessListing = defineType({
       name: "approvedAt",
       title: "Approved At",
       type: "datetime",
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
     }),
     defineField({
       name: "images",

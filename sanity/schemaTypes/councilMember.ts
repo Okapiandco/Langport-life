@@ -83,11 +83,13 @@ export const councilMember = defineType({
       name: "startDate",
       title: "Start Date",
       type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
     }),
     defineField({
       name: "endDate",
       title: "End Date",
       type: "date",
+      options: { dateFormat: "DD/MM/YYYY" },
     }),
     defineField({
       name: "socialLinks",
