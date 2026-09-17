@@ -72,14 +72,14 @@ export const submission = defineType({
       name: "eventDate",
       title: "Event Date",
       type: "datetime",
-      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm", timeStep: 15 },
       hidden: ({ parent }) => parent?.type !== "event",
     }),
     defineField({
       name: "eventEndDate",
       title: "Event End Date",
       type: "datetime",
-      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm", timeStep: 15 },
       hidden: ({ parent }) => parent?.type !== "event",
     }),
     defineField({

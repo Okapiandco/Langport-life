@@ -29,14 +29,21 @@ export const event = defineType({
       name: "date",
       title: "Start Date & Time",
       type: "datetime",
-      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm", timeStep: 15 },
+      // New events default to today at 19:00 local time — most Langport
+      // events are evening ones, so editors only adjust the date.
+      initialValue: () => {
+        const d = new Date();
+        d.setHours(19, 0, 0, 0);
+        return d.toISOString();
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "endDate",
       title: "End Date & Time",
       type: "datetime",
-      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm" },
+      options: { dateFormat: "DD/MM/YYYY", timeFormat: "HH:mm", timeStep: 15 },
     }),
     defineField({
       name: "image",
