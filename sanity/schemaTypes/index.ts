@@ -3,6 +3,7 @@ import { venue } from "./venue";
 import { businessListing } from "./businessListing";
 import { councilMember } from "./councilMember";
 import { councilDocument } from "./councilDocument";
+import { meetingNotice } from "./meetingNotice";
 import { staffMember } from "./staffMember";
 import { historicSite } from "./historicSite";
 import { page } from "./page";
@@ -37,6 +38,7 @@ export const schemaTypes = [
   // Council
   councilMember,
   councilDocument,
+  meetingNotice,
   staffMember,
 
   // Submissions (public form inbox)

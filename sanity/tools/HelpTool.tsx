@@ -112,17 +112,54 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="3" title="Changing the order documents appear in">
+        <Section number="3" title="How meeting documents are filed">
           <P>
-            Go to <strong>Structure → Council → Documents → By Committee</strong>{" "}
-            and pick a committee. Drag documents up and down with the handle on
-            the left — the website shows them in exactly this order within each
-            month. The menu in the top-right of the list also has{" "}
-            <strong>Reset order</strong> if things get muddled.
+            Each committee page on the website has one folder per month (for
+            example &quot;September 2026&quot;). Documents go into the folder
+            for their <strong>Meeting Date</strong>, so an agenda published in
+            late August for a September meeting sits in September. If a document
+            has no meeting date, its document date is used instead. Inside each
+            folder the agenda comes first, then supporting papers, then minutes.
+          </P>
+          <P>
+            You can browse the same folders here under{" "}
+            <strong>Structure → Council → Documents → By Committee</strong>: pick
+            a committee, then a year, then a month. If a document is in the wrong
+            month, open it and correct the Meeting Date.
           </P>
         </Section>
 
-        <Section number="4" title="Approving events and listings from the public">
+        <Section number="4" title="Meeting rearranged or cancelled">
+          <Stack space={2}>
+            <Step>
+              Go to <strong>Structure → Council → Documents → Meeting Notices</strong>{" "}
+              and click the compose (pencil) icon.
+            </Step>
+            <Step>Choose the committee and the date the meeting was originally due.</Step>
+            <Step>
+              Pick <strong>Meeting rearranged</strong> and set the new date and
+              time, or <strong>Meeting cancelled</strong>, or <strong>Note</strong>{" "}
+              for anything else.
+            </Step>
+            <Step>Add an optional message (e.g. a change of venue) and press Publish.</Step>
+          </Stack>
+          <P>
+            The notice shows in a yellow box under that month&apos;s heading on
+            the committee page. To change it, edit the notice and publish again;
+            to remove it, delete the notice.
+          </P>
+        </Section>
+
+        <Section number="5" title="Updating the Calendar of Meetings">
+          <P>
+            Add the new calendar as a document (see section 2) and tick{" "}
+            <strong>Calendar of Meetings</strong> under Tags. The newest one is
+            shown on the Calendar of Meetings page; older ones are listed
+            underneath.
+          </P>
+        </Section>
+
+        <Section number="6" title="Approving events and listings from the public">
           <P>
             Residents and businesses can submit events, venues, business
             listings and community groups through the website. Nothing they
@@ -145,7 +182,7 @@ export function HelpTool() {
           </Stack>
         </Section>
 
-        <Section number="5" title="News articles">
+        <Section number="7" title="News articles">
           <P>
             <strong>Structure → Articles &amp; News → All Articles</strong>.
             Create an article with a title, category, a short excerpt (this
@@ -155,7 +192,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="6" title="Events, venues, groups and listings">
+        <Section number="8" title="Events, venues, groups and listings">
           <P>
             You can add these directly too (not just via public submissions):{" "}
             <strong>Structure → Events / Venues / Business Listings / Groups</strong>.
@@ -166,7 +203,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="7" title="Councillors and staff">
+        <Section number="9" title="Councillors and staff">
           <P>
             <strong>Structure → Council → Members</strong> for councillors and{" "}
             <strong>Council → Staff</strong> for staff and volunteers. To
@@ -176,7 +213,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="8" title="General pages and site settings">
+        <Section number="10" title="General pages and site settings">
           <P>
             Standalone pages (About, policies and so on) live under{" "}
             <strong>Structure → Pages</strong>. The homepage cards, welcome
@@ -187,7 +224,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="9" title="Good habits">
+        <Section number="11" title="Good habits">
           <Stack space={2}>
             <Step>
               Give documents clear titles — they become the link text people

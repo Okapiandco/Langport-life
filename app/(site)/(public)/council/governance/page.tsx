@@ -15,7 +15,10 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function GovernancePage() {
-  const documents = await client.fetch(documentsByTagQuery, { tag: "governance" } as any);
+  // The calendar of meetings has its own page, so leave it out here
+  const documents = (await client.fetch(documentsByTagQuery, { tag: "governance" } as any)).filter(
+    (doc: any) => !doc.tags?.includes("calendar-of-meetings")
+  );
 
   // Group by document type
   const grouped = new Map<string, any[]>();

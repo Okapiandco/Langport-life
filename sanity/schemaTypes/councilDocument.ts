@@ -97,6 +97,7 @@ export const councilDocument = defineType({
               { title: "Annual Assembly", value: "annual-assembly" },
               { title: "Joint Committee", value: "joint-committee" },
               { title: "Archived", value: "archived" },
+              { title: "Calendar of Meetings", value: "calendar-of-meetings" },
               { title: "Governance", value: "governance" },
               { title: "Finance", value: "finance" },
             ],

@@ -102,7 +102,7 @@ const navigation: NavItem[] = [
         { heading: "Councillor Information", items: [{ name: "Town Councillors", href: "/council/members" }, { name: "Somerset Councillors", href: "/council/somerset-councillors" }, { name: "Staff & Volunteers", href: "/council/staff-and-volunteers" }] },
         { heading: "Governance & Transparency", items: [{ name: "Finance", href: "/council/finance" }, { name: "Policies & Procedures", href: "/council/policies" }, { name: "Governance", href: "/council/governance" }] },
         { heading: "Agendas & Minutes", items: [{ name: "All Committees", href: "/council/documents" }, { name: "Full Council", href: "/council/documents/full-council" }, { name: "Finance & Personnel", href: "/council/documents/finance-personnel" }, { name: "Tourism & Marketing", href: "/council/documents/tourism-marketing" }, { name: "Joint Committee", href: "/council/documents/joint-committee" }, { name: "Annual Assembly", href: "/council/documents/annual-assembly" }, { name: "Archived Minutes", href: "/council/documents/archived" }] },
-        { heading: "Our Work", items: [{ name: "Services", href: "/council/services" }] },
+        { heading: "Our Work", items: [{ name: "Services", href: "/council/services" }, { name: "Calendar of Meetings", href: "/council/calendar-of-meetings" }] },
       ],
       footerLink: { label: "Town Council Overview", href: "/council" },
     },

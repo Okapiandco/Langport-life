@@ -1,5 +1,6 @@
 import type { StructureResolver } from "sanity/structure";
 import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
+import { COMMITTEES } from "../lib/committees";
 
 // Singleton helper — shows a single document editor with no list
 const singletonItem = (
@@ -14,6 +15,82 @@ const singletonItem = (
     .child(
       S.document().schemaType(typeName).documentId(documentId).title(title)
     );
+
+// Committees whose papers belong to dated meetings (Archived is annual compilations)
+const MEETING_COMMITTEES = COMMITTEES.filter((c) => c.tag !== "archived");
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/** Committee → year → month folders, filed by meeting date (or document date if unset) */
+const committeeByMonth = (
+  S: Parameters<StructureResolver>[0],
+  context: Parameters<StructureResolver>[1],
+  tag: string,
+  title: string
+) =>
+  S.listItem()
+    .id(`committee-${tag}`)
+    .title(title)
+    .child(async () => {
+      const client = context.getClient({ apiVersion: "2024-01-01" });
+      const monthsQuery =
+        '*[_type == "councilDocument" && $committee in tags]{"d": coalesce(meetingDate, date)}';
+      const rows = await client.fetch<{ d?: string }[]>(monthsQuery, { committee: tag });
+      const monthKeys = Array.from(
+        new Set(rows.flatMap((r) => (r.d ? [r.d.slice(0, 7)] : [])))
+      ).sort().reverse();
+      const years = Array.from(new Set(monthKeys.map((k) => k.slice(0, 4))));
+
+      const monthList = (key: string) => {
+        const [y, m] = key.split("-").map(Number);
+        const next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+        const label = `${MONTHS[m - 1]} ${y}`;
+        return S.listItem()
+          .id(`${tag}-${key}`)
+          .title(label)
+          .child(
+            S.documentTypeList("councilDocument")
+              .title(`${title}: ${label}`)
+              .filter(
+                '_type == "councilDocument" && $committee in tags && coalesce(meetingDate, date) >= $from && coalesce(meetingDate, date) < $to'
+              )
+              .params({ committee: tag, from: `${key}-01`, to: `${next}-01` })
+              .defaultOrdering([
+                { field: "documentType", direction: "asc" },
+                { field: "title", direction: "asc" },
+              ])
+          );
+      };
+
+      return S.list()
+        .title(title)
+        .items([
+          ...years.map((year) =>
+            S.listItem()
+              .id(`${tag}-${year}`)
+              .title(year)
+              .child(
+                S.list()
+                  .title(`${title}: ${year}`)
+                  .items(monthKeys.filter((k) => k.startsWith(year)).map(monthList))
+              )
+          ),
+          S.divider(),
+          S.listItem()
+            .id(`${tag}-all`)
+            .title(`All ${title} documents`)
+            .child(
+              S.documentTypeList("councilDocument")
+                .title(`All ${title} documents`)
+                .filter('_type == "councilDocument" && $committee in tags')
+                .params({ committee: tag })
+                .defaultOrdering([{ field: "date", direction: "desc" }])
+            ),
+        ]);
+    });
 
 export const structure: StructureResolver = (S, context) =>
   S.list()
@@ -369,53 +446,28 @@ export const structure: StructureResolver = (S, context) =>
                     .title("Council Documents")
                     .items([
 
-                      // ── By Committee ── (drag to reorder — sets the order shown on the public site)
+                      // ── Meeting Notices ── (rearranged / cancelled meetings)
+                      S.listItem()
+                        .title("Meeting Notices")
+                        .schemaType("meetingNotice")
+                        .child(
+                          S.documentTypeList("meetingNotice")
+                            .title("Meeting Notices")
+                            .defaultOrdering([{ field: "originalDate", direction: "desc" }])
+                        ),
+
+                      S.divider(),
+
+                      // ── By Committee ── meeting committees are filed into
+                      // year → month folders; the rest keep drag-to-reorder
                       S.listItem()
                         .title("By Committee")
                         .child(
                           S.list()
                             .title("By Committee")
                             .items([
-                              orderableDocumentListDeskItem({
-                                type: "councilDocument",
-                                id: "councilDocument-full-council",
-                                title: "Full Council",
-                                S,
-                                context,
-                                filter: '_type == "councilDocument" && "full-council" in tags',
-                              }),
-                              orderableDocumentListDeskItem({
-                                type: "councilDocument",
-                                id: "councilDocument-finance-personnel",
-                                title: "Finance & Personnel",
-                                S,
-                                context,
-                                filter: '_type == "councilDocument" && "finance-personnel" in tags',
-                              }),
-                              orderableDocumentListDeskItem({
-                                type: "councilDocument",
-                                id: "councilDocument-tourism-marketing",
-                                title: "Tourism & Marketing",
-                                S,
-                                context,
-                                filter: '_type == "councilDocument" && "tourism-marketing" in tags',
-                              }),
-                              orderableDocumentListDeskItem({
-                                type: "councilDocument",
-                                id: "councilDocument-annual-assembly",
-                                title: "Annual Assembly",
-                                S,
-                                context,
-                                filter: '_type == "councilDocument" && "annual-assembly" in tags',
-                              }),
-                              orderableDocumentListDeskItem({
-                                type: "councilDocument",
-                                id: "councilDocument-joint-committee",
-                                title: "Joint Committee",
-                                S,
-                                context,
-                                filter: '_type == "councilDocument" && "joint-committee" in tags',
-                              }),
+                              ...MEETING_COMMITTEES.map((c) => committeeByMonth(S, context, c.tag, c.shortName)),
+                              S.divider(),
                               orderableDocumentListDeskItem({
                                 type: "councilDocument",
                                 id: "councilDocument-governance",
@@ -440,6 +492,14 @@ export const structure: StructureResolver = (S, context) =>
                                 context,
                                 filter: '_type == "councilDocument" && "archived" in tags',
                               }),
+                              S.listItem()
+                                .title("Calendar of Meetings")
+                                .child(
+                                  S.documentTypeList("councilDocument")
+                                    .title("Calendar of Meetings")
+                                    .filter('_type == "councilDocument" && "calendar-of-meetings" in tags')
+                                    .defaultOrdering([{ field: "date", direction: "desc" }])
+                                ),
                               S.divider(),
                               S.listItem()
                                 .title("Untagged")

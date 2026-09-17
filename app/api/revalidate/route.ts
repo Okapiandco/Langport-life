@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import { COMMITTEES } from "@/lib/committees";
 
 // Sanity webhook → on-demand revalidation
 // Set up a webhook in Sanity at: https://www.sanity.io/manage
@@ -29,7 +30,15 @@ export async function POST(req: NextRequest) {
       articleCategory: ["/news"],
       historicSite: ["/", "/history"],
       councilMember: ["/council", "/council/members", "/council/somerset-councillors"],
-      councilDocument: ["/council", "/council/documents", "/council/finance", "/council/governance"],
+      councilDocument: [
+        "/council",
+        "/council/documents",
+        "/council/finance",
+        "/council/governance",
+        "/council/calendar-of-meetings",
+        ...COMMITTEES.map((c) => `/council/documents/${c.tag}`),
+      ],
+      meetingNotice: COMMITTEES.map((c) => `/council/documents/${c.tag}`),
       page: ["/"],
       siteSettings: ["/"],
       navigation: ["/"],

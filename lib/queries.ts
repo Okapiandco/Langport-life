@@ -140,6 +140,19 @@ export const documentsByTagQuery = groq`
   }
 `;
 
+export const meetingNoticesByCommitteeQuery = groq`
+  *[_type == "meetingNotice" && committee == $tag && defined(originalDate)] | order(originalDate desc) {
+    _id, originalDate, noticeType, newDateTime, message
+  }
+`;
+
+export const calendarOfMeetingsQuery = groq`
+  *[_type == "councilDocument" && visibility == "public" && "calendar-of-meetings" in tags] | order(date desc) {
+    _id, title, slug, date,
+    file { asset->{url, originalFilename, size} }
+  }
+`;
+
 export const documentTagCountsQuery = groq`{
   "full-council": count(*[_type == "councilDocument" && visibility == "public" && "full-council" in tags]),
   "finance-personnel": count(*[_type == "councilDocument" && visibility == "public" && "finance-personnel" in tags]),
@@ -147,7 +160,7 @@ export const documentTagCountsQuery = groq`{
   "annual-assembly": count(*[_type == "councilDocument" && visibility == "public" && "annual-assembly" in tags]),
   "joint-committee": count(*[_type == "councilDocument" && visibility == "public" && "joint-committee" in tags]),
   "archived": count(*[_type == "councilDocument" && visibility == "public" && "archived" in tags]),
-  "governance": count(*[_type == "councilDocument" && visibility == "public" && "governance" in tags]),
+  "governance": count(*[_type == "councilDocument" && visibility == "public" && "governance" in tags && !("calendar-of-meetings" in tags)]),
   "finance": count(*[_type == "councilDocument" && visibility == "public" && "finance" in tags])
 }`;
 

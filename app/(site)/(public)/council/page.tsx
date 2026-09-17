@@ -41,6 +41,7 @@ const sections = [
     items: [
       { name: "What We Do", href: "/council/what-we-do", desc: "The council's role and responsibilities." },
       { name: "Services", href: "/council/services", desc: "Services provided by the council." },
+      { name: "Calendar of Meetings", href: "/council/calendar-of-meetings", desc: "When the council and its committees meet this year." },
     ],
   },
 ];

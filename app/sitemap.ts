@@ -70,6 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/council/documents`,                   priority: 0.5, changeFrequency: "weekly" },
     { url: `${BASE}/council/finance`,                     priority: 0.5, changeFrequency: "monthly" },
     { url: `${BASE}/council/governance`,                  priority: 0.5, changeFrequency: "monthly" },
+    { url: `${BASE}/council/calendar-of-meetings`,          priority: 0.5, changeFrequency: "monthly" },
     { url: `${BASE}/council/services`,                    priority: 0.5, changeFrequency: "monthly" },
     { url: `${BASE}/council/staff-and-volunteers`,        priority: 0.5, changeFrequency: "monthly" },
     { url: `${BASE}/submit`,                              priority: 0.4, changeFrequency: "yearly" },

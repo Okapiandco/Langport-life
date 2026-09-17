@@ -6,10 +6,12 @@ interface CollapsibleSectionProps {
   title: string;
   count?: number;
   defaultOpen?: boolean;
+  /** Shown under the heading whether the section is open or closed */
+  notice?: ReactNode;
   children: ReactNode;
 }
 
-export default function CollapsibleSection({ title, count, defaultOpen = false, children }: CollapsibleSectionProps) {
+export default function CollapsibleSection({ title, count, defaultOpen = false, notice, children }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   const contentId = useId();
 
@@ -43,6 +45,7 @@ export default function CollapsibleSection({ title, count, defaultOpen = false, 
         </svg>
       </button>
       </h2>
+      {notice && <div className="pb-3">{notice}</div>}
       <div
         id={contentId}
         aria-hidden={!open}

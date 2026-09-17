@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client } from "@/lib/sanity";
-import { documentBySlugQuery, documentsByTagQuery } from "@/lib/queries";
+import { documentBySlugQuery, documentsByTagQuery, meetingNoticesByCommitteeQuery } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
 import { COMMITTEES, getCommitteeByTag } from "@/lib/committees";
 import PageHero from "@/components/PageHero";
@@ -57,18 +57,65 @@ export default async function CouncilDocumentOrCommitteePage({ params }: Props) 
 }
 
 /* ── Committee listing ── */
-async function CommitteePage({ tag, name, description }: { tag: string; name: string; description: string }) {
-  const documents = await client.fetch(documentsByTagQuery, { tag } as any);
+const TYPE_RANK: Record<string, number> = { agenda: 0, minutes: 2 };
 
-  // Group documents by month/year
-  const grouped = new Map<string, any[]>();
+/** Agenda first, supporting papers next, minutes last; then by title */
+function sortWithinMeeting(a: any, b: any) {
+  const rank = (TYPE_RANK[a.documentType] ?? 1) - (TYPE_RANK[b.documentType] ?? 1);
+  if (rank !== 0) return rank;
+  return String(a.title).localeCompare(String(b.title), "en-GB", { numeric: true });
+}
+
+function formatNewMeeting(iso: string) {
+  const d = new Date(iso);
+  const day = d
+    .toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })
+    .replace(",", "");
+  // "7:30pm", or "7pm" on the hour
+  const time = d
+    .toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Europe/London" })
+    .replace(/\s/g, "")
+    .replace(":00", "")
+    .toLowerCase();
+  return `${day} at ${time}`;
+}
+
+function MeetingNotice({ notice }: { notice: any }) {
+  const headline =
+    notice.noticeType === "cancelled"
+      ? "This meeting has been cancelled"
+      : notice.noticeType === "rearranged"
+        ? notice.newDateTime
+          ? `Meeting rearranged to ${formatNewMeeting(notice.newDateTime)}`
+          : "This meeting has been rearranged"
+        : null;
+
+  return (
+    <div role="note" className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      {headline && <p className="font-semibold">{headline}</p>}
+      {notice.message && <p className={`whitespace-pre-line ${headline ? "mt-1" : ""}`}>{notice.message}</p>}
+    </div>
+  );
+}
+
+async function CommitteePage({ tag, name, description }: { tag: string; name: string; description: string }) {
+  const [documents, notices] = await Promise.all([
+    client.fetch(documentsByTagQuery, { tag } as any),
+    client.fetch(meetingNoticesByCommitteeQuery, { tag } as any),
+  ]);
+
+  // One folder per month, filed by the meeting the papers belong to
+  // (falling back to the document date for uploads without a meeting date)
+  const grouped = new Map<string, { docs: any[]; notices: any[] }>();
+  const folder = (key: string) => {
+    if (!grouped.has(key)) grouped.set(key, { docs: [], notices: [] });
+    return grouped.get(key)!;
+  };
   for (const doc of documents) {
-    const d = new Date(doc.date);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const list = grouped.get(key) || [];
-    list.push(doc);
-    grouped.set(key, list);
+    const when: string | undefined = doc.meetingDate || doc.date;
+    if (when) folder(when.slice(0, 7)).docs.push(doc);
   }
+  for (const notice of notices) folder(notice.originalDate.slice(0, 7)).notices.push(notice);
 
   return (
     <>
@@ -87,19 +134,36 @@ async function CommitteePage({ tag, name, description }: { tag: string; name: st
           <span className="text-gray-900">{name}</span>
         </nav>
 
-        {documents.length === 0 ? (
+        {grouped.size === 0 ? (
           <p className="text-gray-600">No documents available yet.</p>
         ) : (
           <div>
             {Array.from(grouped.entries())
               .sort(([a], [b]) => (a < b ? 1 : -1))
-              .map(([monthKey, docs], index) => {
+              .map(([monthKey, { docs, notices: monthNotices }], index) => {
                 const [year, month] = monthKey.split("-");
                 const monthName = new Date(Number(year), Number(month) - 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
                 return (
-                  <CollapsibleSection key={monthKey} title={monthName} count={docs.length} defaultOpen={index === 0}>
-                    {docs.map((doc: any) => (
+                  <CollapsibleSection
+                    key={monthKey}
+                    title={monthName}
+                    count={docs.length}
+                    defaultOpen={index === 0}
+                    notice={
+                      monthNotices.length > 0 && (
+                        <div className="space-y-2">
+                          {monthNotices.map((n: any) => (
+                            <MeetingNotice key={n._id} notice={n} />
+                          ))}
+                        </div>
+                      )
+                    }
+                  >
+                    {docs.length === 0 && (
+                      <p className="text-sm text-gray-600">Papers for this meeting will be published here.</p>
+                    )}
+                    {docs.sort(sortWithinMeeting).map((doc: any) => (
                       <div key={doc._id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white px-4 py-3 hover:border-green/20 hover:bg-green/5 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium capitalize text-primary whitespace-nowrap">

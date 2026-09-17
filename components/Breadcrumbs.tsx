@@ -28,6 +28,7 @@ const labelMap: Record<string, string> = {
   groups: "Groups",
   "what-we-do": "What We Do",
   services: "Services",
+  "calendar-of-meetings": "Calendar of Meetings",
 };
 
 function prettify(segment: string): string {
