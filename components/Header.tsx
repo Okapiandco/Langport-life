@@ -55,13 +55,13 @@ const navigation: NavItem[] = [
     mega: {
       columnLayout: true,
       groups: [
-        { heading: "Accommodation", image: "/nav-accommodation.jpg", items: [{ name: "Hotels & B&Bs", href: "/listings?category=Accommodation" }, { name: "Self-Catering", href: "/listings?category=Accommodation" }, { name: "View All Accommodation", href: "/listings?category=Accommodation" }] },
-        { heading: "Shops", image: "/nav-shops.jpg", items: [{ name: "All Shops", href: "/listings?category=Shops" }, { name: "Gallery", href: "/listings?category=Gallery" }, { name: "Outdoor", href: "/listings?category=Outdoor" }] },
-        { heading: "Food & Drink", image: "/nav-food-drink.jpg", items: [{ name: "Cafés & Coffee", href: "/listings?category=Cafe" }, { name: "Pubs & Bars", href: "/listings?category=Pub" }, { name: "Restaurants", href: "/listings?category=Restauraunt" }, { name: "Takeaways", href: "/listings?category=Takeaway" }] },
-        { heading: "Browse All", image: "/nav-explore.jpg", items: [{ name: "View All Listings", href: "/listings" }, { name: "Add Your Business", href: "/submit/listing" }] },
+        { heading: "Accommodation", image: "/nav-accommodation.jpg", items: [{ name: "Places to stay", href: "/listings?category=Accommodation" }] },
+        { heading: "Shops", image: "/nav-shops.jpg", items: [{ name: "Shops and galleries", href: "/listings?category=Shops" }] },
+        { heading: "Food & Drink", image: "/nav-food-drink.jpg", items: [{ name: "Cafés, pubs and takeaways", href: "/listings?category=Food%20%26%20Drink" }] },
+        { heading: "Services", image: "/nav-explore.jpg", items: [{ name: "Trades, health and local services", href: "/listings?category=Services" }] },
       ],
       footerLink: { label: "View all listings", href: "/listings" },
-      footerSecondary: { label: "How it works", href: "/guides/how-to-list" },
+      footerSecondary: { label: "Add your business", href: "/submit/listing" },
     },
   },
   { name: "History", href: "/history" },
