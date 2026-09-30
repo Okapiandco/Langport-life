@@ -97,6 +97,13 @@ const BY_TITLE = {
   "Langport Vintage": SHOP,
   "MAKE Emporium": SHOP,
   "The Handmade Gallery - 369 Bow St": SHOP,
+  // added after the first pass
+  "Kitchen Envy": SERV,
+  "The Coven Tattoo Studio": SERV,
+  "Koleman Creative Picture Framing": SERV,
+  "Parrett Trail Bikes": SERV,
+  "The Langport Stores": SHOP,
+  "Shakspeare Glass & Arts": SHOP,
 };
 
 /** Obvious test entries: left alone rather than deleted */
