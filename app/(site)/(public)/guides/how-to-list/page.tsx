@@ -107,7 +107,7 @@ export default function HowToListPage() {
             Some listings were added by our team from public information before the self-serve system launched. If you own the business or run the group, you can take over management of it.
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Email <a href="mailto:office@langport.life" className="text-primary hover:underline font-medium">office@langport.life</a> with your name, the listing name, and a way to verify you&rsquo;re the owner (e.g. an email from the business domain, or a link to your Facebook page). We&rsquo;ll send you a personal edit link within a day or two.
+            Email <a href="mailto:office@langport.life" className="text-primary hover:underline font-medium">office@langport.life</a> with your name, the listing name, and a way to verify you&rsquo;re the owner (e.g. an email from the business domain, or a link to your Facebook page). We&rsquo;ll email you a personal edit link, usually the same working day.
           </p>
         </section>
 

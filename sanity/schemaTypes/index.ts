@@ -4,6 +4,7 @@ import { businessListing } from "./businessListing";
 import { councilMember } from "./councilMember";
 import { councilDocument } from "./councilDocument";
 import { meetingNotice } from "./meetingNotice";
+import { editLinkRequest } from "./editLinkRequest";
 import { staffMember } from "./staffMember";
 import { historicSite } from "./historicSite";
 import { page } from "./page";
@@ -43,4 +44,7 @@ export const schemaTypes = [
 
   // Submissions (public form inbox)
   submission,
+
+  // Housekeeping: short-lived, written by the Send edit link action
+  editLinkRequest,
 ];

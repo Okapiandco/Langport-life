@@ -7,9 +7,14 @@ import { structure } from "./sanity/structure";
 import { ApprovalsTool } from "./sanity/tools/ApprovalsTool";
 import { BulkUploadTool } from "./sanity/tools/BulkUploadTool";
 import { HelpTool } from "./sanity/tools/HelpTool";
+import { EDIT_LINK_TYPES, SendEditLinkAction } from "./sanity/actions/sendEditLink";
 
 // Singleton types that should not appear in "Create new document" menu
 const singletonTypes = new Set(["siteSettings", "navigation"]);
+
+// Written by the Send edit link action and deleted by the server moments later,
+// so it should never be created by hand
+const hiddenTypes = new Set(["editLinkRequest"]);
 
 export default defineConfig({
   name: "langport-life",
@@ -45,7 +50,10 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
     templates: (templates) =>
-      templates.filter(({ schemaType }) => !singletonTypes.has(schemaType)),
+      templates.filter(
+        ({ schemaType }) =>
+          !singletonTypes.has(schemaType) && !hiddenTypes.has(schemaType)
+      ),
   },
   document: {
     actions: (input, context) =>

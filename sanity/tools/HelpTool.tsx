@@ -182,7 +182,36 @@ export function HelpTool() {
           </Stack>
         </Section>
 
-        <Section number="7" title="News articles">
+        <Section number="7" title="Sending someone their edit link">
+          <P>
+            A business, organiser or group can keep their own entry up to date
+            using a private edit link. Anyone who filled in a form on the
+            website already has one. For the listings we imported from the old
+            site, and for anyone who has lost theirs, you send it:
+          </P>
+          <Stack space={2}>
+            <Step>Open the listing, event, venue or group in Structure.</Step>
+            <Step>
+              Click the arrow next to <strong>Publish</strong> at the bottom of
+              the screen and choose <strong>Send edit link</strong>.
+            </Step>
+            <Step>
+              Check the email address (it fills in the one saved on the listing)
+              and press <strong>Send link</strong>.
+            </Step>
+          </Stack>
+          <P>
+            Before sending, make sure the person really is the owner — anyone
+            with the link can edit that entry. Sending a new link stops any
+            previous one working, which is also how you take access away.
+          </P>
+          <P>
+            Their changes do not go straight onto the website: an edited entry
+            comes back to <strong>Approvals</strong> for you to check first.
+          </P>
+        </Section>
+
+        <Section number="8" title="News articles">
           <P>
             <strong>Structure → Articles &amp; News → All Articles</strong>.
             Create an article with a title, category, a short excerpt (this
@@ -192,7 +221,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="8" title="Events, venues, groups and listings">
+        <Section number="9" title="Events, venues, groups and listings">
           <P>
             You can add these directly too (not just via public submissions):{" "}
             <strong>Structure → Events / Venues / Business Listings / Groups</strong>.
@@ -203,7 +232,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="9" title="Councillors and staff">
+        <Section number="10" title="Councillors and staff">
           <P>
             <strong>Structure → Council → Members</strong> for councillors and{" "}
             <strong>Council → Staff</strong> for staff and volunteers. To
@@ -213,7 +242,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="10" title="General pages and site settings">
+        <Section number="11" title="General pages and site settings">
           <P>
             Standalone pages (About, policies and so on) live under{" "}
             <strong>Structure → Pages</strong>. The homepage cards, welcome
@@ -224,7 +253,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="11" title="Good habits">
+        <Section number="12" title="Good habits">
           <Stack space={2}>
             <Step>
               Give documents clear titles — they become the link text people
