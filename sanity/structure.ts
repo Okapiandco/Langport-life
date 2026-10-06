@@ -241,6 +241,13 @@ export const structure: StructureResolver = (S, context) =>
                       '_type == "businessListing" && status == "pendingApproval"'
                     )
                 ),
+              S.listItem()
+                .title("Closed / no longer trading")
+                .child(
+                  S.documentTypeList("businessListing")
+                    .title("Closed Listings")
+                    .filter('_type == "businessListing" && status == "closed"')
+                ),
               S.divider(),
               S.listItem()
                 .title("All Listings")

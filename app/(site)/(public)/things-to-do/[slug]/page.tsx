@@ -7,7 +7,7 @@ import { client, urlFor } from "@/lib/sanity";
 import { activityBySlugQuery, allActivitiesQuery } from "@/lib/queries";
 import PageHero from "@/components/PageHero";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 

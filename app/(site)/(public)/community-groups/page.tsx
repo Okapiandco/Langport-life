@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Find local groups, clubs and societies in and around Langport, Somerset.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 interface GroupListItem {
   _id: string;

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Discover outdoor activities, walks, cycling routes, and wildlife around Langport and the Somerset Levels.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const categoryMeta: Record<string, { label: string; color: string; description: string }> = {
   exploring: {

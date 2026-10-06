@@ -171,9 +171,10 @@ export function HelpTool() {
               submissions appear there with who sent them.
             </Step>
             <Step>
-              Click a submission to read it, then use <strong>Approve</strong>{" "}
-              or <strong>Reject</strong>. Approving publishes it to the site;
-              you also get an email when new submissions arrive.
+              Each one shows its photo, dates and description. Press{" "}
+              <strong>Open</strong> to see the whole entry in a new tab, then{" "}
+              <strong>Approve</strong> or <strong>Reject</strong>. Approving
+              publishes it; you also get an email when new submissions arrive.
             </Step>
             <Step>
               Submitters receive an edit link by email. If they change a
@@ -182,7 +183,35 @@ export function HelpTool() {
           </Stack>
         </Section>
 
-        <Section number="7" title="Sending someone their edit link">
+        <Section number="7" title="A business that has closed">
+          <P>
+            Open the listing, set <strong>Status</strong> to{" "}
+            <strong>Closed / no longer trading</strong> and publish. It comes
+            off the website straight away and stops sitting in Approvals, but
+            the record is kept in case they reopen. You will find them under{" "}
+            <strong>Business Listings &rarr; Closed / no longer trading</strong>.
+          </P>
+          <P>
+            Putting one back is the same in reverse: set Status to Published.
+            Use <strong>Delete</strong> (in the menu beside Publish) only when a
+            record should disappear for good.
+          </P>
+        </Section>
+
+        <Section number="8" title="Checking a venue or business is in the right place">
+          <P>
+            The <strong>Coordinates</strong> field now shows a map with the pin
+            on it. Drag the marker, or click the map, to move it, then tick{" "}
+            <strong>Coordinates Verified</strong> underneath. No need to check
+            the website afterwards.
+          </P>
+          <P>
+            If there is no pin yet, press <strong>Place pin from address</strong>{" "}
+            and it will use the address on the listing.
+          </P>
+        </Section>
+
+        <Section number="9" title="Sending someone their edit link">
           <P>
             A business, organiser or group can keep their own entry up to date
             using a private edit link. Anyone who filled in a form on the
@@ -211,7 +240,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="8" title="News articles">
+        <Section number="10" title="News articles">
           <P>
             <strong>Structure → Articles &amp; News → All Articles</strong>.
             Create an article with a title, category, a short excerpt (this
@@ -221,7 +250,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="9" title="Events, venues, groups and listings">
+        <Section number="11" title="Events, venues, groups and listings">
           <P>
             You can add these directly too (not just via public submissions):{" "}
             <strong>Structure → Events / Venues / Business Listings / Groups</strong>.
@@ -232,7 +261,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="10" title="Councillors and staff">
+        <Section number="12" title="Councillors and staff">
           <P>
             <strong>Structure → Council → Members</strong> for councillors and{" "}
             <strong>Council → Staff</strong> for staff and volunteers. To
@@ -242,7 +271,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="11" title="General pages and site settings">
+        <Section number="13" title="General pages and site settings">
           <P>
             Standalone pages (About, policies and so on) live under{" "}
             <strong>Structure → Pages</strong>. The homepage cards, welcome
@@ -253,7 +282,7 @@ export function HelpTool() {
           </P>
         </Section>
 
-        <Section number="12" title="Good habits">
+        <Section number="14" title="Good habits">
           <Stack space={2}>
             <Step>
               Give documents clear titles — they become the link text people

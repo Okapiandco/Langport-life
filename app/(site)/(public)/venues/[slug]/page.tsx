@@ -10,7 +10,7 @@ import { eventHref } from "@/lib/eventDates";
 import { formatDateTime, getFacilityLabel } from "@/lib/utils";
 import Gallery from "@/components/Gallery";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 

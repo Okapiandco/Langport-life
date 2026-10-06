@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Access Langport Town Council meeting agendas, minutes and supporting papers.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function AgendasMinutesPage() {
   const counts = await client.fetch(documentTagCountsQuery);

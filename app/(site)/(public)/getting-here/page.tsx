@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "How to get to Langport, Somerset by train, bus, car, and bicycle. Parking information and travel tips.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 function TrainIcon() {
   return (

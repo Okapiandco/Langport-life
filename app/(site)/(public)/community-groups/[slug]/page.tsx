@@ -8,7 +8,7 @@ import { groupBySlugQuery } from "@/lib/queries";
 import { expandEvents } from "@/lib/recurrence";
 import { formatDate } from "@/lib/utils";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://langport.life";
 

@@ -12,7 +12,7 @@ import {
   Text,
   useToast,
 } from "@sanity/ui";
-import { CheckmarkCircleIcon, CloseIcon, RefreshIcon } from "@sanity/icons";
+import { CheckmarkCircleIcon, CloseIcon, EyeOpenIcon, RefreshIcon } from "@sanity/icons";
 import { useClient } from "sanity";
 
 // The four submittable types and what "approved" / "rejected" means for each.
@@ -38,7 +38,11 @@ const PENDING_QUERY = `*[
   "displayTitle": coalesce(title, name),
   submittedBy,
   "contact": coalesce(contactEmail, email, ownerEmail),
-  date
+  date,
+  "summary": pt::text(description),
+  "imageUrl": image.asset->url,
+  "where": coalesce(venueName, venue->title, street, location, town),
+  "slug": slug.current
 }`;
 
 interface PendingDoc {
@@ -49,6 +53,10 @@ interface PendingDoc {
   submittedBy?: string;
   contact?: string;
   date?: string;
+  summary?: string;
+  imageUrl?: string;
+  where?: string;
+  slug?: string;
 }
 
 function fmtDate(iso?: string): string {
@@ -210,13 +218,23 @@ export function ApprovalsTool() {
                 <Stack space={2}>
                   {group.map((doc) => (
                     <Card key={doc._id} padding={3} radius={2} tone="transparent" border>
-                      <Flex align="center" justify="space-between" gap={3}>
+                      <Flex align="flex-start" justify="space-between" gap={3}>
+                        {doc.imageUrl && (
+                          <img
+                            src={`${doc.imageUrl}?w=160&h=120&fit=crop`}
+                            alt=""
+                            width={80}
+                            height={60}
+                            style={{ borderRadius: 4, objectFit: "cover", flexShrink: 0 }}
+                          />
+                        )}
                         <Box flex={1}>
                           <Text weight="semibold">{doc.displayTitle ?? "(untitled)"}</Text>
                           <Box marginTop={2}>
                             <Text size={1} muted>
                               {[
                                 doc.date ? `When: ${fmtDate(doc.date)}` : null,
+                                doc.where ? `Where: ${doc.where}` : null,
                                 doc.submittedBy ? `By: ${doc.submittedBy}` : doc.contact ? `Contact: ${doc.contact}` : null,
                                 `Submitted: ${fmtDate(doc._createdAt)}`,
                               ]
@@ -224,8 +242,25 @@ export function ApprovalsTool() {
                                 .join("  ·  ")}
                             </Text>
                           </Box>
+                          {doc.summary && (
+                            <Box marginTop={2}>
+                              <Text size={1} style={{ lineHeight: 1.5 }}>
+                                {doc.summary.length > 320 ? `${doc.summary.slice(0, 320)}…` : doc.summary}
+                              </Text>
+                            </Box>
+                          )}
                         </Box>
                         <Flex gap={2}>
+                          <Button
+                            icon={EyeOpenIcon}
+                            mode="ghost"
+                            text="Open"
+                            title="Open the full entry in a new tab"
+                            as="a"
+                            href={`/studio/intent/edit/id=${encodeURIComponent(doc._id)};type=${doc._type}/`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          />
                           <Button
                             icon={CheckmarkCircleIcon}
                             tone="positive"

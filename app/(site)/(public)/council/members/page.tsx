@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Meet the elected councillors and officers of Langport Town Council.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 function MemberCard({ member }: { member: any }) {
   return (

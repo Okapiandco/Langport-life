@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Explore the historic sites and heritage of Langport, Somerset.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 // Mosaic pattern: alternates between tall/wide/square cards
 const mosaicPatterns = [

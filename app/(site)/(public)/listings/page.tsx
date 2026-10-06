@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Find shops, services, food & drink, and more in Langport and the surrounding area.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function ListingsPage({
   searchParams,

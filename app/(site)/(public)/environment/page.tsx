@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Flooding information, environmental resources, and conservation for Langport and the Somerset Levels.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 function WaterIcon() {
   return (

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Discover venues in Langport — pubs, halls, gardens, and more.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function VenuesPage() {
   const venues = await client.fetch(allVenuesQuery);

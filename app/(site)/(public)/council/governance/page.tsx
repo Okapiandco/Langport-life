@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Langport Town Council standing orders, financial regulations, policies and procedures.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function GovernancePage() {
   // The calendar of meetings has its own page, so leave it out here

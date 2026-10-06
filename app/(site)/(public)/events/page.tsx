@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Discover events happening in and around Langport, Somerset.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function EventsPage() {
   const rawEvents = await client.fetch(allEventsQuery);

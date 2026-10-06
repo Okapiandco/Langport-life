@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Calendar view of events in and around Langport, Somerset.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 interface CalendarEventData {
   _id: string;

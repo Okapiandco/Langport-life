@@ -9,7 +9,7 @@ import { COMMITTEES, getCommitteeByTag } from "@/lib/committees";
 import PageHero from "@/components/PageHero";
 import CollapsibleSection from "@/components/CollapsibleSection";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 

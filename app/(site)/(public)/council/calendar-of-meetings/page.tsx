@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Dates of Langport Town Council and committee meetings for the municipal year.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function CalendarOfMeetingsPage() {
   const [current, ...previous] = await client.fetch(calendarOfMeetingsQuery);

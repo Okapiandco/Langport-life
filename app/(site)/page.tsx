@@ -8,7 +8,7 @@ import { expandEvents, dedupeBySeries, MAX_EXPANSION_MONTHS } from "@/lib/recurr
 import EventCard from "@/components/EventCard";
 import FadeIn from "@/components/FadeIn";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: { absolute: "Langport Life — What's On, Shops & Town Council News in Langport, Somerset" },

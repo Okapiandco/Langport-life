@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { MapPointInput } from "../components/MapPointInput";
 
 export const venue = defineType({
   name: "venue",
@@ -57,6 +58,7 @@ export const venue = defineType({
       name: "coordinates",
       title: "Coordinates",
       type: "geopoint",
+      components: { input: MapPointInput },
     }),
     defineField({
       name: "coordinatesVerified",

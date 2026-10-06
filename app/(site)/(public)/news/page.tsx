@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Latest news and stories from the Langport community in Somerset.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function NewsPage() {
   const [articles, categories] = await Promise.all([
