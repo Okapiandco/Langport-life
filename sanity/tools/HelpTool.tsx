@@ -119,7 +119,8 @@ export function HelpTool() {
             for their <strong>Meeting Date</strong>, so an agenda published in
             late August for a September meeting sits in September. If a document
             has no meeting date, its document date is used instead. Inside each
-            folder the agenda comes first, then supporting papers, then minutes.
+            folder the agenda comes first, then the minutes, then the
+            supporting papers.
           </P>
           <P>
             You can browse the same folders here under{" "}

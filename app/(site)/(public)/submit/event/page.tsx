@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import DateTimeFields from "@/components/DateTimeFields";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
@@ -86,9 +87,7 @@ export default function SubmitEventPage() {
   const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
   const [recurrenceEndTouched, setRecurrenceEndTouched] = useState(false);
 
-  function handleStartChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newStart = e.target.value;
-
+  function handleStartChange(newStart: string) {
     if (endTouched && endDate && startDate && newStart) {
       // User has set an end date — preserve their chosen duration by shifting.
       const oldStartMs = new Date(startDate).getTime();
@@ -115,8 +114,7 @@ export default function SubmitEventPage() {
     setStartDate(newStart);
   }
 
-  function handleEndChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  function handleEndChange(value: string) {
     setEndDate(value);
     // Treat clearing end as un-touching, so the next start change re-mirrors.
     setEndTouched(value !== "");
@@ -308,30 +306,24 @@ export default function SubmitEventPage() {
                 <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700">
                   Start Date & Time *
                 </label>
-                <input
-                  type="datetime-local"
+                <DateTimeFields
                   id="eventDate"
                   name="eventDate"
                   required
-                  step={900}
                   value={startDate}
                   onChange={handleStartChange}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div>
                 <label htmlFor="eventEndDate" className="block text-sm font-medium text-gray-700">
                   End Date & Time <span className="text-gray-400">(optional)</span>
                 </label>
-                <input
-                  type="datetime-local"
+                <DateTimeFields
                   id="eventEndDate"
                   name="eventEndDate"
-                  step={900}
                   value={endDate}
                   onChange={handleEndChange}
-                  min={startDate || undefined}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                  minDate={startDate ? startDate.split("T")[0] : undefined}
                 />
               </div>
             </div>

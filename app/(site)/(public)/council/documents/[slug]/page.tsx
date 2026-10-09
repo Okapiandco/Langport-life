@@ -57,9 +57,9 @@ export default async function CouncilDocumentOrCommitteePage({ params }: Props) 
 }
 
 /* ── Committee listing ── */
-const TYPE_RANK: Record<string, number> = { agenda: 0, minutes: 2 };
+const TYPE_RANK: Record<string, number> = { agenda: 0, minutes: 1 };
 
-/** Agenda first, supporting papers next, minutes last; then by title */
+/** Agenda first, then minutes, then the supporting papers; then by title */
 function sortWithinMeeting(a: any, b: any) {
   const rank = (TYPE_RANK[a.documentType] ?? 1) - (TYPE_RANK[b.documentType] ?? 1);
   if (rank !== 0) return rank;
