@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import ImageUploadField from "@/components/ImageUploadField";
+import DateTimeFields from "@/components/DateTimeFields";
 import { londonLocalToUtcIso } from "@/lib/londonTime";
 import { blocksToText, textToBlocks } from "@/lib/portableText";
 
@@ -115,6 +116,9 @@ export default function EditPage() {
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState("");
   const [recurrenceFreq, setRecurrenceFreq] = useState("none");
+  // Event start/end are controlled so the time dropdown can drive them
+  const [eventStart, setEventStart] = useState("");
+  const [eventEnd, setEventEnd] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   // ── Load document ──
@@ -133,6 +137,8 @@ export default function EditPage() {
           setPin({ lat: data.coordinates.lat, lng: data.coordinates.lng });
         }
         setRecurrenceFreq(parseFreq(data.recurrenceRule));
+        setEventStart(toDatetimeLocal(data.date));
+        setEventEnd(toDatetimeLocal(data.endDate));
       })
       .catch(() => setLoadError("Could not load your submission. Please try again."));
   }, [token]);
@@ -365,13 +371,19 @@ export default function EditPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="date" className="block text-sm font-medium text-gray-700">Start Date & Time *</label>
-                  <input type="datetime-local" id="date" name="date" required defaultValue={toDatetimeLocal(doc.date)} className={inputClass} />
+                  <DateTimeFields id="date" name="date" required value={eventStart} onChange={setEventStart} />
                 </div>
                 <div>
                   <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
                     End Date & Time <span className="text-gray-400">(optional)</span>
                   </label>
-                  <input type="datetime-local" id="endDate" name="endDate" defaultValue={toDatetimeLocal(doc.endDate)} className={inputClass} />
+                  <DateTimeFields
+                    id="endDate"
+                    name="endDate"
+                    value={eventEnd}
+                    onChange={setEventEnd}
+                    minDate={eventStart ? eventStart.split("T")[0] : undefined}
+                  />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
