@@ -338,17 +338,19 @@ export default function Header({
               width={scrolled ? 160 : 220}
               height={scrolled ? 36 : 50}
               priority
+              // Narrower between 1024 and 1280, where the row is tightest
+              className="w-[170px] xl:w-auto h-auto"
             />
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden lg:flex lg:items-center lg:gap-1 relative">
+          <div className="hidden lg:flex lg:items-center lg:gap-0.5 xl:gap-1 relative whitespace-nowrap">
             {navItems.map((item) =>
               item.mega ? (
                 <div key={item.name}>
                   <button
                     onClick={() => toggleDropdown(item.name)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md no-underline transition-colors ${
+                    className={`px-2 xl:px-3 py-2 text-[13px] xl:text-sm font-medium rounded-md no-underline transition-colors ${
                       pathname.startsWith(item.href) ? "bg-primary/10 text-primary" : "text-gray-700 hover:bg-gray-100"
                     }`}
                     aria-expanded={openDropdown === item.name}
@@ -531,7 +533,7 @@ export default function Header({
                 <div key={item.name} className="relative">
                   <button
                     onClick={() => toggleDropdown(item.name)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md no-underline transition-colors ${
+                    className={`px-2 xl:px-3 py-2 text-[13px] xl:text-sm font-medium rounded-md no-underline transition-colors ${
                       pathname.startsWith(item.href) ? "bg-primary/10 text-primary" : "text-gray-700 hover:bg-gray-100"
                     }`}
                     aria-expanded={openDropdown === item.name}
@@ -556,7 +558,7 @@ export default function Header({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`px-3 py-2 text-sm font-medium rounded-md no-underline transition-colors ${
+                  className={`px-2 xl:px-3 py-2 text-[13px] xl:text-sm font-medium rounded-md no-underline transition-colors ${
                     pathname === item.href ? "bg-primary/10 text-primary" : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -566,7 +568,11 @@ export default function Header({
             )}
 
             {/* Compact search + social (visible when scrolled) */}
-            <div className={`flex items-center gap-2 ml-3 transition-all duration-300 ${scrolled ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+            <div
+              className={`hidden xl:flex items-center overflow-hidden transition-all duration-300 ${
+                scrolled ? "w-auto gap-2 ml-3 opacity-100" : "w-0 gap-0 ml-0 opacity-0 pointer-events-none"
+              }`}
+            >
               <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-400 hover:text-primary rounded-md hover:bg-gray-100 transition-colors" aria-label="Search">
                 <SearchIcon className="h-4 w-4" />
               </button>
