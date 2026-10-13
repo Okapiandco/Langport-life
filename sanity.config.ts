@@ -56,14 +56,20 @@ export default defineConfig({
       ),
   },
   document: {
-    actions: (input, context) =>
-      singletonTypes.has(context.schemaType)
-        ? input.filter(
-            ({ action }) =>
-              action &&
-              ["publish", "discardChanges", "restore"].includes(action)
-          )
-        : input,
+    actions: (input, context) => {
+      if (singletonTypes.has(context.schemaType)) {
+        return input.filter(
+          ({ action }) =>
+            action && ["publish", "discardChanges", "restore"].includes(action)
+        );
+      }
+      // Defining the action is not enough — it only reaches the document menu
+      // if it is added to this list.
+      if ((EDIT_LINK_TYPES as readonly string[]).includes(context.schemaType)) {
+        return [...input, SendEditLinkAction];
+      }
+      return input;
+    },
   },
   basePath: "/studio",
 });
