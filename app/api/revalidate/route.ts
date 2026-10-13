@@ -6,11 +6,17 @@ import { COMMITTEES } from "@/lib/committees";
 // Set up a webhook in Sanity at: https://www.sanity.io/manage
 // pointing to https://your-domain.com/api/revalidate
 // with a secret matching SANITY_REVALIDATE_SECRET in your .env
+//
+// The secret travels in the `x-revalidate-secret` header, not the query
+// string: query strings are recorded in Vercel's request logs and by any
+// proxy in between, which gives the shared secret a far wider audience than
+// it should have. Set it under "HTTP headers" on the Sanity webhook.
 
 export async function POST(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get("secret");
+  const expected = process.env.SANITY_REVALIDATE_SECRET;
+  const secret = req.headers.get("x-revalidate-secret");
 
-  if (secret !== process.env.SANITY_REVALIDATE_SECRET) {
+  if (!expected || secret !== expected) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
@@ -76,9 +82,8 @@ export async function POST(req: NextRequest) {
       type,
     });
   } catch (err) {
-    return NextResponse.json(
-      { message: "Error revalidating", error: String(err) },
-      { status: 500 }
-    );
+    // Log the detail, return none of it — raw error text can leak internals.
+    console.error("Revalidate error:", err);
+    return NextResponse.json({ message: "Error revalidating" }, { status: 500 });
   }
 }
