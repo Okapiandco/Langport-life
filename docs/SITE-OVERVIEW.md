@@ -218,7 +218,7 @@ and fail closed (401) if `CRON_SECRET` is unset.
 | `/api/contact` | POST | none (public) | Send contact-form email |
 | `/api/events`, `/api/listings`, `/api/venues` | GET | none | Published data as JSON (used by client filters) |
 | `/api/search` | GET | none | Search (min 2 chars) |
-| `/api/revalidate` | POST | `SANITY_REVALIDATE_SECRET` | Sanity webhook → on-demand cache refresh |
+| `/api/revalidate` | POST | `SANITY_REVALIDATE_SECRET` in the `x-revalidate-secret` header | Sanity webhook → on-demand cache refresh |
 | `/api/cron/*` | GET | `CRON_SECRET` | Scheduled jobs (see above) |
 
 ---
@@ -260,8 +260,8 @@ The findings below are the gaps worth addressing, in priority order.
 | **S1** | High (footgun) | ✅ Fixed in code · ⚠️ rotate token | `NEXT_PUBLIC_SANITY_API_TOKEN` (a secret write token under a public name) removed from `.env.local`. **Still revoke/rotate the token in Sanity** — it existed in plaintext. |
 | **S2** | Medium | ✅ Fixed | Detail pages rendered **unapproved** submissions: `eventBySlugQuery` / `venueBySlugQuery` / `listingBySlugQuery` had no status filter, so a pending/rejected item was viewable by URL (slugs are guessable), exposing submitter email & phone. Status filters now added (events: published/cancelled; venues: active; listings: published). |
 | **S3** | Medium | ✅ Fixed | Contact form silently returned success when `RESEND_API_KEY` was missing. Now returns a 500 error instead of dropping the message silently. |
-| **S4** | Medium | ⬜ Outstanding | No spam protection on public POST endpoints (`/api/submit`, `/api/upload-image`, `/api/contact`). No rate limit, CAPTCHA or honeypot — open to bot floods (junk pending docs, image-store abuse, inbox spam). Suggested fix: honeypot field + simple rate limit, or Cloudflare Turnstile. |
-| **S5** | Low | ✅ Fixed · ⚠️ update Sanity webhook | A strong `SANITY_REVALIDATE_SECRET` is now set in both `.env.local` and Vercel production. **The Sanity revalidate webhook URL must use the same value** in its `?secret=` query param or revalidation stays broken (it was previously 401-ing — the var was missing from Vercel entirely). |
+| **S4** | Medium | ✅ Fixed · ⚠️ partly | Honeypot fields on `/api/submit` and `/api/contact`, plus per-IP rate limits on all four public POST routes and both edit-token methods (`lib/rateLimit.server.ts`). Caveat: the limiter is in-memory, so on Vercel it only counts requests landing on the same warm instance. Move it to Vercel KV / Upstash, or add WAF rate-limit rules on those paths, if abuse appears. |
+| **S5** | Low | ✅ Fixed · ⚠️ update Sanity webhook | A strong `SANITY_REVALIDATE_SECRET` is set in both `.env.local` and Vercel production. **As of 13 Oct 2026 the route reads it from an `x-revalidate-secret` HTTP header, not a `?secret=` query param** — query strings end up in request logs. In sanity.io/manage, open the revalidate webhook, clear the secret from the URL and add it under "HTTP headers" as `x-revalidate-secret`. Until that is done the webhook 401s and content edits will not refresh the live site. |
 | **S6** | Low | ✅ Fixed | `CRON_SECRET` was missing from Vercel (both cron jobs were silently 401-ing and never running). A strong value is now set in Vercel production. Takes effect on next deploy. |
 | **S7** | Info | — | Edit tokens never expire and travel in plaintext email. UUIDs are unguessable, but a forwarded email grants permanent edit access to that one submission. Acceptable; add expiry only if desired. |
 | **S8** | Info | — | `/studio` is publicly reachable but gated by Sanity login. Keep project membership limited and enable 2FA on Sanity accounts. |

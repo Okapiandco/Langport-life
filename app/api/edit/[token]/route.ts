@@ -47,11 +47,20 @@ const docByIdQuery = groq`*[_id == $id][0]{
 const docStatusByIdQuery = groq`*[_id == $id][0]{ _id, _type, status }`;
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
   if (!token) return NextResponse.json({ error: "Missing token." }, { status: 400 });
+
+  // Same throttle as PATCH. This is the response that returns the submitter's
+  // contact details, so it must not be the cheaper way to guess at tokens.
+  if (!checkRateLimit(`edit-read:${clientIp(req)}`, 20, 10 * 60_000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a few minutes and try again." },
+      { status: 429 }
+    );
+  }
 
   const record = await lookupEditToken(token).catch(() => null);
   if (!record) {
