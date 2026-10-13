@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/lib/sanity";
-import { formatDate } from "@/lib/utils";
 
 interface NewsSearchProps {
   articles: any[];
