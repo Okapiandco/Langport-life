@@ -9,6 +9,12 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    // Studio tools and document actions cannot be click-tested on localhost
+    // (the dev port is not an allowed Sanity CORS origin), so one that is
+    // defined but never registered ships silently — which is exactly how the
+    // "Send edit link" action sat dead from 1 Oct. An unused import is the
+    // tell, so make it a build failure.
+    "noUnusedLocals": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

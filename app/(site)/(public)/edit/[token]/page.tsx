@@ -76,12 +76,6 @@ function toDatetimeLocal(iso: string | undefined): string {
   return `${p("year")}-${p("month")}-${p("day")}T${p("hour")}:${p("minute")}`;
 }
 
-function localToUTCISO(v: FormDataEntryValue | null): string | undefined {
-  if (!v) return undefined;
-  const d = new Date(v as string);
-  return isNaN(d.getTime()) ? undefined : d.toISOString();
-}
-
 function parseFreq(rule: string | undefined): string {
   if (!rule) return "none";
   const r = rule.replace(/^RRULE:/, "");

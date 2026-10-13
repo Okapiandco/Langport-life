@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { client } from "@/lib/sanity";
 import { siteSettingsQuery } from "@/lib/queries";
-import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Environment & Flooding in Langport",
