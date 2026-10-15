@@ -218,11 +218,15 @@ export default async function GroupDetailPage({ params }: Props) {
                   <div>
                     <dt className="font-medium text-gray-900">Email</dt>
                     <dd>
+                      {/* Label, not the address itself: group contacts are
+                          often a volunteer's personal email. Cosmetic only —
+                          the address is still in the href, and still readable
+                          from the public Sanity dataset. */}
                       <a
                         href={`mailto:${group.contactEmail}`}
                         className="text-primary hover:text-primary-dark"
                       >
-                        {group.contactEmail}
+                        Send an email
                       </a>
                     </dd>
                   </div>

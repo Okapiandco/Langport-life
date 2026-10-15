@@ -417,12 +417,16 @@ export default async function EventPage({ params, searchParams }: Props) {
                 <div className="mt-2 space-y-1.5 text-sm text-gray-700">
                   {event.organiser && <p>Organised by {event.organiser}</p>}
                   {event.contactName && <p>{event.contactName}</p>}
+                  {/* Label, not the address itself: organiser addresses are
+                      often someone's personal email. Note this is cosmetic —
+                      the address is still in the href, and still readable from
+                      the public Sanity dataset. */}
                   {event.contactEmail && (
                     <a
                       href={`mailto:${event.contactEmail}`}
                       className="block text-primary hover:text-primary-dark"
                     >
-                      {event.contactEmail}
+                      Email the organiser
                     </a>
                   )}
                   {event.contactPhone && (
